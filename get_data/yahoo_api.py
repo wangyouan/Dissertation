@@ -20,4 +20,4 @@ def get_all_date_about_stock(symbol):
 
 
 if __name__ == "__main__":
-    get_all_date_about_stock("1988.HK")
+    get_all_date_about_stock("0001.HK")
