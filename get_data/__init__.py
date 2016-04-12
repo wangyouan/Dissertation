@@ -2,7 +2,6 @@
 # -*- coding: utf-8 -*-
 
 # Project: Dissertation
-# File name: mean_average_algorithm
+# File name: __init__.py
 # Author: Mark Wang
-# Date: 8/4/2016
-
+# Date: 12/4/2016
