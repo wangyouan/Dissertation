@@ -5,6 +5,7 @@
 # File name: linear_regression
 # Author: Mark Wang
 # Date: 1/4/2016
+# TODO: Add one n days version use highest, lowest, average close price, average open price as input
 
 from pyspark import SparkContext
 from pyspark.mllib.regression import LabeledPoint, LinearRegressionWithSGD
@@ -18,6 +19,12 @@ logger.LogManager.getLogger("akka").setLevel(logger.Level.OFF)
 
 
 def calculate_data(path=r'../data/0003.HK.csv'):
+    """
+    Use linear regression with SGD to predict the stock price
+    Input are last day, high, low, open and close price, directly output result
+    :param path: Data file path
+    :return: None
+    """
 
     # Read date from given file
     f = open(path)
