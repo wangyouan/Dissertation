@@ -7,6 +7,8 @@
 # Date: 1/4/2016
 # TODO: Add one n days version use highest, lowest, average close price, average open price as input
 
+import os
+
 from pyspark import SparkContext
 from pyspark.mllib.regression import LabeledPoint, LinearRegressionWithSGD
 
@@ -30,14 +32,14 @@ def calculate_data(path=r'../data/0003.HK.csv'):
     f = open(path)
     data_str = f.read()
     f.close()
-    data_list = [map(float, i.split(',')[1:5] + i.split(',')[6:7]) for i in data_str.split('\n')[1:]]
+    data_list = [map(float, i.split(',')[1:5]) for i in data_str.split('\n')[1:]]
     data_list = list(reversed(data_list))
     close_train_list = []
     open_train_list = []
     data_len = len(data_list)
 
     # Using 90% data as training data, the remaining data as testing data
-    train_data_len = int(data_len * 0.9)
+    train_data_len = int(data_len * 0.8)
     for i in xrange(1, train_data_len):
         close_price = data_list[i + 1][3]
         open_price = data_list[i + 1][0]
@@ -50,7 +52,7 @@ def calculate_data(path=r'../data/0003.HK.csv'):
 
     # Training model
     close_model = LinearRegressionWithSGD.train(close_train_data, step=0.001, iterations=1000)
-    open_model = LinearRegressionWithSGD.train(open_train_data, step=0.001, iterations=2000)
+    open_model = LinearRegressionWithSGD.train(open_train_data, step=0.001, iterations=1000)
 
     close_test_data_list = []
     open_test_data_list = []
@@ -78,5 +80,8 @@ def calculate_data(path=r'../data/0003.HK.csv'):
 
 
 if __name__ == "__main__":
-    calculate_data()
+    stock_symbol = ['0001.HK', '0002.HK', '0003.HK', '0004.HK', '0005.HK']
+    for symbol in stock_symbol:
+        path = os.path.join(r'../data', '{}.csv'.format(symbol))
+        calculate_data(path)
     sc.stop()
