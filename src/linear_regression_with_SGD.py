@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 # Project: Dissertation
-# File name: linear_regression
+# File name: linear_regression_with_SGD
 # Author: Mark Wang
 # Date: 1/4/2016
 # TODO: Add one n days version use highest, lowest, average close price, average open price as input
