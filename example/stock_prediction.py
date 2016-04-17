@@ -310,3 +310,8 @@ def performQDAClass(X_train, y_train, X_test, y_test, parameters, fout, savemode
     accuracy = clf.score(X_test, y_test)
 
     return accuracy
+
+
+if __name__ == "__main__":
+    a = getStockDataFromWeb()
+    print len(a)

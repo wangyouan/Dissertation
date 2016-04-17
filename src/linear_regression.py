@@ -17,13 +17,13 @@ logger.LogManager.getLogger("org").setLevel(logger.Level.OFF)
 logger.LogManager.getLogger("akka").setLevel(logger.Level.OFF)
 
 
-def calculate_data(path=r'../data/0001.HK.csv'):
+def calculate_data(path=r'../data/0003.HK.csv'):
 
     # Read date from given file
     f = open(path)
     data_str = f.read()
     f.close()
-    data_list = [map(float, i.split(',')[1:5]) for i in data_str.split('\n')[1:]]
+    data_list = [map(float, i.split(',')[1:5] + i.split(',')[6:7]) for i in data_str.split('\n')[1:]]
     data_list = list(reversed(data_list))
     close_train_list = []
     open_train_list = []
@@ -42,8 +42,8 @@ def calculate_data(path=r'../data/0001.HK.csv'):
     open_train_data = sc.parallelize(open_train_list)
 
     # Training model
-    close_model = LinearRegressionWithSGD.train(close_train_data, step=0.0001)
-    open_model = LinearRegressionWithSGD.train(open_train_data, step=0.0001)
+    close_model = LinearRegressionWithSGD.train(close_train_data, step=0.001, iterations=1000)
+    open_model = LinearRegressionWithSGD.train(open_train_data, step=0.001, iterations=2000)
 
     close_test_data_list = []
     open_test_data_list = []
@@ -66,8 +66,8 @@ def calculate_data(path=r'../data/0001.HK.csv'):
     # predict open data test
     open_value_predict = open_test_data.map(lambda p: (p.label, open_model.predict(p.features)))
     MSE = open_value_predict.map(lambda (v, p): (v - p) ** 2).reduce(lambda x, y: x + y) / open_value_predict.count()
-    print("Close Mean Squared Error = " + str(MSE))
-    print "Close Model coefficients:", str(open_model)
+    print("Open Mean Squared Error = " + str(MSE))
+    print "Open Model coefficients:", str(open_model)
 
 
 if __name__ == "__main__":
