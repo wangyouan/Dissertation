@@ -12,6 +12,9 @@ import os
 from pyspark import SparkContext
 from pyspark.mllib.regression import LabeledPoint, LinearRegressionWithSGD
 
+from parse_data import DataParser
+from constant import *
+
 sc = SparkContext(appName="LinearRegressionPredict")
 
 # Close logger
@@ -79,9 +82,62 @@ def calculate_data(path=r'../data/0003.HK.csv'):
     print "Open Model coefficients:", str(open_model)
 
 
+def calculate_data_normalized(path=r'../data/0003.HK.csv', windows=5):
+    """
+    Use linear regression with SGD to predict the stock price
+    Input are last day, high, low, open and close price, directly output result
+    :param path: Data file path
+    :return: None
+    """
+
+    # Read date from given file
+    data = DataParser(path=path, window_size=windows)
+
+    data_list = data.load_data_from_yahoo_csv()
+    close_data, open_data = data.get_n_days_history_data(data_list, data_type=LABEL_POINT)
+    train_data_len = int(len(open_data) * 0.8)
+
+    close_train_data = sc.parallelize(close_data[:train_data_len])
+    open_train_data = sc.parallelize(open_data[:train_data_len])
+
+    # Training model
+    close_model = LinearRegressionWithSGD.train(close_train_data, step=0.0001, iterations=1000)
+    open_model = LinearRegressionWithSGD.train(open_train_data, step=0.0001, iterations=1000)
+
+    close_test_data = sc.parallelize(close_data[(train_data_len - 1):])
+    open_test_data = sc.parallelize(open_data[(train_data_len - 1):])
+
+    def normalize_label_point(p):
+        return p.label * (p.features[1] - p.features[2]) / 2 + (p.features[1] + p.features[2]) / 2
+
+    def normalize_data(label, features):
+        return label * (features[1] - features[2]) / 2 + (features[1] + features[2]) / 2
+
+    # #de normalized data
+    # close_test_data = close_test_data.map(normalize)
+    # open_test_data = close_test_data.map(normalize)
+
+    # predict close data test
+    close_value_predict = close_test_data.map(lambda p: (normalize_label_point(p),
+                                                         normalize_data(close_model.predict(p.features), p.features)))
+    MSE = close_value_predict.map(lambda (v, p): (v - p) ** 2).reduce(lambda x, y: x + y) / close_value_predict.count()
+    print("Close Mean Squared Error = " + str(MSE))
+    print "Close Model coefficients:", str(close_model)
+
+    # predict open data test
+    open_value_predict = open_test_data.map(lambda p: (normalize_label_point(p),
+                                                       normalize_data(close_model.predict(p.features), p.features)))
+    MSE = open_value_predict.map(lambda (v, p): (v - p) ** 2).reduce(lambda x, y: x + y) / open_value_predict.count()
+    print("Open Mean Squared Error = " + str(MSE))
+    print "Open Model coefficients:", str(open_model)
+
+
 if __name__ == "__main__":
     stock_symbol = ['0001.HK', '0002.HK', '0003.HK', '0004.HK', '0005.HK']
     for symbol in stock_symbol:
         path = os.path.join(r'../data', '{}.csv'.format(symbol))
-        calculate_data(path)
+        # calculate_data(path)
+        for window in range(1, 9):
+            calculate_data_normalized(path, windows=window)
+        break
     sc.stop()
