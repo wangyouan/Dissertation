@@ -39,17 +39,31 @@ class DataParser(object):
         data_list = self.load_data_from_yahoo_csv()
         close_data, open_data, self.features = self.__get_time_series_data(data_list=data_list, window_size=n_days)
 
-    def normalize_data(self, close_data, open_data, features=None):
+    def normalize_data(self, close_data=None, open_data=None, features=None):
         if features is None:
             features = self.features
 
         data_len = len(features)
 
-        for i in range(data_len):
-            pass
+        def normalize(price, max_price, min_price):
+            return ((2 * price - (max_price + min_price)) / (max_price - min_price))
 
-    def denormalize_data(self, close_data, open_data, features):
-        pass
+        close_normalize_data = []
+        open_normalize_data = []
+        for i in range(data_len):
+            if close_data:
+                close_price = normalize(close_data[i], features[i][1], features[i][2])
+                close_normalize_data.append((features[i], close_price))
+
+            if open_data:
+                open_price = normalize(open_data[i], features[i][1], features[i][2])
+                open_normalize_data.append((features[i], open_price))
+
+        return open_normalize_data, close_normalize_data
+
+    def de_normalize_data(self, close_data, open_data, features):
+        def de_normalize(price, max_price, min_price):
+            return (price * (max_price - min_price)) / 2 + (max_price + min_price) / 2
 
     def load_data_from_yahoo_csv(self, path=None):
         if path is None:
