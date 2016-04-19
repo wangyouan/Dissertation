@@ -5,7 +5,6 @@
 # File name: linear_regression_with_SGD
 # Author: Mark Wang
 # Date: 1/4/2016
-# TODO: Add one n days version use highest, lowest, average close price, average open price as input
 
 import os
 
@@ -136,8 +135,10 @@ if __name__ == "__main__":
     stock_symbol = ['0001.HK', '0002.HK', '0003.HK', '0004.HK', '0005.HK']
     for symbol in stock_symbol:
         path = os.path.join(r'../data', '{}.csv'.format(symbol))
-        # calculate_data(path)
-        for window in range(1, 9):
+        print "Non normalize version"
+        calculate_data(path)
+
+        print "Normalized version"
+        for window in range(1, 2):
             calculate_data_normalized(path, windows=window)
-        break
     sc.stop()

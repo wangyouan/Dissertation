@@ -63,11 +63,13 @@ class DataParser(object):
                 close_row.append(PriceData(feature, close_normalized[i]))
                 open_row.append(PriceData(feature, open_normalized[i]))
 
-            if sql_context is None:
+            if sql_context is None or spark_context is None:
                 return close_row, open_row
             else:
-                close_data_frame = sql_context.createDataFrame(close_row)
-                open_data_frame = sql_context.createDataFrame(open_row)
+                close_rdd = spark_context.parallelize(close_row)
+                open_rdd = spark_context.parallelize(open_row)
+                close_data_frame = sql_context.createDataFrame(close_rdd)
+                open_data_frame = sql_context.createDataFrame(open_rdd)
                 return close_data_frame, open_data_frame
         elif data_type == LABEL_POINT:
             close_labels = []
