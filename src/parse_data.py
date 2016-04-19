@@ -6,10 +6,11 @@
 # Author: Mark Wang
 # Date: 17/4/2016
 
-from pyspark.sql import Row
-from pyspark.sql import SQLContext
 from pyspark import SparkContext
+from pyspark.sql import Row, SQLContext
+from pyspark.sql.types import *
 from pyspark.mllib.regression import LabeledPoint
+from pyspark.mllib.linalg import SparseVector, VectorUDT
 
 from constant import *
 
@@ -52,24 +53,23 @@ class DataParser(object):
         open_normalized, close_normalized = self.normalize_data(close_data=close_data, open_data=open_data,
                                                                 features=self.features)
         if data_type == DATA_FRAME:
-            PriceData = Row("features", "labels")
-            FeatureData = Row(OPEN, HIGH, LOW, CLOSE)
+            # PriceData = Row("features", "labels")
+            # FeatureData = Row(OPEN, HIGH, LOW, CLOSE)
             close_row = []
             open_row = []
 
             for i in range(len(self.features)):
-                feature = FeatureData(self.features[i][0], self.features[i][1], self.features[i][2],
-                                      self.features[i][3])
-                close_row.append(PriceData(feature, close_normalized[i]))
-                open_row.append(PriceData(feature, open_normalized[i]))
+                feature = SparseVector(4, [(k, j) for k, j in enumerate(self.features[i])])
+                close_row.append((close_normalized[i], feature))
+                open_row.append((open_normalized[i], feature))
 
             if sql_context is None or spark_context is None:
                 return close_row, open_row
             else:
-                close_rdd = spark_context.parallelize(close_row)
-                open_rdd = spark_context.parallelize(open_row)
-                close_data_frame = sql_context.createDataFrame(close_rdd)
-                open_data_frame = sql_context.createDataFrame(open_rdd)
+                close_data_frame = self.convert_to_data_frame(input_rows=close_row, sql=sql_context,
+                                                              sc=spark_context)
+                open_data_frame = self.convert_to_data_frame(input_rows=open_row, sql=sql_context,
+                                                             sc=spark_context)
                 return close_data_frame, open_data_frame
         elif data_type == LABEL_POINT:
             close_labels = []
@@ -86,6 +86,13 @@ class DataParser(object):
                 open_data = spark_context.parallelize(open_labels)
                 return close_data, open_data
 
+    @staticmethod
+    def convert_to_data_frame(input_rows, sql, sc):
+        schema = StructType([StructField(LABEL, DoubleType(), True),
+                             StructField(FEATURES, VectorUDT(), True)])
+        input_rdd = sc.parallelize(input_rows)
+        return input_rdd.toDF(schema)
+
 
     def normalize_data(self, close_data=None, open_data=None, features=None):
         if features is None:
@@ -94,7 +101,7 @@ class DataParser(object):
         data_len = len(features)
 
         def normalize(price, max_price, min_price):
-            if max_price == min_price:
+            if max_price - min_price < 1e-4:
                 return 0
             return (2 * price - (max_price + min_price)) / (max_price - min_price)
 
@@ -173,9 +180,13 @@ class DataParser(object):
 
 
 if __name__ == "__main__":
+    from pyspark.ml.classification import MultilayerPerceptronClassifier
+    from pyspark.ml.evaluation import MulticlassClassificationEvaluator
+    import pprint
+
     test = DataParser(r"../data/0001.HK.csv", 5)
     data_list = test.load_data_from_yahoo_csv()
-    data_list = data_list[:10]
+    data_list = data_list[:100]
     sc = SparkContext(appName="DataParserTest")
     logger = sc._jvm.org.apache.log4j
     logger.LogManager.getLogger("org").setLevel(logger.Level.OFF)
@@ -183,9 +194,15 @@ if __name__ == "__main__":
 
     sql_context = SQLContext(sc)
     try:
-        a, b = test.get_n_days_history_data(data_list=data_list, sql_context=sql_context)
-        print data_list
-        print a.collect()
-        print b.collect()
+        a, b = test.get_n_days_history_data(data_list=data_list, sql_context=sql_context, spark_context=sc)
+        # print data_list
+        # print a.select('label').collect()
+        # print b.select('label').collect()
+        f = open("close_collect.txt", "w")
+        f.write(pprint.pformat(a.collect(), width=120))
+        f.close()
+        trainer = MultilayerPerceptronClassifier(maxIter=100, layers=[4, 5, 5], blockSize=128,
+                                                 featuresCol=FEATURES, labelCol=LABEL, seed=1234)
+        trainer.fit(a)
     finally:
         sc.stop()

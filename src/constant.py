@@ -16,3 +16,6 @@ CLOSE = "Close"
 # Data type
 DATA_FRAME = "DataFrame"
 LABEL_POINT = "LabelPoint"
+FEATURES = "features"
+LABEL = "label"
+PREDICTION = "prediction"
