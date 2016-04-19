@@ -7,6 +7,15 @@
 # Date: 17/4/2016
 
 
+def avg(data_list):
+    """
+    Use to calculate simple moving average
+    :param data_list: the list need to be calculated
+    :return: the moving average of the data list
+    """
+    return sum(data_list) / float(len(data_list))
+
+
 class DataParser(object):
     """
     Use to handle data
@@ -16,6 +25,7 @@ class DataParser(object):
     def __init__(self, path, window_size=1):
         self.__path = path
         self.__days = window_size
+        self.features = None
 
     def get_n_days_history_data(self, data_type="DataFrame", n_days=None):
         """
@@ -27,7 +37,19 @@ class DataParser(object):
                  average close price]
         """
         data_list = self.load_data_from_yahoo_csv()
-        time_series_data = self.__get_time_series_data(data_list=data_list, window_size=n_days)
+        close_data, open_data, self.features = self.__get_time_series_data(data_list=data_list, window_size=n_days)
+
+    def normalize_data(self, close_data, open_data, features=None):
+        if features is None:
+            features = self.features
+
+        data_len = len(features)
+
+        for i in range(data_len):
+            pass
+
+    def denormalize_data(self, close_data, open_data, features):
+        pass
 
     def load_data_from_yahoo_csv(self, path=None):
         if path is None:
@@ -51,4 +73,20 @@ class DataParser(object):
             window_size = self.__days
 
         data_num = len(data_list)
-        close_data
+        close_data = [data_list[i][3] for i in range(window_size, data_num)]
+        open_data = [data_list[i][0] for i in range(window_size, data_num)]
+        window_data = [data_list[i:(i + window_size)] for i in range(data_num - window_size)]
+
+        # create feature prices
+        max_price = []
+        min_price = []
+        close_avg_price = []
+        open_avg_price = []
+        for window in window_data:
+            max_price.append(max([i[1] for i in window]))
+            min_price.append(min([i[2] for i in window]))
+            close_avg_price.append(avg([i[3] for i in window]))
+            open_avg_price.append(avg([i[0] for i in window]))
+        features = zip(open_avg_price, max_price, min_price, close_avg_price)
+
+        return close_data, open_data, features
