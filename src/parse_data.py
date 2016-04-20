@@ -177,6 +177,14 @@ class DataParser(object):
         return open_normalize_data, close_normalize_data
 
     def de_normalize_data(self, close_data=None, open_data=None, features=None):
+        """
+        Use to de-normalize price data
+        :param close_data:
+        :param open_data:
+        :param features:
+        :return:
+        """
+
         def de_normalize(price, max_price, min_price):
             return (price * (max_price - min_price)) / 2 + (max_price + min_price) / 2
 
@@ -197,6 +205,11 @@ class DataParser(object):
         return open_origin_data, close_origin_data
 
     def load_data_from_yahoo_csv(self, path=None):
+        """
+        Use to load csv file
+        :param path: file path
+        :return: te data list in csv file
+        """
         if path is None:
             path = self.__path
 
@@ -236,32 +249,32 @@ class DataParser(object):
 
         return close_data, open_data, features
 
+    @staticmethod
+    def de_normalize(p, feature=None):
+        if feature is None:
+            if isinstance(p, list):
+                price = p[0]
+                max_price = p[1]
+                min_price = p[2]
+            else:
+                price = p.label
+                max_price = p.features[1]
+                min_price = p.features[2]
+        else:
+            price = p
+            max_price = feature[1]
+            min_price = feature[2]
 
-if __name__ == "__main__":
-    from pyspark.ml.classification import MultilayerPerceptronClassifier
-    from pyspark.ml.evaluation import MulticlassClassificationEvaluator
-    import pprint
+        return price * (max_price - min_price) / 2 + (max_price + min_price) / 2
 
-    test = DataParser(r"../data/0001.HK.csv", 5)
-    data_list = test.load_data_from_yahoo_csv()
-    data_list = data_list[:11]
-    # test_list = data_list[9:12]
-    sc = SparkContext(appName="DataParserTest")
-    # logger = sc._jvm.org.apache.log4j
-    # logger.LogManager.getLogger("org").setLevel(logger.Level.OFF)
-    # logger.LogManager.getLogger("akka").setLevel(logger.Level.OFF)
+    @staticmethod
+    def get_MSE(label_and_prediction):
+        return label_and_prediction.map(lambda (v, p): (v - p) * (v - p)).sum() / float(label_and_prediction.count())
 
-    sql_context = SQLContext(sc)
-    try:
-        a, b = test.get_n_days_history_data(data_list=data_list, spark_context=sc, sql_context=sql_context)
-        # print data_list
-        # print a.select('label').collect()
-        # print b.select('label').collect()
-        f = open("close_collect.txt", "w")
-        f.write(pprint.pformat(a.collect(), width=120))
-        f.close()
-        trainer = MultilayerPerceptronClassifier(maxIter=100, layers=[4, 5, 6, 5], blockSize=128,
-                                                 featuresCol=FEATURES, labelCol=LABEL, seed=1234)
-        model = trainer.fit(a)
-    finally:
-        sc.stop()
+    @staticmethod
+    def get_MAD(label_prediction):
+        return label_prediction.map(lambda (v, p): abs(v - p)).sum() / float(label_prediction.count())
+
+    @staticmethod
+    def get_MAPE(label_prediction):
+        return label_prediction.map(lambda (v, p): abs((v - p) / float(v))).sum() / float(label_prediction.count())

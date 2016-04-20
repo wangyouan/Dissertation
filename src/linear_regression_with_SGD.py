@@ -35,7 +35,7 @@ def calculate_data(path=r'../data/0003.HK.csv'):
 
     # Using 90% data as training data, the remaining data as testing data
     train_data_len = int(data_len * 0.8)
-    for i in xrange(1, train_data_len):
+    for i in range(1, train_data_len):
         close_price = data_list[i + 1][3]
         open_price = data_list[i + 1][0]
         variable = data_list[i]
@@ -51,7 +51,7 @@ def calculate_data(path=r'../data/0003.HK.csv'):
 
     close_test_data_list = []
     open_test_data_list = []
-    for i in xrange(train_data_len, data_len - 1):
+    for i in range(train_data_len, data_len - 1):
         close_price = data_list[i + 1][3]
         open_price = data_list[i + 1][0]
         variable = data_list[i]
@@ -65,13 +65,13 @@ def calculate_data(path=r'../data/0003.HK.csv'):
     close_value_predict = close_test_data.map(lambda p: (p.label, close_model.predict(p.features)))
     MSE = close_value_predict.map(lambda (v, p): (v - p) ** 2).reduce(lambda x, y: x + y) / close_value_predict.count()
     print("Close Mean Squared Error = " + str(MSE))
-    print "Close Model coefficients:", str(close_model)
+    print("Close Model coefficients:", str(close_model))
 
     # predict open data test
     open_value_predict = open_test_data.map(lambda p: (p.label, open_model.predict(p.features)))
     MSE = open_value_predict.map(lambda (v, p): (v - p) ** 2).reduce(lambda x, y: x + y) / open_value_predict.count()
     print("Open Mean Squared Error = " + str(MSE))
-    print "Open Model coefficients:", str(open_model)
+    print("Open Model coefficients:", str(open_model))
 
 
 def calculate_data_normalized(path=r'../data/0003.HK.csv', windows=5):
@@ -93,10 +93,10 @@ def calculate_data_normalized(path=r'../data/0003.HK.csv', windows=5):
     close_model = LinearRegressionWithSGD.train(close_train_data, step=0.0001, iterations=1000)
     open_model = LinearRegressionWithSGD.train(open_train_data, step=0.0001, iterations=1000)
 
-    def normalize_label_point(p):
+    def de_normalize_label_point(p):
         return p.label * (p.features[1] - p.features[2]) / 2 + (p.features[1] + p.features[2]) / 2
 
-    def normalize_data(label, features):
+    def de_normalize_data(label, features):
         return label * (features[1] - features[2]) / 2 + (features[1] + features[2]) / 2
 
     # #de normalized data
@@ -104,28 +104,29 @@ def calculate_data_normalized(path=r'../data/0003.HK.csv', windows=5):
     # open_test_data = close_test_data.map(normalize)
 
     # predict close data test
-    close_value_predict = close_test_data.map(lambda p: (normalize_label_point(p),
-                                                         normalize_data(close_model.predict(p.features), p.features)))
+    close_value_predict = close_test_data.map(lambda p: (de_normalize_label_point(p),
+                                                         de_normalize_data(close_model.predict(p.features),
+                                                                           p.features)))
     MSE = close_value_predict.map(lambda (v, p): (v - p) ** 2).reduce(lambda x, y: x + y) / close_value_predict.count()
     print("Close Mean Squared Error = " + str(MSE))
-    print "Close Model coefficients:", str(close_model)
+    print("Close Model coefficients:", str(close_model))
 
     # predict open data test
-    open_value_predict = open_test_data.map(lambda p: (normalize_label_point(p),
-                                                       normalize_data(close_model.predict(p.features), p.features)))
+    open_value_predict = open_test_data.map(lambda p: (de_normalize_label_point(p),
+                                                       de_normalize_data(close_model.predict(p.features), p.features)))
     MSE = open_value_predict.map(lambda (v, p): (v - p) ** 2).reduce(lambda x, y: x + y) / open_value_predict.count()
     print("Open Mean Squared Error = " + str(MSE))
-    print "Open Model coefficients:", str(open_model)
+    print("Open Model coefficients:", str(open_model))
 
 
 if __name__ == "__main__":
     stock_symbol = ['0001.HK', '0002.HK', '0003.HK', '0004.HK', '0005.HK']
     for symbol in stock_symbol:
         path = os.path.join(r'../data', '{}.csv'.format(symbol))
-        print "Non normalize version"
+        print("Non normalize version")
         calculate_data(path)
 
-        print "Normalized version"
+        print("Normalized version")
         for window in range(1, 2):
             calculate_data_normalized(path, windows=window)
     sc.stop()
