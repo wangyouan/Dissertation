@@ -186,23 +186,24 @@ if __name__ == "__main__":
 
     test = DataParser(r"../data/0001.HK.csv", 5)
     data_list = test.load_data_from_yahoo_csv()
-    data_list = data_list[:100]
+    data_list = data_list[:11]
+    # test_list = data_list[9:12]
     sc = SparkContext(appName="DataParserTest")
-    logger = sc._jvm.org.apache.log4j
-    logger.LogManager.getLogger("org").setLevel(logger.Level.OFF)
-    logger.LogManager.getLogger("akka").setLevel(logger.Level.OFF)
+    # logger = sc._jvm.org.apache.log4j
+    # logger.LogManager.getLogger("org").setLevel(logger.Level.OFF)
+    # logger.LogManager.getLogger("akka").setLevel(logger.Level.OFF)
 
     sql_context = SQLContext(sc)
     try:
-        a, b = test.get_n_days_history_data(data_list=data_list, sql_context=sql_context, spark_context=sc)
+        a, b = test.get_n_days_history_data(data_list=data_list, spark_context=sc, sql_context=sql_context)
         # print data_list
         # print a.select('label').collect()
         # print b.select('label').collect()
         f = open("close_collect.txt", "w")
         f.write(pprint.pformat(a.collect(), width=120))
         f.close()
-        trainer = MultilayerPerceptronClassifier(maxIter=100, layers=[4, 5, 5], blockSize=128,
+        trainer = MultilayerPerceptronClassifier(maxIter=100, layers=[4, 6, 5], blockSize=128,
                                                  featuresCol=FEATURES, labelCol=LABEL, seed=1234)
-        trainer.fit(a)
+        model = trainer.fit(a)
     finally:
         sc.stop()
