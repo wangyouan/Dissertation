@@ -37,7 +37,66 @@ class DataParser(object):
         self.features = None
 
     def get_n_days_history_data(self, data_list=None, data_type="DataFrame", n_days=None, sql_context=None,
-                                spark_context=None):
+                                spark_context=None, train_ratio=0.8):
+        """
+        Use to handle yahoo finance history data, return will be DataFrame of RDD
+        :param n_days: get how many days
+        :param data_type: "DataFrame" or "RDD"
+        :param data_list: which part of data is needed [Open,High,Low,Close]
+        :return: Required two required data, label normalized close price, features: [highest price, lowest price,
+                 average close price]
+        """
+        if data_list is None:
+            data_list = self.load_data_from_yahoo_csv()
+
+        close_data, open_data, self.features = self.get_time_series_data(data_list=data_list, window_size=n_days)
+        open_normalized, close_normalized = self.normalize_data(close_data=close_data, open_data=open_data,
+                                                                features=self.features)
+        train_len = int(train_ratio * len(open_normalized))
+        close_train_list = []
+        open_train_list = []
+        close_test_list = []
+        open_test_list = []
+        if data_type == DATA_FRAME:
+
+            for i in range(train_len):
+                feature = SparseVector(4, [(k, j) for k, j in enumerate(self.features[i])])
+                close_train_list.append((close_normalized[i], feature))
+                open_train_list.append((open_normalized[i], feature))
+
+            for i in range(train_len - 1, len(self.features)):
+                feature = SparseVector(4, [(k, j) for k, j in enumerate(self.features[i])])
+                close_test_list.append((close_normalized[i], feature))
+                open_test_list.append((open_normalized[i], feature))
+
+            if sql_context is not None and spark_context is not None:
+                close_train_list = self.convert_to_data_frame(input_rows=close_train_list, sql=sql_context,
+                                                              sc=spark_context)
+                open_train_list = self.convert_to_data_frame(input_rows=open_train_list, sql=sql_context,
+                                                             sc=spark_context)
+                close_test_list = self.convert_to_data_frame(input_rows=close_test_list, sql=sql_context,
+                                                             sc=spark_context)
+                open_test_list = self.convert_to_data_frame(input_rows=open_test_list, sql=sql_context,
+                                                            sc=spark_context)
+        elif data_type == LABEL_POINT:
+            for i in range(train_len):
+                close_train_list.append(LabeledPoint(features=self.features[i], label=close_normalized[i]))
+                open_train_list.append(LabeledPoint(features=self.features[i], label=open_normalized[i]))
+
+            for i in range(train_len - 1, len(self.features)):
+                close_test_list.append(LabeledPoint(features=self.features[i], label=close_normalized[i]))
+                open_test_list.append(LabeledPoint(features=self.features[i], label=open_normalized[i]))
+
+            if spark_context is not None:
+                close_train_list = spark_context.parallelize(close_train_list)
+                open_train_list = spark_context.parallelize(open_train_list)
+                close_test_list = spark_context.parallelize(close_test_list)
+                open_test_list = spark_context.parallelize(open_test_list)
+
+        return close_train_list, close_test_list, open_train_list, open_test_list
+
+    def get_n_days_history_data_old(self, data_list=None, data_type="DataFrame", n_days=None, sql_context=None,
+                                    spark_context=None):
         """
         Use to handle yahoo finance history data, return will be DataFrame of RDD
         :param n_days: get how many days
@@ -92,7 +151,6 @@ class DataParser(object):
                              StructField(FEATURES, VectorUDT(), True)])
         input_rdd = sc.parallelize(input_rows)
         return input_rdd.toDF(schema)
-
 
     def normalize_data(self, close_data=None, open_data=None, features=None):
         if features is None:
@@ -202,7 +260,7 @@ if __name__ == "__main__":
         f = open("close_collect.txt", "w")
         f.write(pprint.pformat(a.collect(), width=120))
         f.close()
-        trainer = MultilayerPerceptronClassifier(maxIter=100, layers=[4, 6, 5], blockSize=128,
+        trainer = MultilayerPerceptronClassifier(maxIter=100, layers=[4, 5, 6, 5], blockSize=128,
                                                  featuresCol=FEATURES, labelCol=LABEL, seed=1234)
         model = trainer.fit(a)
     finally:

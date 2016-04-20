@@ -2,43 +2,31 @@
 # -*- coding: utf-8 -*-
 
 # Project: Dissertation
-# File name: neutral_network_MLP
+# File name: RandomForestRegression
 # Author: Mark Wang
-# Date: 17/4/2016
+# Date: 20/4/2016
 
-from pyspark import SparkContext
-from pyspark.sql import SQLContext
-from pyspark.ml.classification import MultilayerPerceptronClassifier
-from pyspark.ml.evaluation import MulticlassClassificationEvaluator
+from pyspark.mllib.tree import RandomForest, RandomForestModel
 
-from parse_data import DataParser
 from constant import *
-
-sc = SparkContext(appName="MLPNeutralNetwork")
-sql_context = SQLContext(sc)
-
-# Close logger
-logger = sc._jvm.org.apache.log4j
-logger.LogManager.getLogger("org").setLevel(logger.Level.OFF)
-logger.LogManager.getLogger("akka").setLevel(logger.Level.OFF)
+from parse_data import DataParser
+from __init__ import sc, sql_context
 
 
 def price_predict(path, windows=5):
     input_data = DataParser(path=path, window_size=windows)
-    open_rows, close_rows = input_data.get_n_days_history_data_old(data_type=DATA_FRAME)
+    open_rows, close_rows = input_data.get_n_days_history_data(data_type=LABEL_POINT, spark_context=sc)
     train_data_len = int(0.8 * len(open_rows))
-    evaluator = MulticlassClassificationEvaluator(metricName=PREDICTION)
 
     #handle open data
     open_train_rows = open_rows[:train_data_len]
     open_test_rows = open_rows[(train_data_len - 1):]
     open_train_df = DataParser.convert_to_data_frame(open_train_rows, sc=sc, sql=sql_context)
     open_test_df = DataParser.convert_to_data_frame(open_test_rows, sc=sc, sql=sql_context)
-    open_trainer = MultilayerPerceptronClassifier(maxIter=100, layers=[4, 5, 4, 3], blockSize=128,
-                                                  featuresCol=FEATURES, labelCol=LABEL, seed=1234)
-    open_model = open_trainer.fit(open_train_df)
-    open_result = open_model.transform(open_test_df)
-    open_prediction_labels = open_result.select(PREDICTION, LABEL)
+    open_model = RandomForest.trainRegressor(open_train_df, categoricalFeaturesInfo={},
+                                             numTrees=3, featureSubsetStrategy="auto",
+                                             impurity='variance', maxDepth=4, maxBins=32)
+    open_prediction = open_model.predict(open_test_df.map(lambda x: x.features))
     print("Precision:" + str(evaluator.evaluate(open_prediction_labels)))
 
     close_train_rows = close_rows[:train_data_len]
@@ -51,10 +39,3 @@ def price_predict(path, windows=5):
     close_result = close_model.transform(close_test_df)
     close_prediction_labels = close_result.select(PREDICTION, LABEL)
     print("Precision:" + str(evaluator.evaluate(close_prediction_labels)))
-
-
-if __name__ == "__main__":
-    try:
-        price_predict(r'../data/0001.HK.csv')
-    finally:
-        sc.stop()

@@ -8,18 +8,11 @@
 
 import os
 
-from pyspark import SparkContext
 from pyspark.mllib.regression import LabeledPoint, LinearRegressionWithSGD
 
 from parse_data import DataParser
 from constant import *
-
-sc = SparkContext(appName="LinearRegressionPredict")
-
-# Close logger
-logger = sc._jvm.org.apache.log4j
-logger.LogManager.getLogger("org").setLevel(logger.Level.OFF)
-logger.LogManager.getLogger("akka").setLevel(logger.Level.OFF)
+from __init__ import sc
 
 
 def calculate_data(path=r'../data/0003.HK.csv'):
@@ -93,18 +86,12 @@ def calculate_data_normalized(path=r'../data/0003.HK.csv', windows=5):
     data = DataParser(path=path, window_size=windows)
 
     data_list = data.load_data_from_yahoo_csv()
-    close_data, open_data = data.get_n_days_history_data(data_list, data_type=LABEL_POINT)
-    train_data_len = int(len(open_data) * 0.8)
-
-    close_train_data = sc.parallelize(close_data[:train_data_len])
-    open_train_data = sc.parallelize(open_data[:train_data_len])
+    close_train_data, close_test_data, open_train_data, open_test_data = \
+        data.get_n_days_history_data(data_list, data_type=LABEL_POINT, spark_context=sc)
 
     # Training model
     close_model = LinearRegressionWithSGD.train(close_train_data, step=0.0001, iterations=1000)
     open_model = LinearRegressionWithSGD.train(open_train_data, step=0.0001, iterations=1000)
-
-    close_test_data = sc.parallelize(close_data[(train_data_len - 1):])
-    open_test_data = sc.parallelize(open_data[(train_data_len - 1):])
 
     def normalize_label_point(p):
         return p.label * (p.features[1] - p.features[2]) / 2 + (p.features[1] + p.features[2]) / 2
