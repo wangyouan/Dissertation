@@ -6,11 +6,10 @@
 # Author: Mark Wang
 # Date: 17/4/2016
 
-from pyspark import SparkContext
-from pyspark.sql import Row, SQLContext
 from pyspark.sql.types import *
 from pyspark.mllib.regression import LabeledPoint
 from pyspark.mllib.linalg import SparseVector, VectorUDT
+from pyspark.mllib.linalg import Vectors
 
 from constant import *
 
@@ -60,14 +59,20 @@ class DataParser(object):
         if data_type == DATA_FRAME:
 
             for i in range(train_len):
-                feature = SparseVector(4, [(k, j) for k, j in enumerate(self.features[i])])
-                close_train_list.append((close_normalized[i], feature))
-                open_train_list.append((open_normalized[i], feature))
+                # feature = SparseVector(4, [(k, j) for k, j in enumerate(self.features[i])])
+                # close_train_list.append((close_normalized[i], feature))
+                # open_train_list.append((open_normalized[i], feature))
+
+                close_train_list.append((close_normalized[i], Vectors.dense(self.features[i])))
+                open_train_list.append((open_normalized[i], Vectors.dense(self.features[i])))
 
             for i in range(train_len - 1, len(self.features)):
-                feature = SparseVector(4, [(k, j) for k, j in enumerate(self.features[i])])
-                close_test_list.append((close_normalized[i], feature))
-                open_test_list.append((open_normalized[i], feature))
+                # feature = SparseVector(4, [(k, j) for k, j in enumerate(self.features[i])])
+                # close_test_list.append((close_normalized[i], feature))
+                # open_test_list.append((open_normalized[i], feature))
+
+                close_test_list.append((close_normalized[i], Vectors.dense(self.features[i])))
+                open_test_list.append((open_normalized[i], Vectors.dense(self.features[i])))
 
             if sql_context is not None and spark_context is not None:
                 close_train_list = self.convert_to_data_frame(input_rows=close_train_list, sql=sql_context,
