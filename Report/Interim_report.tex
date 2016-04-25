@@ -1,9 +1,12 @@
-\documentclass{scrartcl}
+\documentclass[12pt,a4paper]{scrartcl}
 \usepackage{geometry}
 \usepackage{fancyhdr}
 \usepackage{url}
 \usepackage{csquotes}
 \usepackage{graphicx}
+\usepackage{amsmath}
+\usepackage{amsthm}
+\usepackage{amssymb}
 \pagestyle{fancy}
 \cfoot{\thepage}
 \title{Interim report}
@@ -13,10 +16,27 @@
 \geometry{left=2cm, right=2cm, top=2cm, bottom=2cm}
 \bibliographystyle{abbrv}
 \graphicspath{{images/}}
+\setlength{\parindent}{15pt}
 \begin{document}
 	\maketitle
 	\section{Introduction}
-	It is human beings' common goal to make life easier and more comfortable. Wealth can bring help to achieve this goal. That's why there are so many works done to predict the stock price. As being a complex (non-linear) and volatile system with many factors (such as companies' performance, domestic economies, festivals, seasons, etc.)\cite{chen1986economic}, stock market is difficult to predicted daily behaviors, so as to the day-to-day stock price changes. Besides, those factors usually have relationship with each other (e.g. ) With the development of machine learning, people have found a new way to analyze stock price changes. \\
-	There are many works towards prediction have been attempted, includes neural network\cite{kimoto1990stock,naeini2010stock}, multi-class support vector machine\cite{kercheval2015modelling}, linear and polynomial regression\cite{nunnostock,alexanderstock}, random forest\cite{alexanderstock,lauretto2013evaluation}
+	It is human beings' common goal to make life easier and more comfortable. Wealth can bring help to achieve this goal. That's why there are so many works done to predict the stock price. As being a complex (non-linear) and volatile system with many factors (such as companies' performance, domestic economies, festivals, seasons, etc.)\cite{chen1986economic}, stock market is difficult to predicted daily behaviors, so as to the day-to-day stock price changes. Besides, those factors usually have relationship with each other, and they will keep changing all the time. Hence, investors and fund manager must maintain real-time monitoring of market behavior, so as to make the right trading decision.\\
+	\indent With the development of machine learning and cloud computing technologies, people find a new way to analyze many factors of stock price at a time without too much manual cost. There are many works towards prediction have been attempted, includes neural network\cite{kimoto1990stock,naeini2010stock}, multi-class support vector machine\cite{kercheval2015modelling}, linear and polynomial regression\cite{nunnostock,alexanderstock}, random forest\cite{alexanderstock,lauretto2013evaluation}.
+	\section{Objectives}
+	In this study, I will try to build a model combining linear regression, random forests and technical, fundamental analysis together to predict stock price and trends. This model will be running on a distributed system and finally can be used to predicted real time stock price.
+	\section{Methods}
+	\subsection{Linear Regression with Stochastic gradient descent}
+	Based on the "Efficient Market Hypothesis"\cite{basu1977investment}, stock prices reflect all the relevant information
+	\subsection{Random Forest}
+	\subsection{Technical indicators}
+	\subsection{Spark}
+	\section{Works has been done}
+	Before the end of April 2016, I've finish the below works,
+	\subsection{Distributed System Deploy}
+	\subsection{Financial Data Collect and Clean}
+	\subsection{Dissertation Website}
+	\subsection{Basic Strategy}
+	\subsection{Data Normalization}
+	\section{Future Works}
 	\bibliography{Interim_report}
 \end{document}

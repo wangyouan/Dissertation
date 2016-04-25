@@ -13,6 +13,7 @@ from pyspark.mllib.regression import LabeledPoint, LinearRegressionWithSGD
 from parse_data import DataParser
 from constant import *
 from __init__ import sc
+from plot_data import plot_predict_and_real
 
 
 def calculate_data(path=r'../data/0003.HK.csv'):
@@ -108,25 +109,46 @@ def calculate_data_normalized(path=r'../data/0003.HK.csv', windows=5):
                                                          de_normalize_data(close_model.predict(p.features),
                                                                            p.features)))
     MSE = close_value_predict.map(lambda (v, p): (v - p) ** 2).reduce(lambda x, y: x + y) / close_value_predict.count()
+    MAD = DataParser.get_MAD(close_value_predict)
+    MAPE = DataParser.get_MAPE(close_value_predict)
     print("Close Mean Squared Error = " + str(MSE))
+    print("Close Mean Absolute Deviation = " + str(MAD))
+    print("Close Mean Absolute Percentage Error = " + str(MAPE))
     print("Close Model coefficients:", str(close_model))
 
     # predict open data test
     open_value_predict = open_test_data.map(lambda p: (de_normalize_label_point(p),
                                                        de_normalize_data(close_model.predict(p.features), p.features)))
     MSE = open_value_predict.map(lambda (v, p): (v - p) ** 2).reduce(lambda x, y: x + y) / open_value_predict.count()
+    MAD = DataParser.get_MAD(open_value_predict)
+    MAPE = DataParser.get_MAPE(open_value_predict)
     print("Open Mean Squared Error = " + str(MSE))
+    print("Open Mean Absolute Deviation = " + str(MAD))
+    print("Open Mean Absolute Percentage Error = " + str(MAPE))
     print("Open Model coefficients:", str(open_model))
+    return close_value_predict, open_value_predict
 
 
 if __name__ == "__main__":
     stock_symbol = ['0001.HK', '0002.HK', '0003.HK', '0004.HK', '0005.HK']
-    for symbol in stock_symbol:
+
+    for symbol in stock_symbol[:1]:
         path = os.path.join(r'../data', '{}.csv'.format(symbol))
-        print("Non normalize version")
-        calculate_data(path)
+        # print("Non normalize version")
+        # calculate_data(path)
 
         print("Normalized version")
-        for window in range(1, 2):
-            calculate_data_normalized(path, windows=window)
+        index = 0
+        import matplotlib.pyplot as plt
+        for window in range(3, 9):
+            close_predict, open_predict = calculate_data_normalized(path, windows=window)
+            close_predict = close_predict.take(100)
+            open_predict = open_predict.take(100)
+            plt = plot_predict_and_real(close_predict, graph_index=index,
+                                        graph_title="{}days Close price compare".format(window), plt=plt)
+            plt = plot_predict_and_real(open_predict, graph_index=index + 1,
+                                        graph_title="{}days Open Price Compare".format(window), plt=plt)
+            index += 2
+
+        plt.show()
     sc.stop()
