@@ -9,10 +9,12 @@
 from pyspark import SparkContext
 from pyspark.sql import SQLContext
 
-sc = SparkContext(appName="MLPNeutralNetwork")
-sql_context = SQLContext(sc)
+def load_spark_context():
+    sc = SparkContext(appName="MLPNeutralNetwork")
+    sql_context = SQLContext(sc)
 
-# Close logger
-logger = sc._jvm.org.apache.log4j
-logger.LogManager.getLogger("org").setLevel(logger.Level.OFF)
-logger.LogManager.getLogger("akka").setLevel(logger.Level.OFF)
+    # Close logger
+    logger = sc._jvm.org.apache.log4j
+    logger.LogManager.getLogger("org").setLevel(logger.Level.OFF)
+    logger.LogManager.getLogger("akka").setLevel(logger.Level.OFF)
+    return sc, sql_context

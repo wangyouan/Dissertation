@@ -10,19 +10,21 @@ import os
 
 from pyspark.mllib.regression import LabeledPoint, LinearRegressionWithSGD
 
+from __init__ import load_spark_context
 from parse_data import DataParser
 from constant import *
-from __init__ import sc
 from plot_data import plot_predict_and_real
 
 
-def calculate_data(path=r'../data/0003.HK.csv'):
+def calculate_data(path=r'../data/0003.HK.csv', sc=None):
     """
     Use linear regression with SGD to predict the stock price
     Input are last day, high, low, open and close price, directly output result
     :param path: Data file path
     :return: None
     """
+    if sc is None:
+        sc = load_spark_context()[0]
 
     # Read date from given file
     f = open(path)
@@ -75,20 +77,22 @@ def calculate_data(path=r'../data/0003.HK.csv'):
     print("Open Model coefficients:", str(open_model))
 
 
-def calculate_data_normalized(path=r'../data/0003.HK.csv', windows=5):
+def calculate_data_normalized(path=r'../data/0003.HK.csv', windows=5, spark_context=None):
     """
     Use linear regression with SGD to predict the stock price
     Input are last day, high, low, open and close price, directly output result
     :param path: Data file path
     :return: None
     """
+    if spark_context is None:
+        spark_context = load_spark_context()[0]
 
     # Read date from given file
     data = DataParser(path=path, window_size=windows)
 
     data_list = data.load_data_from_yahoo_csv()
     close_train_data, close_test_data, open_train_data, open_test_data = \
-        data.get_n_days_history_data(data_list, data_type=LABEL_POINT, spark_context=sc)
+        data.get_n_days_history_data(data_list, data_type=LABEL_POINT, spark_context=spark_context)
 
     # Training model
     close_model = LinearRegressionWithSGD.train(close_train_data, step=0.0001, iterations=1000)
@@ -132,6 +136,8 @@ def calculate_data_normalized(path=r'../data/0003.HK.csv', windows=5):
 if __name__ == "__main__":
     stock_symbol = ['0001.HK', '0002.HK', '0003.HK', '0004.HK', '0005.HK']
 
+    sc = load_spark_context()[0]
+
     for symbol in stock_symbol[:1]:
         path = os.path.join(r'../data', '{}.csv'.format(symbol))
         # print("Non normalize version")
@@ -141,7 +147,7 @@ if __name__ == "__main__":
         index = 0
         import matplotlib.pyplot as plt
         for window in range(3, 9):
-            close_predict, open_predict = calculate_data_normalized(path, windows=window)
+            close_predict, open_predict = calculate_data_normalized(path, windows=window, spark_context=sc)
             close_predict = close_predict.take(100)
             open_predict = open_predict.take(100)
             plt = plot_predict_and_real(close_predict, graph_index=index,
