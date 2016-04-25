@@ -11,6 +11,7 @@ from pyspark.mllib.tree import RandomForest
 from constant import *
 from parse_data import DataParser
 from __init__ import sc
+from plot_data import plot_predict_and_real
 
 
 def price_predict(path, windows=5):
@@ -53,6 +54,7 @@ def price_predict(path, windows=5):
     # Save and load model
     # model.save(sc, "target/tmp/myRandomForestRegressionModel")
     # sameModel = RandomForestModel.load(sc, "target/tmp/myRandomForestRegressionModel")
+    return close_label_prediction, open_label_prediction
 
 
 if __name__ == "__main__":
@@ -64,9 +66,17 @@ if __name__ == "__main__":
     #     path = os.path.join(r'../data', '{}.csv'.format(symbol))
     #     price_predict(path)
     #     print
-    for i in range(1, 2):
+    import matplotlib.pyplot as plt
+    index = 0
+    for i in range(3, 9):
         print "Day {}".format(i)
         path = os.path.join(r'../data', '{}.csv'.format(stock_symbol[0]))
-        price_predict(path, i)
-        print
+        close_price, open_price = price_predict(path, i)
+        plot_predict_and_real(close_price.take(100), graph_index=index, graph_title="{} days close".format(i),
+                              plt=plt)
+        plot_predict_and_real(close_price.take(100), graph_index=index+1, graph_title="{} days close".format(i),
+                              plt=plt)
+        index += 2
+
+    plt.show()
     sc.stop()
