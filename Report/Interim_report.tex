@@ -23,13 +23,24 @@
 	It is human beings' common goal to make life easier and more comfortable. Wealth can bring help to achieve this goal. That's why there are so many works done to predict the stock price. As being a complex (non-linear) and volatile system with many factors (such as companies' performance, domestic economies, festivals, seasons, etc.)\cite{chen1986economic}, stock market is difficult to predicted daily behaviors, so as to the day-to-day stock price changes. Besides, those factors usually have relationship with each other, and they will keep changing all the time. Hence, investors and fund manager must maintain real-time monitoring of market behavior, so as to make the right trading decision.\\
 	\indent With the development of machine learning and cloud computing technologies, people find a new way to analyze many factors of stock price at a time without too much manual cost. There are many works towards prediction have been attempted, includes neural network\cite{kimoto1990stock,naeini2010stock}, multi-class support vector machine\cite{kercheval2015modelling}, linear and polynomial regression\cite{nunnostock,alexanderstock}, random forest\cite{alexanderstock,lauretto2013evaluation}.
 	\section{Objectives}
-	In this study, I will try to build a model combining linear regression, random forests and technical, fundamental analysis together to predict stock price and trends. This model will be running on a distributed system and finally can be used to predicted real time stock price.
+	In this study, I will try to build a automatic learning model combining linear regression, random forests and technical, fundamental analysis together to predict stock price and trends. This model will be running on a distributed system (Apache Spark\cite{apache_spark}) which could collect financial data and can be used to predicted real time finally.
 	\section{Methods}
-	Based on the "Efficient Market Hypothesis"\cite{basu1977investment}, stock prices reflect all the relevant information. Also, those data are not independent from each other.
-	\subsection{Linear Regression with Stochastic gradient descent}
+	From "Efficient Market Hypothesis"\cite{basu1977investment,sewell2011history,vacha2005dynamical}, we can find that the changes of stock price follows a random walk which could be explained via Brownian motion techniques. I decide to use the following method to simulate such motion.
+	\subsection{Stochastic gradient descent}
+	\textbf{Stochastic Gradient Descent (SGD)} is a simple but efficient approach to solve supervised learning problem on large scale\cite{bottou2010large}, which makes it very suitable to be used for long term price prediction. The model of loss in my model is \cite{spark_documentation},
+	\begin{equation}
+		\label{eq:SGD}
+		L(w;x,y):=\frac{1}{2}(w^Tx-y)^2
+	\end{equation}
+	Where L is loss, $ x $ is the input vector and $ w $ is the weight vector.
 	\subsection{Random Forest}
-	\subsection{Technical indicators}
-	\subsection{Spark}
+	Random Forest is a special type of decision trees and was first introduced by Leo Breiman \cite{breiman2001random}. This algorithm constructs a multitude of decision trees at training time and outputs the mean prediction of those individual trees. This methods is designed to eliminate the overfitting of decision trees.
+	\subsection{Apache Spark}
+	Apache Spark, which is first developed at the UC Berkeley AMPLab and has been contributed to the Apache Software Foundation, is a fast and general engine for large-scale data processing\cite{ryza2015advanced}. Spark inherits MapReduce's linear scalability and fault tolerance, and extends it in three ways,
+	\begin{itemize}
+		\item First, instead relying on a map-then-reduce format, Spark executes operators using directed acyclic graph (DAG), which means that while MapReduce must write intermediate results to the file system, Spark can transmit them directly to the next step. This makes Spark much faster.
+		\item Second, Ease of Use.
+	\end{itemize}
 	\section{Works has been done}
 	Before the end of April 2016, I've finish the below works,
 	\subsection{Distributed System Deploy}
