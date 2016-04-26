@@ -36,7 +36,7 @@ class DataParser(object):
         self.features = None
 
     def get_n_days_history_data(self, data_list=None, data_type="DataFrame", n_days=None, sql_context=None,
-                                spark_context=None, train_ratio=0.8):
+                                spark_context=None, train_ratio=0.8, normalized=True):
         """
         Use to handle yahoo finance history data, return will be DataFrame of RDD
         :param n_days: get how many days
@@ -50,7 +50,7 @@ class DataParser(object):
 
         close_data, open_data, self.features = self.get_time_series_data(data_list=data_list, window_size=n_days)
         open_normalized, close_normalized = self.normalize_data(close_data=close_data, open_data=open_data,
-                                                                features=self.features)
+                                                                features=self.features, normalized=normalized)
         train_len = int(train_ratio * len(open_normalized))
         close_train_list = []
         open_train_list = []
@@ -157,7 +157,10 @@ class DataParser(object):
         input_rdd = sc.parallelize(input_rows)
         return input_rdd.toDF(schema)
 
-    def normalize_data(self, close_data=None, open_data=None, features=None):
+    def normalize_data(self, close_data=None, open_data=None, features=None, normalized=True):
+        if not normalized:
+            return close_data, open_data
+
         if features is None:
             features = self.features
 

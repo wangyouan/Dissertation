@@ -33,6 +33,13 @@ def get_all_date_about_stock(symbol, start_date=None, end_date=None):
 
 
 if __name__ == "__main__":
-    stock_symbol = ['0001.HK', '0002.HK', '0003.HK', '0004.HK', '0005.HK']
+    # stock_symbol = ['0001.HK', '0002.HK', '0003.HK', '0004.HK', '0005.HK']
+    stock_symbol = []
+    for i in range(50, 66):
+        stock_symbol.append("{:04d}.HK".format(i))
+    # print stock_symbol
     for symbol in stock_symbol:
-        get_all_date_about_stock(symbol, start_date='2006-03-14', end_date='2016-03-15')
+        try:
+            get_all_date_about_stock(symbol, start_date='2006-03-14', end_date='2016-03-15')
+        except Exception:
+            print("Get stock {} failed".format(symbol))

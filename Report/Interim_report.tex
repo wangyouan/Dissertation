@@ -7,8 +7,7 @@
 \usepackage{amsthm}
 \usepackage{amssymb}
 \usepackage{graphicx}
-\usepackage{caption}
-\usepackage{subcaption}
+\usepackage{subfigure}
 \pagestyle{fancy}
 \cfoot{\thepage}
 \title{Interim report}
@@ -47,25 +46,50 @@
 	\section{Works has been done}
 	Before the end of April 2016, I've finish the below works,
 	\subsection{Distributed System Deploy}
-	I use 3 virtual machines, each have 2G RAM and a vcore,
-	\begin{figure}[h]
+	I use 3 virtual machines, each have 2G RAM and a vcore, details can be find in figure~\ref{fig:environment}
+	\begin{figure}[ht]
 		\centering
-		\begin{subfigure}{.5\textwidth}
+		\subfigure[Virtual Machines]{
 			\centering
-			\includegraphics[width=.8\linewidth]{environments}
-			\caption{Virtual Machines}
+			\includegraphics[width=.4\linewidth]{environments}
 			\label{fig:vm}
-		\end{subfigure}%
-		\begin{subfigure}{.5\textwidth}
+		}
+		\subfigure[Spark Web UI]{
 			\centering
-			\includegraphics[width=.8\linewidth]{spark_deploy}
-			\caption{Spark Web UI}
+			\includegraphics[width=.4\linewidth]{spark_deploy}
 			\label{fig:spark}
-		\end{subfigure}
+		}
 		\caption{Environment of my Cluster}
 		\label{fig:environment}
 	\end{figure} 
-	\subsection{Financial Data Collect and Clean}
+	\subsection{Financial Data Collect}
+	The daily stock data is collected from Yahoo Finance!. For further extension (use artificial neural network\cite{nayak2014impact}), the trained price will be first normalized based on the equation~\ref{eq:normalize}
+	\begin{equation}
+		\label{eq:normalize}
+		price = \frac{2\times price - (Max_{price}+Min_{Price})}{Max_Price-Min_Price}
+	\end{equation}
+	Compare of Normalize and Non-Normalize can be found in figure~\ref{fig:non_vs_nor} and figure
+	\begin{figure}[ht]
+		\centering
+		\subfigure[Prediction of HK \& CHINA GAS (0003.HK)]{
+			\centering
+			\includegraphics[width=.4\linewidth]{0003_HK}
+			\label{fig:Non_Normalize}
+		}
+		\subfigure[Prediction of CLP HOLDINGS (0002.HK)]{
+			\centering
+			\includegraphics[width=.4\linewidth]{0002_HK}
+			\label{fig:Normalize_Better}
+		}
+		\caption{Compare between Normalized and Non-Normalized data}
+		\label{fig:non_vs_nor}
+	\end{figure}
+	\begin{figure}[ht]
+		\centering
+		\includegraphics[width=0.8\textwidth]{imagefile}
+		\caption{Compare between Normalized and Non-Normalized data 2}
+		\label{fig:mse_mad}
+	\end{figure}
 	\subsection{Dissertation Website}
 	\subsection{Basic Strategy}
 	\subsection{Data Normalization}
