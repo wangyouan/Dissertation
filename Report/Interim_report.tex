@@ -3,10 +3,12 @@
 \usepackage{fancyhdr}
 \usepackage{url}
 \usepackage{csquotes}
-\usepackage{graphicx}
 \usepackage{amsmath}
 \usepackage{amsthm}
 \usepackage{amssymb}
+\usepackage{graphicx}
+\usepackage{caption}
+\usepackage{subcaption}
 \pagestyle{fancy}
 \cfoot{\thepage}
 \title{Interim report}
@@ -39,11 +41,30 @@
 	Apache Spark, which is first developed at the UC Berkeley AMPLab and has been contributed to the Apache Software Foundation, is a fast and general engine for large-scale data processing\cite{ryza2015advanced}. Spark inherits MapReduce's linear scalability and fault tolerance, and extends it in three ways,
 	\begin{itemize}
 		\item First, instead relying on a map-then-reduce format, Spark executes operators using directed acyclic graph (DAG), which means that while MapReduce must write intermediate results to the file system, Spark can transmit them directly to the next step. This makes Spark much faster.
-		\item Second, Ease of Use.
+		\item Second, highly accessible. Spark offers simple APIs in Python, Java, Scala, SQL and R. Besides, users can use it interactively from the Scala, Python and R shells. Those features make Spark more easy to use.
+		\item Third, Spark integrates closely with other Big Data tools. For example, \enquote{Spark can run on Hadoop, Mesos, standalone, or in the cloud. It can access diverse data sources including HDFS, Cassandra, HBase, and S3}\cite{apache_spark}.
 	\end{itemize}
 	\section{Works has been done}
 	Before the end of April 2016, I've finish the below works,
 	\subsection{Distributed System Deploy}
+	I use 3 virtual machines, each have 2G RAM and a vcore,
+	\begin{figure}[h]
+		\centering
+		\begin{subfigure}{.5\textwidth}
+			\centering
+			\includegraphics[width=.8\linewidth]{environments}
+			\caption{Virtual Machines}
+			\label{fig:vm}
+		\end{subfigure}%
+		\begin{subfigure}{.5\textwidth}
+			\centering
+			\includegraphics[width=.8\linewidth]{spark_deploy}
+			\caption{Spark Web UI}
+			\label{fig:spark}
+		\end{subfigure}
+		\caption{Environment of my Cluster}
+		\label{fig:environment}
+	\end{figure} 
 	\subsection{Financial Data Collect and Clean}
 	\subsection{Dissertation Website}
 	\subsection{Basic Strategy}
