@@ -62,13 +62,14 @@
 		\caption{Environment of my Cluster}
 		\label{fig:environment}
 	\end{figure} 
-	\subsection{Financial Data Collect}
+	\subsection{Financial Data Collect and Preliminary model}
 	The daily stock data is collected from Yahoo Finance!. For further extension (use artificial neural network\cite{nayak2014impact}), the trained price will be first normalized based on the equation~\ref{eq:normalize}
 	\begin{equation}
 		\label{eq:normalize}
 		price = \frac{2\times price - (Max_{price}+Min_{Price})}{Max_Price-Min_Price}
 	\end{equation}
-	Compare of Normalize and Non-Normalize can be found in figure~\ref{fig:non_vs_nor} and figure
+	In this study, I choose mean absolute deviation(MAD, equation~\ref{eq:MAD}), mean absolute percentage error(MAPE, equation~\ref{eq:MAPE}) and mean squared error (MSE, equation~\ref{eq:MSE}) as prediction criteria.
+	Compare of Normalize and Non-Normalize can be found in figure~\ref{fig:non_vs_nor} and figure~\ref{fig:mse_mad}. I use Linear Regression with SGD model, and the input values are 5 days average close and open price, highest and lowest price during the five days. 
 	\begin{figure}[ht]
 		\centering
 		\subfigure[Prediction of HK \& CHINA GAS (0003.HK)]{
@@ -86,13 +87,36 @@
 	\end{figure}
 	\begin{figure}[ht]
 		\centering
-		\includegraphics[width=0.8\textwidth]{imagefile}
+		\subfigure[MSE Compare]{
+			\centering
+			\includegraphics[width=.4\linewidth]{MSE}
+			\label{fig:MSE}
+		}
+		\subfigure[MAD compare]{
+			\centering
+			\includegraphics[width=.4\linewidth]{MAD}
+			\label{fig:MAD}
+		}
+		\subfigure[MAPE compare]{
+			\centering
+			\includegraphics[width=.4\linewidth]{MAPE}
+			\label{fig:MAPE}
+		}
 		\caption{Compare between Normalized and Non-Normalized data 2}
 		\label{fig:mse_mad}
 	\end{figure}
+	\begin{gather}
+	\label{eq:MAD}
+	MAD = \frac{1}{|ValidationSet|}\sum|price_{forecast}-price_{real}|\\
+	\label{eq:MAPE}
+	MAPE = \frac{1}{|ValidationSet|}\sum|\frac{price_{forecast}-price_{real}}{price_{real}}|\\
+	\label{eq:MSE}
+	MSE = \frac{1}{|ValidationSet|}\sum(price_{forecast}-price_{real})^2
+	\end{gather}
+	From above results we can find that Normalized data is more reliable than Non-normalized prediction.
 	\subsection{Dissertation Website}
-	\subsection{Basic Strategy}
-	\subsection{Data Normalization}
+	Thanks to \cite{1_miller_2016}, where I download the template from. Current version so Dissertation Website as figure~
 	\section{Future Works}
+	Based on the above works, my next
 	\bibliography{Interim_report}
 \end{document}

@@ -27,7 +27,7 @@ def price_predict(path, windows=5, spark_context=None):
                                              featureSubsetStrategy="auto", impurity='variance', maxDepth=4, maxBins=32)
     open_prediction = open_model.predict(open_test.map(lambda x: x.features))
     open_label_prediction = open_test.zip(open_prediction).map(lambda (t, p):
-                                                               (DataParser.de_normalize(t.label, t.features),
+                                                               (t.label,
                                                                 DataParser.de_normalize(p, t.features)))
     testMSE = DataParser.get_MSE(open_label_prediction)
     testMAPE = DataParser.get_MAPE(open_label_prediction)
@@ -43,7 +43,7 @@ def price_predict(path, windows=5, spark_context=None):
                                               featureSubsetStrategy="auto", impurity='variance', maxDepth=4, maxBins=32)
     close_prediction = close_model.predict(close_test.map(lambda x: x.features))
     close_label_prediction = close_test.zip(close_prediction).map(lambda (t, p):
-                                                               (DataParser.de_normalize(t.label, t.features),
+                                                               (t.label,
                                                                 DataParser.de_normalize(p, t.features)))
     testMSE = DataParser.get_MSE(close_label_prediction)
     testMAPE = DataParser.get_MAPE(close_label_prediction)

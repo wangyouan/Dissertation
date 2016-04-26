@@ -8,12 +8,11 @@
 
 import os
 
-from pyspark.mllib.regression import LabeledPoint, LinearRegressionWithSGD
-
 from __init__ import load_spark_context
-from parse_data import DataParser
 from constant import *
-from plot_data import plot_predict_and_real, plot_label_vs_data
+from parse_data import DataParser
+from plot_data import plot_label_vs_data
+from pyspark.mllib.regression import LabeledPoint, LinearRegressionWithSGD
 
 non_normalize_mad = []
 non_normalize_mse = []
@@ -164,16 +163,15 @@ def calculate_data_normalized(path=r'../data/0003.HK.csv', windows=5, spark_cont
     close_model = LinearRegressionWithSGD.train(close_train_data, step=0.0001, iterations=1000)
     open_model = LinearRegressionWithSGD.train(open_train_data, step=0.0001, iterations=1000)
 
-    def de_normalize_label_point(p):
-        return p.label * (p.features[1] - p.features[2]) / 2 + (p.features[1] + p.features[2]) / 2
+    print "close test", close_test_data.take(10)
+    print "close train", close_train_data.take(10)
 
     def de_normalize_data(label, features):
         return label * (features[1] - features[2]) / 2 + (features[1] + features[2]) / 2
 
     # predict close data test
-    close_value_predict = close_test_data.map(lambda p: (de_normalize_label_point(p),
-                                                         de_normalize_data(close_model.predict(p.features),
-                                                                           p.features)))
+    close_value_predict = close_test_data.map(lambda p: (p.label, de_normalize_data(close_model.predict(p.features),
+                                                                              p.features)))
     MSE = close_value_predict.map(lambda (v, p): (v - p) ** 2).reduce(lambda x, y: x + y) / close_value_predict.count()
     MAD = DataParser.get_MAD(close_value_predict)
     MAPE = DataParser.get_MAPE(close_value_predict)
@@ -183,8 +181,8 @@ def calculate_data_normalized(path=r'../data/0003.HK.csv', windows=5, spark_cont
     print("Close Model coefficients:", str(close_model))
 
     # predict open data test
-    open_value_predict = open_test_data.map(lambda p: (de_normalize_label_point(p),
-                                                       de_normalize_data(close_model.predict(p.features), p.features)))
+    open_value_predict = open_test_data.map(
+        lambda p: (p.label, de_normalize_data(close_model.predict(p.features), p.features)))
     MSE = open_value_predict.map(lambda (v, p): (v - p) ** 2).reduce(lambda x, y: x + y) / open_value_predict.count()
     MAD = DataParser.get_MAD(open_value_predict)
     MAPE = DataParser.get_MAPE(open_value_predict)
@@ -217,7 +215,8 @@ def test_non_vs_normalize(show_plt=False, windows=10, stock_num=None):
             break
         print symbol
         path = os.path.join(r'../data', symbol)
-        if not symbol.startswith('00') or not os.path.isfile(path):
+        # if not symbol.startswith('00') or not os.path.isfile(path):
+        if '0002' not in path and '0003' not in path:
             continue
         print("Non normalize version")
         non_normalize = calculate_data_non_normalized(path, windows=windows, spark_context=sc)
@@ -241,7 +240,7 @@ def test_non_vs_normalize(show_plt=False, windows=10, stock_num=None):
     print non_normalize_mad
 
     print normalize_mse
-    print non_normalize_mape
+    print normalize_mape
     print normalize_mad
 
     print symbol_list
@@ -251,4 +250,4 @@ def test_non_vs_normalize(show_plt=False, windows=10, stock_num=None):
 
 
 if __name__ == "__main__":
-    test_non_vs_normalize(windows=5, stock_num=None, show_plt=False)
+    test_non_vs_normalize(windows=5, stock_num=None, show_plt=True)

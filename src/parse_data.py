@@ -6,12 +6,11 @@
 # Author: Mark Wang
 # Date: 17/4/2016
 
-from pyspark.sql.types import *
-from pyspark.mllib.regression import LabeledPoint
+from constant import *
 from pyspark.mllib.linalg import SparseVector, VectorUDT
 from pyspark.mllib.linalg import Vectors
-
-from constant import *
+from pyspark.mllib.regression import LabeledPoint
+from pyspark.sql.types import *
 
 
 def avg(data_list):
@@ -49,13 +48,19 @@ class DataParser(object):
             data_list = self.load_data_from_yahoo_csv()
 
         close_data, open_data, self.features = self.get_time_series_data(data_list=data_list, window_size=n_days)
-        open_normalized, close_normalized = self.normalize_data(close_data=close_data, open_data=open_data,
-                                                                features=self.features, normalized=normalized)
-        train_len = int(train_ratio * len(open_normalized))
+        train_len = int(train_ratio * len(open_data))
         close_train_list = []
         open_train_list = []
         close_test_list = []
         open_test_list = []
+
+        def normalize(price, max_price, min_price):
+            if not normalized:
+                return price
+            if max_price - min_price < 1e-4:
+                return 0
+            return (2 * price - (max_price + min_price)) / (max_price - min_price)
+
         if data_type == DATA_FRAME:
 
             for i in range(train_len):
@@ -63,16 +68,18 @@ class DataParser(object):
                 # close_train_list.append((close_normalized[i], feature))
                 # open_train_list.append((open_normalized[i], feature))
 
-                close_train_list.append((close_normalized[i], Vectors.dense(self.features[i])))
-                open_train_list.append((open_normalized[i], Vectors.dense(self.features[i])))
+                close_train_list.append((normalize(close_data[i], self.features[i][1], self.features[i][2]),
+                                         Vectors.dense(self.features[i])))
+                open_train_list.append((normalize(open_data[i], self.features[i][1], self.features[i][2]),
+                                        Vectors.dense(self.features[i])))
 
             for i in range(train_len - 1, len(self.features)):
                 # feature = SparseVector(4, [(k, j) for k, j in enumerate(self.features[i])])
                 # close_test_list.append((close_normalized[i], feature))
                 # open_test_list.append((open_normalized[i], feature))
 
-                close_test_list.append((close_normalized[i], Vectors.dense(self.features[i])))
-                open_test_list.append((open_normalized[i], Vectors.dense(self.features[i])))
+                close_test_list.append((close_data[i], Vectors.dense(self.features[i])))
+                open_test_list.append((open_data[i], Vectors.dense(self.features[i])))
 
             if sql_context is not None and spark_context is not None:
                 close_train_list = self.convert_to_data_frame(input_rows=close_train_list, sql=sql_context,
@@ -85,12 +92,16 @@ class DataParser(object):
                                                             sc=spark_context)
         elif data_type == LABEL_POINT:
             for i in range(train_len):
-                close_train_list.append(LabeledPoint(features=self.features[i], label=close_normalized[i]))
-                open_train_list.append(LabeledPoint(features=self.features[i], label=open_normalized[i]))
+                close_train_list.append(LabeledPoint(features=self.features[i],
+                                                     label=normalize(close_data[i], self.features[i][1],
+                                                                     self.features[i][2])))
+                open_train_list.append(LabeledPoint(features=self.features[i],
+                                                    label=normalize(close_data[i], self.features[i][1],
+                                                                    self.features[i][2])))
 
             for i in range(train_len - 1, len(self.features)):
-                close_test_list.append(LabeledPoint(features=self.features[i], label=close_normalized[i]))
-                open_test_list.append(LabeledPoint(features=self.features[i], label=open_normalized[i]))
+                close_test_list.append(LabeledPoint(features=self.features[i], label=close_data[i]))
+                open_test_list.append(LabeledPoint(features=self.features[i], label=open_data[i]))
 
             if spark_context is not None:
                 close_train_list = spark_context.parallelize(close_train_list)
