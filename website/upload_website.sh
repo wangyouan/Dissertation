@@ -12,6 +12,9 @@ sshpass -f ../password.txt scp website.tar.gz msd15090@i.cs.hku.hk:public_html/w
 echo "Untar all files in the server"
 sshpass -f ../password.txt ssh msd15090@i.cs.hku.hk "tar -zxf ~/public_html/website.tar.gz -C ~/public_html/"
 
+echo "Set permission"
+sshpass -f ../password.txt ssh msd15090@i.cs.hku.hk "chmod -R 777 ~/public_html"
+
 echo "Remove temporary files from website"
 sshpass -f ../password.txt ssh msd15090@i.cs.hku.hk "rm public_html/website.tar.gz"
 
