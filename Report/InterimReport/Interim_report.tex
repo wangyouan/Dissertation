@@ -115,6 +115,18 @@
 	MSE = \frac{1}{|ValidationSet|}\sum(price_{forecast}-price_{real})^2
 	\end{gather}
 	From above results we can find that Normalized data is more reliable than Non-normalized prediction.
+	\subsection{Random Forest vs Linear Regression}
+	Both using the same input data. Use three random trees. Stocks are collects from HKSE. Detailed compare data can be found in Figure~\ref{fig:rt_lg}
+	\begin{figure}[ht]
+		\centering
+		\subfigure[Both prediction of The Hong Kong and China Gas Company Limited (0003.HK)]{
+			\centering
+			\includegraphics[width=.4\linewidth]{lr_vs_rf}
+			\label{fig:lr_rt_1}
+		}
+		\caption{Compare between Linear Regression and Random Forests}
+		\label{fig:rt_lg}
+	\end{figure}
 	\subsection{Dissertation Webpage}
 	Thanks to \cite{1_miller_2016}, where I download the template from. Current version so Dissertation Website as figure~\ref{fig:webpage} The URL of my web page is \url{http://i.cs.hku.hk/~msd15090/index.html}
 	\begin{figure}[th]
