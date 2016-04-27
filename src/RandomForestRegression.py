@@ -10,9 +10,12 @@ from pyspark.mllib.tree import RandomForest
 
 from constant import *
 from parse_data import DataParser
-from plot_data import plot_predict_and_real
+from plot_data import plot_label_vs_data
 from __init__ import load_spark_context
 
+mad_list = []
+mape_list = []
+mse_list = []
 
 def price_predict(path, windows=5, spark_context=None):
     if spark_context is None:
@@ -38,6 +41,10 @@ def price_predict(path, windows=5, spark_context=None):
     # print('Learned regression forest model:')
     # print(open_model.toDebugString())
 
+    mad_list.append(testMAD)
+    mse_list.append(testMSE)
+    mape_list.append(testMAPE)
+
     # handle close data
     close_model = RandomForest.trainRegressor(close_train, categoricalFeaturesInfo={}, numTrees=3,
                                               featureSubsetStrategy="auto", impurity='variance', maxDepth=4, maxBins=32)
@@ -62,25 +69,30 @@ def price_predict(path, windows=5, spark_context=None):
 
 if __name__ == "__main__":
     import os
+    import numpy as np
 
     sc = load_spark_context()[0]
     stock_symbol = ['0001.HK', '0002.HK', '0003.HK', '0004.HK', '0005.HK']
-    # for symbol in stock_symbol:
-    #     print symbol
-    #     path = os.path.join(r'../data', '{}.csv'.format(symbol))
-    #     price_predict(path)
-    #     print
-    import matplotlib.pyplot as plt
+
+    # import matplotlib.pyplot as plt
     index = 0
-    for i in range(3, 9):
+    open_list = []
+    for i in range(3, 12):
         print "Day {}".format(i)
         path = os.path.join(r'../data', '{}.csv'.format(stock_symbol[0]))
         close_price, open_price = price_predict(path, i, spark_context=sc)
-        plot_predict_and_real(close_price.take(100), graph_index=index, graph_title="{} days close".format(i),
-                              plt=plt)
-        plot_predict_and_real(close_price.take(100), graph_index=index+1, graph_title="{} days close".format(i),
-                              plt=plt)
+        open_price = np.array(open_price.take(100)).T
+        if i == 3:
+            open_list.append(open_price[0])
+        open_list.append(open_price[1])
         index += 2
 
-    plt.show()
+    print open_list
+    print mape_list
+    print mse_list
+    print mad_list
+    # f = open('days_comp.csv', 'w')
+    #
+    # f.close()
+    # plt.show()
     sc.stop()

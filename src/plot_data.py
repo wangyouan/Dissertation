@@ -8,7 +8,7 @@
 
 import numpy as np
 
-symbol_list = ['r-', 'b-', 'y-', 'm-']
+symbol_list = ['r-', 'b-', 'y-', 'm-', 'g-', 'c-', 'k-']
 
 
 def plot_predict_and_real(data, graph_index=0, graph_title=None, plt=None):

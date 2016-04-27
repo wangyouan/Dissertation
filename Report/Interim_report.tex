@@ -45,7 +45,7 @@
 	\end{itemize}
 	\section{Works has been done}
 	Before the end of April 2016, I've finish the below works,
-	\subsection{Distributed System Deploy}
+	\subsection{Distributed System Deploy and Learning}
 	I use 3 virtual machines, each have 2G RAM and a vcore, details can be find in figure~\ref{fig:environment}
 	\begin{figure}[ht]
 		\centering
@@ -62,8 +62,9 @@
 		\caption{Environment of my Cluster}
 		\label{fig:environment}
 	\end{figure} 
+	Besides, the deployment, I can also make use of the distributed system to build simple predict model, and analyze stock data.
 	\subsection{Financial Data Collect and Preliminary model}
-	The daily stock data is collected from Yahoo Finance!. For further extension (use artificial neural network\cite{nayak2014impact}), the trained price will be first normalized based on the equation~\ref{eq:normalize}
+	The daily stock data is collected from Yahoo Finance!. For further extension (use artificial neural network\cite{nayak2014impact}), the trained price will be first normalized based on the equation~\ref{eq:normalize}.
 	\begin{equation}
 		\label{eq:normalize}
 		price = \frac{2\times price - (Max_{price}+Min_{Price})}{Max_Price-Min_Price}
@@ -117,6 +118,12 @@
 	\subsection{Dissertation Website}
 	Thanks to \cite{1_miller_2016}, where I download the template from. Current version so Dissertation Website as figure~
 	\section{Future Works}
-	Based on the above works, my next
+	Based on the above works, my next works will includes,
+	\begin{itemize}
+		\item Build and tune an artificial neural network (ANN) based model to predict stock price. The idea of Neural Network is inspired by humans' nervous systems. Compare to traditional machine learning methods, e.g. linear regression and random forest, which are model based, ANN is self-adjusting methods based on training data\cite{kimoto1990stock}. This means that ANN has the ability of recognizing new patterns that it never learned before. I'll try to build an ANN model with the ability of self-adaptability.
+		\item Add technical indicators and sentimental analysis. Only last n days price is not enough to reflect all the stock price features. Add some technical indicators, sentimental analysis and more features about date will help to improve the accuracy of my prediction model.
+		\item Extends to intraday predict. My current research mainly focus on daily stock price. Intraday trading has much higher volatility than interday's, which makes it more profitable. After finishing the above two jobs, if time permits, I will try to use my model to predict hourly stock price.
+	\end{itemize}
+	Because of busy with other course, I may only finish 40\% of my total dissertation work. As all the other courses will come to end in the next month, I'll have enough time to finish the remaining dissertation works. 
 	\bibliography{Interim_report}
 \end{document}
