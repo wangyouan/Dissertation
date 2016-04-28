@@ -190,10 +190,10 @@ def calculate_data_normalized(path=r'../data/0003.HK.csv', windows=5, spark_cont
     MSE = close_value_predict.map(lambda (v, p): (v - p) ** 2).reduce(lambda x, y: x + y) / close_value_predict.count()
     MAD = DataParser.get_MAD(close_value_predict)
     MAPE = DataParser.get_MAPE(close_value_predict)
-    logger.info("Close Mean Squared Error = " + str(MSE))
-    logger.info("Close Mean Absolute Deviation = " + str(MAD))
-    logger.info("Close Mean Absolute Percentage Error = " + str(MAPE))
-    logger.info("Close Model coefficients:", str(close_model))
+    logger.debug("Close Mean Squared Error = " + str(MSE))
+    logger.debug("Close Mean Absolute Deviation = " + str(MAD))
+    logger.debug("Close Mean Absolute Percentage Error = " + str(MAPE))
+    logger.debug("Close Model coefficients:", str(close_model))
 
     # predict open data test
     logger.debug("Calculate open predict data")
@@ -205,10 +205,11 @@ def calculate_data_normalized(path=r'../data/0003.HK.csv', windows=5, spark_cont
     normalize_mad.append(MAD)
     normalize_mape.append(MAPE)
     normalize_mse.append(MSE)
-    logger.info("Open Mean Squared Error = " + str(MSE))
-    logger.info("Open Mean Absolute Deviation = " + str(MAD))
-    logger.info("Open Mean Absolute Percentage Error = " + str(MAPE))
-    logger.info("Open Model coefficients:", str(open_model))
+    logger.debug("Open Mean Squared Error = " + str(MSE))
+    logger.debug("Open Mean Absolute Deviation = " + str(MAD))
+    logger.debug("Open Mean Absolute Percentage Error = " + str(MAPE))
+    logger.debug("Open Model coefficients:", str(open_model))
+    logger.info("Stock price calculate succeed")
     return close_value_predict, open_value_predict
 
 

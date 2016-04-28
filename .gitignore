@@ -139,4 +139,6 @@ data/
 *.blg
 *.aux
 
+output/
+
 password.txt

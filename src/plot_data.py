@@ -9,6 +9,7 @@
 import numpy as np
 
 symbol_list = ['r-', 'b-', 'y-', 'm-', 'g-', 'c-', 'k-']
+colors = ['r', 'b', 'y', 'm', 'g', 'c', 'k']
 
 
 def plot_predict_and_real(data, graph_index=0, graph_title=None, plt=None):
@@ -31,6 +32,30 @@ def plot_label_vs_data(data, label, graph_index=0, graph_title=None, plt=None):
     plt.legend(plt_list, label, loc=1)
     return plt
 
+
+def plot_bar(data, legend, x_axis=None, y_label="Price", x_label="Days", graph_index=0, graph_title='None', plt=None):
+    if plt is None:
+        import matplotlib.pyplot as plt
+
+    # plt.figure(graph_index)
+    ind = np.arange(len(data[0]))
+    width = 0.35
+
+    fig, ax = plt.subplots()
+    rects = []
+    ax.set_title(graph_title)
+    ax.set_xticks(ind + width)
+    if x_axis is not None:
+        ax.set_xticklabels(x_axis)
+
+    ax.set_ylabel(y_label)
+    ax.set_xlabel(x_label)
+
+    for i, j in enumerate(data):
+        print i, j
+        rects.append(ax.bar(ind + width * i, j, width, color=colors[i]))
+    ax.legend(rects, legend, loc=2)
+    return plt
 
 def plot_data():
     inf = 'inf'

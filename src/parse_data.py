@@ -297,3 +297,13 @@ class DataParser(object):
     @staticmethod
     def get_MAPE(label_prediction):
         return label_prediction.map(lambda (v, p): abs((v - p) / float(v))).sum() / float(label_prediction.count())
+
+if __name__ == "__main__":
+    test = DataParser(path='../data/0001.HK.csv', window_size=3)
+    data_list = test.load_data_from_yahoo_csv()[:15]
+    time_series = test.get_time_series_data(data_list)
+    for i in data_list:
+        print i[0],
+    print
+    import pprint
+    pprint.pprint(time_series, width=200)
