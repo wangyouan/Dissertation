@@ -11,13 +11,17 @@ from pyspark.mllib.tree import RandomForest
 from constant import *
 from parse_data import DataParser
 from plot_data import plot_label_vs_data
-from __init__ import load_spark_context
+from __init__ import load_spark_context, load_logger
 
 mad_list = []
 mape_list = []
 mse_list = []
 
+logger = load_logger(__name__)
+
+
 def price_predict(path, windows=5, spark_context=None):
+    logger.info("Start to predict data using Random Forest")
     if spark_context is None:
         spark_context = load_spark_context()[0]
 
@@ -35,9 +39,9 @@ def price_predict(path, windows=5, spark_context=None):
     testMSE = DataParser.get_MSE(open_label_prediction)
     testMAPE = DataParser.get_MAPE(open_label_prediction)
     testMAD = DataParser.get_MAD(open_label_prediction)
-    print('Open Test Mean Squared Error = {}'.format(testMSE))
-    print('Open Test Mean Absolute Deviation = {}'.format(testMAD))
-    print('Open Test Mean Absolute Percentage Error = {}%'.format(testMAPE * 100))
+    logger.info('Open Test Mean Squared Error = {}'.format(testMSE))
+    logger.info('Open Test Mean Absolute Deviation = {}'.format(testMAD))
+    logger.info('Open Test Mean Absolute Percentage Error = {}%'.format(testMAPE * 100))
     # print('Learned regression forest model:')
     # print(open_model.toDebugString())
 
@@ -55,9 +59,9 @@ def price_predict(path, windows=5, spark_context=None):
     testMSE = DataParser.get_MSE(close_label_prediction)
     testMAPE = DataParser.get_MAPE(close_label_prediction)
     testMAD = DataParser.get_MAD(close_label_prediction)
-    print('Close Test Mean Squared Error = {}'.format(testMSE))
-    print('Close Test Mean Absolute Deviation = {}'.format(testMAD))
-    print('Close Test Mean Absolute Percentage Error = {}%'.format(testMAPE * 100))
+    logger.info('Close Test Mean Squared Error = {}'.format(testMSE))
+    logger.info('Close Test Mean Absolute Deviation = {}'.format(testMAD))
+    logger.info('Close Test Mean Absolute Percentage Error = {}%'.format(testMAPE * 100))
     # print('Learned regression forest model:')
     # print(close_model.toDebugString())
 

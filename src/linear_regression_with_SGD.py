@@ -8,7 +8,7 @@
 
 import os
 
-from __init__ import load_spark_context
+from __init__ import load_spark_context, load_logger
 from constant import *
 from parse_data import DataParser
 from plot_data import plot_label_vs_data
@@ -22,6 +22,7 @@ normalize_mad = []
 normalize_mse = []
 normalize_mape = []
 
+logger = load_logger(application_name="LinearRegression")
 
 def calculate_data(path=r'../data/0003.HK.csv', sc=None):
     """
@@ -30,10 +31,14 @@ def calculate_data(path=r'../data/0003.HK.csv', sc=None):
     :param path: Data file path
     :return: None
     """
+    logger.debug("input file is {}".format(path.split('/')[-1]))
     if sc is None:
+        logger.info("Start spark context")
         sc = load_spark_context()[0]
+        logger.info("Load spark successfully")
 
     # Read date from given file
+    logger.debug("Load file")
     f = open(path)
     data_str = f.read()
     f.close()
@@ -45,6 +50,9 @@ def calculate_data(path=r'../data/0003.HK.csv', sc=None):
 
     # Using 90% data as training data, the remaining data as testing data
     train_data_len = int(data_len * 0.8)
+    logger.debug("Prepare train date")
+    logger.debug("Total input data: {}".format(data_len))
+    logger.debug("Total train data: {}".format(train_data_len))
     for i in range(1, train_data_len):
         close_price = data_list[i + 1][3]
         open_price = data_list[i + 1][0]
@@ -56,9 +64,11 @@ def calculate_data(path=r'../data/0003.HK.csv', sc=None):
     open_train_data = sc.parallelize(open_train_list)
 
     # Training model
+    logger.debug("Start training")
     close_model = LinearRegressionWithSGD.train(close_train_data, step=0.001, iterations=1000)
     open_model = LinearRegressionWithSGD.train(open_train_data, step=0.001, iterations=1000)
 
+    logger.debug("Prepare test data")
     close_test_data_list = []
     open_test_data_list = []
     for i in range(train_data_len, data_len - 1):
@@ -72,16 +82,18 @@ def calculate_data(path=r'../data/0003.HK.csv', sc=None):
     open_test_data = sc.parallelize(open_test_data_list)
 
     # predict close data test
+    logger.debug("Calculate close predict data")
     close_value_predict = close_test_data.map(lambda p: (p.label, close_model.predict(p.features)))
     MSE = close_value_predict.map(lambda (v, p): (v - p) ** 2).reduce(lambda x, y: x + y) / close_value_predict.count()
     MAD = DataParser.get_MAD(close_value_predict)
     MAPE = DataParser.get_MAPE(close_value_predict)
-    print("Close Mean Squared Error = " + str(MSE))
-    print("Close Mean Absolute Deviation = " + str(MAD))
-    print("Close Mean Absolute Percentage Error = " + str(MAPE))
-    print("Close Model coefficients:", str(close_model))
+    logger.info("Close Mean Squared Error = " + str(MSE))
+    logger.info("Close Mean Absolute Deviation = " + str(MAD))
+    logger.info("Close Mean Absolute Percentage Error = " + str(MAPE))
+    logger.info("Close Model coefficients:", str(close_model))
 
     # predict open data test
+    logger.debug("Calculate open predict data")
     open_value_predict = open_test_data.map(lambda p: (p.label, open_model.predict(p.features)))
     MSE = open_value_predict.map(lambda (v, p): (v - p) ** 2).reduce(lambda x, y: x + y) / open_value_predict.count()
     MAD = DataParser.get_MAD(close_value_predict)
@@ -89,10 +101,10 @@ def calculate_data(path=r'../data/0003.HK.csv', sc=None):
     non_normalize_mad.append(MAD)
     non_normalize_mape.append(MAPE)
     non_normalize_mse.append(MSE)
-    print("Open Mean Squared Error = " + str(MSE))
-    print("Open Mean Absolute Deviation = " + str(MAD))
-    print("Open Mean Absolute Percentage Error = " + str(MAPE))
-    print("Open Model coefficients:", str(open_model))
+    logger.info("Open Mean Squared Error = " + str(MSE))
+    logger.info("Open Mean Absolute Deviation = " + str(MAD))
+    logger.info("Open Mean Absolute Percentage Error = " + str(MAPE))
+    logger.info("Open Model coefficients:", str(open_model))
     return close_value_predict, open_value_predict
 
 
@@ -118,16 +130,18 @@ def calculate_data_non_normalized(path=r'../data/0003.HK.csv', windows=5, spark_
     open_model = LinearRegressionWithSGD.train(open_train_data, step=0.0001, iterations=1000)
 
     # predict close data test
+    logger.debug("Calculate close predict data")
     close_value_predict = close_test_data.map(lambda p: (p.label, close_model.predict(p.features)))
     MSE = close_value_predict.map(lambda (v, p): (v - p) ** 2).reduce(lambda x, y: x + y) / close_value_predict.count()
     MAD = DataParser.get_MAD(close_value_predict)
     MAPE = DataParser.get_MAPE(close_value_predict)
-    print("Close Mean Squared Error = " + str(MSE))
-    print("Close Mean Absolute Deviation = " + str(MAD))
-    print("Close Mean Absolute Percentage Error = " + str(MAPE))
-    print("Close Model coefficients:", str(close_model))
+    logger.info("Close Mean Squared Error = " + str(MSE))
+    logger.info("Close Mean Absolute Deviation = " + str(MAD))
+    logger.info("Close Mean Absolute Percentage Error = " + str(MAPE))
+    logger.info("Close Model coefficients:", str(close_model))
 
     # predict open data test
+    logger.debug("Calculate open predict data")
     open_value_predict = open_test_data.map(lambda p: (p.label, close_model.predict(p.features)))
     MSE = open_value_predict.map(lambda (v, p): (v - p) ** 2).reduce(lambda x, y: x + y) / open_value_predict.count()
     MAD = DataParser.get_MAD(open_value_predict)
@@ -135,10 +149,10 @@ def calculate_data_non_normalized(path=r'../data/0003.HK.csv', windows=5, spark_
     non_normalize_mad.append(MAD)
     non_normalize_mape.append(MAPE)
     non_normalize_mse.append(MSE)
-    print("Open Mean Squared Error = " + str(MSE))
-    print("Open Mean Absolute Deviation = " + str(MAD))
-    print("Open Mean Absolute Percentage Error = " + str(MAPE))
-    print("Open Model coefficients:", str(open_model))
+    logger.info("Open Mean Squared Error = " + str(MSE))
+    logger.info("Open Mean Absolute Deviation = " + str(MAD))
+    logger.info("Open Mean Absolute Percentage Error = " + str(MAPE))
+    logger.info("Open Model coefficients:", str(open_model))
     return close_value_predict, open_value_predict
 
 
@@ -149,10 +163,12 @@ def calculate_data_normalized(path=r'../data/0003.HK.csv', windows=5, spark_cont
     :param path: Data file path
     :return: None
     """
+    logger.info("Start to calculate data with normalized using Linear regression")
     if spark_context is None:
         spark_context = load_spark_context()[0]
 
     # Read date from given file
+    logger.debug("Load data")
     data = DataParser(path=path, window_size=windows)
 
     data_list = data.load_data_from_yahoo_csv()
@@ -160,27 +176,27 @@ def calculate_data_normalized(path=r'../data/0003.HK.csv', windows=5, spark_cont
         data.get_n_days_history_data(data_list, data_type=LABEL_POINT, spark_context=spark_context)
 
     # Training model
+    logger.debug("Start training")
     close_model = LinearRegressionWithSGD.train(close_train_data, step=0.0001, iterations=1000)
     open_model = LinearRegressionWithSGD.train(open_train_data, step=0.0001, iterations=1000)
-
-    print "close test", close_test_data.take(10)
-    print "close train", close_train_data.take(10)
 
     def de_normalize_data(label, features):
         return label * (features[1] - features[2]) / 2 + (features[1] + features[2]) / 2
 
     # predict close data test
+    logger.debug("Calculate close predict data")
     close_value_predict = close_test_data.map(lambda p: (p.label, de_normalize_data(close_model.predict(p.features),
                                                                               p.features)))
     MSE = close_value_predict.map(lambda (v, p): (v - p) ** 2).reduce(lambda x, y: x + y) / close_value_predict.count()
     MAD = DataParser.get_MAD(close_value_predict)
     MAPE = DataParser.get_MAPE(close_value_predict)
-    print("Close Mean Squared Error = " + str(MSE))
-    print("Close Mean Absolute Deviation = " + str(MAD))
-    print("Close Mean Absolute Percentage Error = " + str(MAPE))
-    print("Close Model coefficients:", str(close_model))
+    logger.info("Close Mean Squared Error = " + str(MSE))
+    logger.info("Close Mean Absolute Deviation = " + str(MAD))
+    logger.info("Close Mean Absolute Percentage Error = " + str(MAPE))
+    logger.info("Close Model coefficients:", str(close_model))
 
     # predict open data test
+    logger.debug("Calculate open predict data")
     open_value_predict = open_test_data.map(
         lambda p: (p.label, de_normalize_data(close_model.predict(p.features), p.features)))
     MSE = open_value_predict.map(lambda (v, p): (v - p) ** 2).reduce(lambda x, y: x + y) / open_value_predict.count()
@@ -189,10 +205,10 @@ def calculate_data_normalized(path=r'../data/0003.HK.csv', windows=5, spark_cont
     normalize_mad.append(MAD)
     normalize_mape.append(MAPE)
     normalize_mse.append(MSE)
-    print("Open Mean Squared Error = " + str(MSE))
-    print("Open Mean Absolute Deviation = " + str(MAD))
-    print("Open Mean Absolute Percentage Error = " + str(MAPE))
-    print("Open Model coefficients:", str(open_model))
+    logger.info("Open Mean Squared Error = " + str(MSE))
+    logger.info("Open Mean Absolute Deviation = " + str(MAD))
+    logger.info("Open Mean Absolute Percentage Error = " + str(MAPE))
+    logger.info("Open Model coefficients:", str(open_model))
     return close_value_predict, open_value_predict
 
 
