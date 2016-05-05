@@ -536,15 +536,74 @@
                     <div class="modal-body">
                         <!-- Project Details Go Here -->
                         <h2>Artificial Neural Network</h2>
-                        <p class="item-intro text-muted">Mimic the human nervous system.</p>
-                        <img class="img-responsive img-centered" src="img/details/ann1.png" alt="">
-                        <p>In machine learning and cognitive science, artificial neural networks (ANNs) are a family of
-                            models inspired by biological neural networks (the central nervous systems of animals, in
-                            particular the brain) which are used to estimate or approximate functions that can depend on
-                            a large number of inputs and are generally unknown. Artificial neural networks are generally
-                            presented as systems of interconnected "neurons" which exchange messages between each other.
-                            The connections have numeric weights that can be tuned based on experience, making neural
-                            nets adaptive to inputs and capable of learning.</p>
+                        <p class="item-intro text-muted">The following info are copyed from <a
+                                href="http://www.theprojectspot.com/tutorial-post/introduction-to-artificial-neural-networks-part-1/7">introduction
+                            to artificial neural networks</a>
+                        </p>
+                        <img class="img-responsive img-centered" src="img/details/ann/nnl.jpg" alt="">
+                        <h4>Introduction</h4>
+                        <p>
+                            It is usually difficult for computer to understand the real world using mathematical
+                            algorithm. Facial recognition and language processing are examples of problems that can't
+                            be easily transferred into an model. The key to Artificial Neural Networks is that their
+                            design enables them to process information in a similar way to our own biological brains,
+                            by drawing inspiration from how our own nervous system functions. This makes them useful
+                            tools for solving problems like facial recognition, which our biological brains can do
+                            easily.
+                        </p>
+                        <h4>How do they work?</h4>
+                        <p>
+                            Our brains use extremely large interconnected networks of neurons to process information and
+                            model the world we live in. Electrical inputs are passed through this network of neurons
+                            which result in an output being produced. In the case of a biological brain this could
+                            result in contracting a muscle or signaling your sweat glands to produce sweat. A neuron
+                            collects inputs using a structure called dendrites, the neuron effectively sums all of these
+                            inputs from the dendrites and if the resulting value is greater than it's firing threshold,
+                            the neuron fires. When the neuron fires it sends an electrical impulse through the neuron's
+                            axon to it's boutons. These boutons can then be networked to thousands of other neurons via
+                            connections called synapses. There are about one hundred billion (100,000,000,000) neurons
+                            inside the human brain each with about one thousand synaptic connections. It's effectively
+                            the way in which these synapses are wired that give our brains the ability to process
+                            information the way they do.
+                        </p>
+                        <h4>Modeling Artificial Neurons</h4>
+                        <p>
+                            Artificial neuron models are at their core simplified models based on biological neurons.
+                            This allows them to capture the essence of how a biological neuron functions. We usually
+                            refer to these artificial neurons as 'perceptrons'. So now lets take a look at what a
+                            perceptron looks like.
+                        </p>
+                        <img class="img-responsive img-centered" src="img/details/ann/an.jpg" alt="">
+                        <p>
+                            As shown in the diagram above a typical perceptron will have many inputs and these inputs
+                            are all individually weighted. The perceptron weights can either amplify or deamplify the
+                            original input signal. For example, if the input is 1 and the input's weight is 0.2 the
+                            input will be decreased to 0.2. These weighted signals are then added together and passed
+                            into the activation function. The activation function is used to convert the input into a
+                            more useful output. There are many different types of activation function but one of the
+                            simplest would be step function. A step function will typically output a 1 if the input is
+                            higher than a certain threshold, otherwise it's output will be 0.
+                        </p>
+                        <h4>Implementing Artificial Neural Networks</h4>
+                        <p>
+                            So now you're probably wondering what an artificial neural network looks like and how it
+                            uses these artificial neurons to process information. In this tutorial we're going to be
+                            looking at feedforward networks and how their design links our perceptron together creating
+                            a functioning artificial neural network. Before we begin lets take a look at what a basic
+                            feedforward network looks like:
+                        </p>
+                        <img class="img-responsive img-centered" src="img/details/ann/ann.jpg" alt="">
+                        <p>
+                            Each input from the input layer is fed up to each node in the hidden layer, and from there
+                            to each node on the output layer. We should note that there can be any number of nodes per
+                            layer and there are usually multiple hidden layers to pass through before ultimately
+                            reaching the output layer. Choosing the right number of nodes and layers is important later
+                            on when optimising the neural network to work well a given problem. As you can probably tell
+                            from the diagram, it's called a feedforward network because of how the signals are passed
+                            through the layers of the neural network in a single direction. These aren't the only type
+                            of neural network though. There are also feedback networks where its architecture allows
+                            signals to travel in both directions.
+                        </p>
                         <button type="button" class="btn btn-primary" data-dismiss="modal">
                             <i class="fa fa-times"></i>Close Detail
                         </button>
