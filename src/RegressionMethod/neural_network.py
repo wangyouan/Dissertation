@@ -11,7 +11,6 @@ import math
 import numpy.random as random
 import numpy as np
 
-from src import load_logger
 from regression_method import Regression
 
 
@@ -20,29 +19,21 @@ def sigmoid(x):
 
 
 class NeuralNetwork(Regression):
-    def __init__(self, layers, seed=None):
+    def __init__(self, layers, seed=None, path=None):
         Regression.__init__(self)
-        self.weights = []
-        if seed is not None:
-            random.seed(seed=seed)
-        for i in range(1, len(layers)):
-            self.weights.append(random.random_sample([layers[i - 1], layers[i]]))
+        if path is None:
+            self.logger.debug("Init weights")
+            self.weights = []
+            if seed is not None:
+                random.seed(seed=seed)
+            for i in range(1, len(layers)):
+                self.weights.append(random.random_sample([layers[i - 1], layers[i]]))
+        else:
+            self.load_model(path)
 
-    def train(self, rdd_data, learn_rate=0.5, iteration=100, error=1e-8, method='back_propagation'):
-        pass
-
-    def get_loss(self, features, target, method="lse"):
-        """
-        Get the lose value of current target
-        :param features: features of the output
-        :param target: origin output
-        :param method: method to measure the loss. Default method is "lse" (least square error)
-        :return:
-        """
-        predict_value = self.predict(features)
-
-        if method == "lse":
-            return (target - predict_value) ** 2
+    def train(self, rdd_data, learn_rate=0.5, iteration=100, error=1e-8, method=None):
+        if method is None:
+            method = self.BP
 
     def predict(self, features):
         temp_feature = np.array(map(sigmoid, features))
