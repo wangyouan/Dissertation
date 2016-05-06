@@ -26,5 +26,5 @@ def load_spark_context():
 
 def load_logger(application_name=""):
     logger = logging.getLogger(application_name)
-    logger.setLevel(logging.INFO)
+    logger.setLevel(logging.DEBUG)
     return logger
