@@ -24,7 +24,8 @@ def load_spark_context():
     return sc, sql_context
 
 
-def load_logger(application_name=""):
+def load_logger(application_name="", level=None):
     logger = logging.getLogger(application_name)
-    logger.setLevel(logging.DEBUG)
+    if level is not None:
+        logger.setLevel(level=level)
     return logger

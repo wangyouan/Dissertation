@@ -6,16 +6,22 @@
 # Author: Mark Wang
 # Date: 5/5/2016
 
+import math
 
 import numpy.random as random
 import numpy as np
 
-from __init__ import load_logger
+from src import load_logger
+from regression_method import Regression
 
 
-class NeuralNetwork(object):
+def sigmoid(x):
+    return 1.0 / (1 + math.exp(-x))
+
+
+class NeuralNetwork(Regression):
     def __init__(self, layers, seed=None):
-        self.logger = load_logger(self.__class__.__name__)
+        Regression.__init__(self)
         self.weights = []
         if seed is not None:
             random.seed(seed=seed)
@@ -25,8 +31,21 @@ class NeuralNetwork(object):
     def train(self, rdd_data, learn_rate=0.5, iteration=100, error=1e-8, method='back_propagation'):
         pass
 
+    def get_loss(self, features, target, method="lse"):
+        """
+        Get the lose value of current target
+        :param features: features of the output
+        :param target: origin output
+        :param method: method to measure the loss. Default method is "lse" (least square error)
+        :return:
+        """
+        predict_value = self.predict(features)
+
+        if method == "lse":
+            return (target - predict_value) ** 2
+
     def predict(self, features):
-        temp_feature = features
+        temp_feature = np.array(map(sigmoid, features))
         self.logger.debug("features are %s", features)
         for weights in self.weights:
             temp_feature = temp_feature.dot(weights)
@@ -36,7 +55,7 @@ class NeuralNetwork(object):
 
 
 if __name__ == "__main__":
-    from __init__ import load_spark_context
+    from src import load_spark_context
     import logging
     import sys
 
