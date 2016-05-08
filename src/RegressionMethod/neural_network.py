@@ -18,9 +18,30 @@ def sigmoid(x):
     return 1.0 / (1 + math.exp(-x))
 
 
+def sigmoid_dot(x):
+    """ return the derivative of sigmoid function """
+    x = sigmoid(x)
+    return x * (1 - x)
+
+
+def tanh(x):
+    return math.tanh(x)
+
+
+def tanh_dot(x):
+    return 1.0 / math.cosh(x) ** 2
+
+
 class NeuralNetwork(Regression):
-    def __init__(self, layers, seed=None, path=None):
+    def __init__(self, layers, seed=None, path=None, activation_func=None, activation_func_dot=None):
         Regression.__init__(self)
+        if activation_func is None:
+            self.af = sigmoid
+            self.afd = sigmoid_dot
+        else:
+            self.af = activation_func
+            self.afd = activation_func_dot
+
         if path is None:
             self.logger.debug("Init weights")
             self.weights = []

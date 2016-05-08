@@ -32,7 +32,7 @@ class LinearRegression(Regression):
             self.logger.debug("Init weights")
             if seed is not None:
                 random.seed(seed=seed)
-            self.weights = random.random_sample(len(rdd_data[0][0]))
+            self.weights = 2 * random.random_sample(len(rdd_data[0][0])) - 1
 
         if method is None:
             method = self.GD
@@ -58,6 +58,7 @@ class LinearRegression(Regression):
             temp_value = np.array(data[0], dtype=float)
             descent += 2 * (self.predict(data[0]) - data[1]) * temp_value
 
+        loss /= len(rdd_data)
         self.logger.debug("Current loss is {:.6f}, and target error is {}".format(loss, error))
         if loss > error:
             self.weights -= learning_rate * descent
@@ -72,6 +73,7 @@ class LinearRegression(Regression):
 if __name__ == "__main__":
     import logging
     import sys
+
     logging.basicConfig(stream=sys.stdout, level=logging.DEBUG)
 
     test = LinearRegression()
@@ -80,7 +82,25 @@ if __name__ == "__main__":
         [[0, 0], 0],
         [[2, 2], 10],
         [[0.5, 0.3], 1.9],
-        [[0.1, 0.2], 0.8]
+        [[0.4, 0.5], 2.3],
+        [[8, 1], 19],
+        [[1, 0], 2],
+        [[0, 1], 3],
+        [[0.5, 1], 4],
+        [[0.3, 1.1], 3.9],
+        [[-1, -1], -5],
+        [[-2, -2], -10],
+        [[1, -2], -4],
+        [[-1, 2], 4],
+        [[1, -0.5], -0.5],
+        [[1, -1], -1],
+        [[-1.5, 1], 0],
+        [[-1.1, 1], 0.8],
+        [[-1.2, 1], 0.6],
+        [[-4, 4], 4],
+        [[2, 1], 7],
+        [[0.1, 0.2], 0.8],
     ]
-    test.train(train_data, learn_rate=0.001, iteration=1000, seed=1234)
+    test.train(train_data, learn_rate=1e-3, iteration=100, seed=1234)
     print test.predict([1, 2])
+    print test.weights
