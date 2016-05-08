@@ -233,7 +233,7 @@ def test_non_vs_normalize(show_plt=False, windows=10, stock_num=None):
         print symbol
         path = os.path.join(r'../data', symbol)
         # if not symbol.startswith('00') or not os.path.isfile(path):
-        if '0002' not in path and '0003' not in path:
+        if '0051' not in path:
             continue
         print("Non normalize version")
         non_normalize = calculate_data_non_normalized(path, windows=windows, spark_context=sc)
@@ -267,4 +267,4 @@ def test_non_vs_normalize(show_plt=False, windows=10, stock_num=None):
 
 
 if __name__ == "__main__":
-    test_non_vs_normalize(windows=5, stock_num=None, show_plt=True)
+    test_non_vs_normalize(windows=5, stock_num=1, show_plt=True)

@@ -16,6 +16,7 @@ CLOSE = "Close"
 # Data type
 DATA_FRAME = "DataFrame"
 LABEL_POINT = "LabelPoint"
+NONE_DISTRIBUTED = "none distributed"
 FEATURES = "features"
 LABEL = "label"
 PREDICTION = "prediction"

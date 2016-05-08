@@ -7,10 +7,15 @@
 # Date: 8/4/2016
 
 import logging
-import sys
 
-from pyspark import SparkContext
-from pyspark.sql import SQLContext
+try:
+    from pyspark import SparkContext
+    from pyspark.sql import SQLContext
+except ImportError, e:
+    logger = logging.getLogger(__name__)
+    logger.warning("Cannot load spark, as {}".format(e))
+    SparkContext = None
+    SQLContext = None
 
 
 def load_spark_context():

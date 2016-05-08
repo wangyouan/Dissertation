@@ -70,9 +70,9 @@ class NeuralNetwork(Regression):
     def back_propagation_sgd(self, rdd_data, learn_rate, iteration, error):
         """ Using stochastic gradient descent to do the back propagation """
         input_data = np.array(rdd_data)
-        real = np.array(map(float, input_data[:,1]))
+        real = np.array(map(float, input_data[:, 1]))
         feature = input_data[:, 0]
-        feature = map(lambda (v, p): np.array([float(v), float(p)]), feature)
+        feature = map(lambda x: map(float, x), feature)
         ones = np.atleast_2d(np.ones(np.shape(feature)[0])) * self.bias
         feature = np.concatenate((ones.T, np.array(feature, dtype=float)), axis=1)
         for i in range(iteration):
@@ -101,7 +101,7 @@ class NeuralNetwork(Regression):
         temp_feature = np.concatenate((np.ones(1).T * self.bias, np.array(features)))
 
         self.logger.debug("features are %s", features)
-        for i in range(len(self.weights)-1):
+        for i in range(len(self.weights) - 1):
             temp_feature = self.af(np.dot(temp_feature, self.weights[i]))
         temp_feature = np.dot(temp_feature, self.weights[-1])[0]
 
@@ -109,26 +109,44 @@ class NeuralNetwork(Regression):
         return temp_feature
 
 
+def test_nn():
+    data_file = "/home/warn/PythonProjects/Dissertation/data/0051.HK.csv"
+    from src.parse_data import DataParser
+    from src.constant import NONE_DISTRIBUTED
+    data = DataParser(path=data_file, window_size=3)
+    data_list = data.load_data_from_yahoo_csv()
+    close_train_data, close_test_data, open_train_data, open_test_data = \
+        data.get_n_days_history_data(data_list, data_type=NONE_DISTRIBUTED, normalized=True)
+
+    close_train_data = map(lambda (x, y): [x, sigmoid(y)], close_train_data)
+    neural = NeuralNetwork([4, 5, 1], seed=1234, activation_func=sigmoid, activation_func_dot=sigmoid_dot, bias=1)
+    neural.train(rdd_data=close_train_data, learn_rate=1e-3, error=1e-8, iteration=10000)
+    predict_list = map(lambda (x, y): (DataParser.de_normalize(neural.predict(x), x), y), close_test_data)
+    import pprint
+    pprint.pprint(predict_list)
+    mse = sum(map(lambda (x, y): (x - y)**2, predict_list)) / len(predict_list)
+    print mse
+
 if __name__ == "__main__":
-    from src import load_spark_context
     import logging
     import sys
 
     logging.basicConfig(stream=sys.stdout, level=logging.DEBUG)
-    test = NeuralNetwork([2, 3, 1], seed=1234, bias=0.5)
-    y = np.array(
-        [5.0, 0.0, 10.0, 1.9, 2.3, 19.0, 2.0, 3.0, 4.0, 3.9, -5.0, -10.0, -4.0, 4.0, -0.5, -1.0, 0.0, 0.8, 0.6, 4.0,
-         7.0, 0.8, 1.0, 0])
-    a = np.mean(y)
-    b = np.std(y)
-    y = (y - np.mean(y)) / np.std(y)
-    y = map(sigmoid, y)
-    x = [[1, 1], [0, 0], [2, 2], [0.5, 0.3], [0.4, 0.5], [8, 1], [1, 0],
-         [0, 1], [0.5, 1], [0.3, 1.1], [-1, -1], [-2, -2], [1, -2], [-1, 2],
-         [1, -0.5], [1, -1], [-1.5, 1], [-1.1, 1], [-1.2, 1], [-4, 4],
-         [2, 1], [0.1, 0.2], [0.2, 0.2], [-0.3, 0.2]]
-    # print zip(x, y)
-
-    test.train(zip(x, y), learn_rate=1e-3, iteration=10000)
-    c = test.predict(np.array([1.0, 2.0]))
-    print c * b + a
+    test_nn()
+    # test = NeuralNetwork([2, 3, 1], seed=1234, bias=0.5)
+    # y = np.array(
+    #     [5.0, 0.0, 10.0, 1.9, 2.3, 19.0, 2.0, 3.0, 4.0, 3.9, -5.0, -10.0, -4.0, 4.0, -0.5, -1.0, 0.0, 0.8, 0.6, 4.0,
+    #      7.0, 0.8, 1.0, 0])
+    # a = np.mean(y)
+    # b = np.std(y)
+    # y = (y - np.mean(y)) / np.std(y)
+    # y = map(sigmoid, y)
+    # x = [[1, 1], [0, 0], [2, 2], [0.5, 0.3], [0.4, 0.5], [8, 1], [1, 0],
+    #      [0, 1], [0.5, 1], [0.3, 1.1], [-1, -1], [-2, -2], [1, -2], [-1, 2],
+    #      [1, -0.5], [1, -1], [-1.5, 1], [-1.1, 1], [-1.2, 1], [-4, 4],
+    #      [2, 1], [0.1, 0.2], [0.2, 0.2], [-0.3, 0.2]]
+    # # print zip(x, y)
+    #
+    # test.train(zip(x, y), learn_rate=1e-3, iteration=10000)
+    # c = test.predict(np.array([1.0, 2.0]))
+    # print c * b + a

@@ -96,7 +96,7 @@ class DataParser(object):
                                                      label=normalize(close_data[i], self.features[i][1],
                                                                      self.features[i][2])))
                 open_train_list.append(LabeledPoint(features=self.features[i],
-                                                    label=normalize(close_data[i], self.features[i][1],
+                                                    label=normalize(open_data[i], self.features[i][1],
                                                                     self.features[i][2])))
 
             for i in range(train_len - 1, len(self.features)):
@@ -108,6 +108,14 @@ class DataParser(object):
                 open_train_list = spark_context.parallelize(open_train_list)
                 close_test_list = spark_context.parallelize(close_test_list)
                 open_test_list = spark_context.parallelize(open_test_list)
+        elif data_type == NONE_DISTRIBUTED:
+            close_train_list = zip(self.features[:train_len], close_data[:train_len])
+            close_test_list = zip(self.features[(train_len - 1):], close_data[(train_len - 1):])
+            open_train_list = zip(self.features[:train_len], open_data[:train_len])
+            open_test_list = zip(self.features[(train_len - 1):], open_data[(train_len - 1):])
+            if normalized:
+                close_train_list = map(lambda (f, r): (f, normalize(r, f[1], f[2])), close_train_list)
+                open_train_list = map(lambda (f, r): (f, normalize(r, f[1], f[2])), open_train_list)
 
         return close_train_list, close_test_list, open_train_list, open_test_list
 
@@ -298,6 +306,7 @@ class DataParser(object):
     def get_MAPE(label_prediction):
         return label_prediction.map(lambda (v, p): abs((v - p) / float(v))).sum() / float(label_prediction.count())
 
+
 if __name__ == "__main__":
     test = DataParser(path='../data/0001.HK.csv', window_size=3)
     data_list = test.load_data_from_yahoo_csv()[:9]
@@ -308,5 +317,5 @@ if __name__ == "__main__":
 
     for i in range(len(time_series[0])):
         print time_series[0][i], time_series[2][i], time_series[1][i]
-    # import pprint
-    # pprint.pprint(time_series, width=200)
+        # import pprint
+        # pprint.pprint(time_series, width=200)
