@@ -177,8 +177,8 @@ def calculate_data_normalized(path=r'../data/0003.HK.csv', windows=5, spark_cont
 
     # Training model
     logger.debug("Start training")
-    close_model = LinearRegressionWithSGD.train(close_train_data, step=0.0001, iterations=1000)
-    open_model = LinearRegressionWithSGD.train(open_train_data, step=0.0001, iterations=1000)
+    close_model = LinearRegressionWithSGD.train(close_train_data, step=0.0001, iterations=100000)
+    open_model = LinearRegressionWithSGD.train(open_train_data, step=0.0001, iterations=100000)
 
     def de_normalize_data(label, features):
         return label * (features[1] - features[2]) / 2 + (features[1] + features[2]) / 2

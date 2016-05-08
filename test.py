@@ -31,7 +31,7 @@ if os.path.exists('stock_data'):
     f.close()
 
 
-# sc = load_spark_context()[0]
+sc = load_spark_context()[0]
 
 
 def compare_lr_and_rt(stock_num=None, window_size=5, show_price_prediction=False):
