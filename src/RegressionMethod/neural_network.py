@@ -35,7 +35,7 @@ def tanh_dot(x):
 
 
 class NeuralNetwork(Regression):
-    def __init__(self, layers, seed=None, path=None, activation_func=None, activation_func_dot=None):
+    def __init__(self, layers, seed=None, path=None, activation_func=None, activation_func_dot=None, bias=0.0):
         Regression.__init__(self)
         if activation_func is None:
             self.af = sigmoid
@@ -44,6 +44,7 @@ class NeuralNetwork(Regression):
             self.af = activation_func
             self.afd = activation_func_dot
 
+        self.bias = bias
         if path is None:
             self.logger.debug("Init weights")
             self.weights = []
@@ -72,7 +73,7 @@ class NeuralNetwork(Regression):
         real = np.array(map(float, input_data[:,1]))
         feature = input_data[:, 0]
         feature = map(lambda (v, p): np.array([float(v), float(p)]), feature)
-        ones = np.atleast_2d(np.ones(np.shape(feature)[0]))
+        ones = np.atleast_2d(np.ones(np.shape(feature)[0])) * self.bias
         feature = np.concatenate((ones.T, np.array(feature, dtype=float)), axis=1)
         for i in range(iteration):
             self.logger.debug("Start the {} iteration".format(i))
@@ -97,14 +98,15 @@ class NeuralNetwork(Regression):
             self.logger.debug("{} iteration finished".format(i))
 
     def predict(self, features):
-        temp_feature = np.concatenate((np.ones(1).T, np.array(features)))
+        temp_feature = np.concatenate((np.ones(1).T * self.bias, np.array(features)))
 
         self.logger.debug("features are %s", features)
-        for weights in self.weights:
-            temp_feature = self.af(np.dot(temp_feature, weights))
+        for i in range(len(self.weights)-1):
+            temp_feature = self.af(np.dot(temp_feature, self.weights[i]))
+        temp_feature = np.dot(temp_feature, self.weights[-1])[0]
 
         self.logger.debug("Predict value are %s", temp_feature)
-        return temp_feature[0]
+        return temp_feature
 
 
 if __name__ == "__main__":
@@ -113,7 +115,7 @@ if __name__ == "__main__":
     import sys
 
     logging.basicConfig(stream=sys.stdout, level=logging.DEBUG)
-    test = NeuralNetwork([2, 3, 1], seed=1234)
+    test = NeuralNetwork([2, 3, 1], seed=1234, bias=0.5)
     y = np.array(
         [5.0, 0.0, 10.0, 1.9, 2.3, 19.0, 2.0, 3.0, 4.0, 3.9, -5.0, -10.0, -4.0, 4.0, -0.5, -1.0, 0.0, 0.8, 0.6, 4.0,
          7.0, 0.8, 1.0, 0])
@@ -128,6 +130,5 @@ if __name__ == "__main__":
     # print zip(x, y)
 
     test.train(zip(x, y), learn_rate=1e-3, iteration=10000)
-    c = test.predict(np.array([1.0, 1.0]))
-    c = de_sigmoid(c)
+    c = test.predict(np.array([1.0, 2.0]))
     print c * b + a
