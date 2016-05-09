@@ -11,15 +11,21 @@ import logging
 try:
     from pyspark import SparkContext
     from pyspark.sql import SQLContext
+    from pyspark import SparkConf
 except ImportError, e:
     logger = logging.getLogger(__name__)
     logger.warning("Cannot load spark, as {}".format(e))
     SparkContext = None
     SQLContext = None
+    SparkConf = None
 
 
-def load_spark_context():
-    sc = SparkContext(appName="MLPNeutralNetwork")
+def load_spark_context(application_name=None):
+    if application_name is None:
+        application_name = __name__
+
+    conf = SparkConf().setAppName(application_name)
+    sc = SparkContext.getOrCreate(conf=conf)
     sql_context = SQLContext(sc)
 
     # Close logger

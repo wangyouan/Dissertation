@@ -14,7 +14,7 @@ class Constants(object):
     LAE = 'least absolute error'
 
     # define method type used in neural network regression type
-    BP = 'back propagation'
+    BP_SGD = 'back propagation with stochastic gradient descent'
 
     # define method used in linear regression
     GD = 'Standard gradient descent'

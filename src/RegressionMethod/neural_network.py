@@ -61,10 +61,10 @@ class NeuralNetwork(Regression):
 
     def train(self, rdd_data, learn_rate=0.5, iteration=100, error=1e-8, method=None):
         if method is None:
-            method = self.BP
+            method = self.BP_SGD
 
         self.logger.debug("Using {} method to do the update".format(method))
-        if method == self.BP:
+        if method == self.BP_SGD:
             self.back_propagation_sgd(rdd_data, learn_rate, iteration, error)
 
     def back_propagation_sgd(self, rdd_data, learn_rate, iteration, error):

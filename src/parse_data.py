@@ -310,12 +310,13 @@ class DataParser(object):
 if __name__ == "__main__":
     test = DataParser(path='../data/0001.HK.csv', window_size=3)
     data_list = test.load_data_from_yahoo_csv()[:9]
-    time_series = test.get_time_series_data(data_list)
-    for i in data_list:
-        print i[:4]
-    print
-
-    for i in range(len(time_series[0])):
-        print time_series[0][i], time_series[2][i], time_series[1][i]
+    time_series = test.get_n_days_history_data_old(data_list, LABEL_POINT)
+    print time_series
+    # for i in data_list:
+    #     print i[:4]
+    # print
+    #
+    # for i in range(len(time_series[0])):
+    #     print time_series[0][i], time_series[2][i], time_series[1][i]
         # import pprint
         # pprint.pprint(time_series, width=200)
