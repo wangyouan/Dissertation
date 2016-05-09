@@ -6,11 +6,12 @@
 # Author: Mark Wang
 # Date: 12/4/2016
 
+import os
 from urllib2 import Request, urlopen
 from urllib import urlencode
 
 
-def get_all_date_about_stock(symbol, start_date=None, end_date=None):
+def get_all_date_about_stock(symbol, start_date=None, end_date=None, save_path='../data'):
     date_list = [('s', symbol)]
     if start_date:
         date = start_date.split('-')
@@ -27,19 +28,24 @@ def get_all_date_about_stock(symbol, start_date=None, end_date=None):
     url = "http://ichart.finance.yahoo.com/table.csv?{}".format(urlencode(date_list))
     query = Request(url)
     response = urlopen(query)
-    f = open(r'../data/{}.csv'.format(symbol), 'w')
+    f = open(os.path.join(save_path,'/{}.csv'.format(symbol)), 'w')
     f.write(response.read())
     f.close()
 
 
 if __name__ == "__main__":
     # stock_symbol = ['0001.HK', '0002.HK', '0003.HK', '0004.HK', '0005.HK']
+    import sys
+    if len(sys.argv) > 1:
+        save_path = sys.argv[1]
+    else:
+        save_path = '../data'
     stock_symbol = []
-    for i in range(50, 66):
+    for i in range(1, 66):
         stock_symbol.append("{:04d}.HK".format(i))
     # print stock_symbol
     for symbol in stock_symbol:
         try:
-            get_all_date_about_stock(symbol, start_date='2006-03-14', end_date='2016-03-15')
+            get_all_date_about_stock(symbol, start_date='2006-03-14', end_date='2016-03-15', save_path=save_path)
         except Exception:
             print("Get stock {} failed".format(symbol))

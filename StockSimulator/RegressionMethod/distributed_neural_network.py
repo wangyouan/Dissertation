@@ -6,8 +6,6 @@
 # Author: Mark Wang
 # Date: 8/5/2016
 
-import logging
-
 import numpy as np
 import numpy.random as np_rand
 from pyspark import SparkContext, RDD
@@ -117,9 +115,7 @@ class NeuralNetworkSpark(Constants):
 
         fraction = float(self.spark_contest.defaultParallelism) / rdd_data.count()
         for k in range(iteration):
-            if k % 100 == 0:
-                self.logger.info("The {} iteration starts".format(k))
-            self.logger.debug("Start the {} iteration".format(k))
+            self.logger.info("Start the {} iteration".format(k))
 
             sample_rdd = rdd_data.sample(True, fraction)
             process_data = [sample_rdd]
@@ -141,7 +137,7 @@ class NeuralNetworkSpark(Constants):
                 # while (delta < error * rdd_data.count()).all():
                 #     delta *= 10
                 model.weights[l] += learn_rate * delta
-            self.logger.debug("{} iteration finished".format(k))
+            self.logger.info("{} iteration finished".format(k))
         return model
 
 
