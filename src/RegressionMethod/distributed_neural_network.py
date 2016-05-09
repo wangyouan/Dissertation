@@ -57,6 +57,43 @@ class NeuralNetwork(Constants):
         self.logger.debug("Using {} method to update the model".format(method))
         if method == self.BP_SGD:
             model = self.back_propagation_sgd(rdd_data, learn_rate, iteration, model)
+        elif method == self.BP:
+            model = self.back_propagation(rdd_data=rdd_data, learn_rate=learn_rate, iteration=iteration, model=model)
+        return model
+
+    def back_propagation(self, rdd_data, learn_rate, iteration, model):
+        """ Using standard gradient descent method to correct error """
+
+        # define some functions used in the map process
+        ones = np.ones(1).T * self.bias
+        np_array = np.array
+        concatenate = np.concatenate
+        np_dot = np.dot
+        np_atleast_2d = np.atleast_2d
+        rdd_data = rdd_data.map(lambda v: LabeledPoint(features=concatenate((ones, np_array(v.features))),
+                                                       label=model.act_func(v.label))).cache()
+
+        for k in range(iteration):
+            self.logger.debug("Start the {} iteration".format(k))
+
+            process_data = [rdd_data]
+            for layer in model.weights:
+                activation = process_data[-1].map(lambda v: LabeledPoint(features=np_dot(v.features, layer),
+                                                                         label=v.label)).cache()
+                process_data.append(activation)
+
+            deltas = [
+                process_data[-1].map(lambda v: (v.label - v.features[0]) * model.act_func_prime(v.features)).cache()]
+            for l in range(len(process_data) - 2, 0, -1):
+                deltas.append(deltas[-1].zip(process_data[l]).map(lambda (d, p): np_dot(d, model.weights[l].T) *
+                                                                                 model.act_func_prime(
+                                                                                     p.features)).cache())
+            deltas.reverse()
+            for l in range(len(model.weights)):
+                layer = process_data[l].map(lambda v: np_atleast_2d(v.features)).sum()
+                delta = deltas[l].map(np_atleast_2d).sum()
+                model.weights[l] += learn_rate * layer.T.dot(delta)
+            self.logger.debug("{} iteration finished".format(k))
         return model
 
     def back_propagation_sgd(self, rdd_data, learn_rate, iteration, model):
@@ -89,8 +126,8 @@ class NeuralNetwork(Constants):
                                                                                      p.features)).cache())
             deltas.reverse()
             for l in range(len(model.weights)):
-                layer = process_data[l].map(lambda v: np_atleast_2d(v.features)).sum() / process_data[l].count()
-                delta = deltas[l].map(np_atleast_2d).sum() / deltas[l].count()
+                layer = process_data[l].map(lambda v: np_atleast_2d(v.features)).sum()
+                delta = deltas[l].map(np_atleast_2d).sum()
                 model.weights[l] += learn_rate * layer.T.dot(delta)
             self.logger.debug("{} iteration finished".format(k))
         return model
