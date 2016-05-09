@@ -56,12 +56,13 @@ class NeuralNetwork(Constants):
 
         self.logger.debug("Using {} method to update the model".format(method))
         if method == self.BP_SGD:
-            model = self.back_propagation_sgd(rdd_data, learn_rate, iteration, model)
+            model = self.back_propagation_sgd(rdd_data, learn_rate, iteration, model, error)
         elif method == self.BP:
-            model = self.back_propagation(rdd_data=rdd_data, learn_rate=learn_rate, iteration=iteration, model=model)
+            model = self.back_propagation(rdd_data=rdd_data, learn_rate=learn_rate, iteration=iteration, model=model,
+                                          error=error)
         return model
 
-    def back_propagation(self, rdd_data, learn_rate, iteration, model):
+    def back_propagation(self, rdd_data, learn_rate, iteration, model, error):
         """ Using standard gradient descent method to correct error """
 
         # define some functions used in the map process
@@ -73,7 +74,10 @@ class NeuralNetwork(Constants):
         rdd_data = rdd_data.map(lambda v: LabeledPoint(features=concatenate((ones, np_array(v.features))),
                                                        label=model.act_func(v.label))).cache()
 
+        # print model.weights
         for k in range(iteration):
+            if k % 100 == 0:
+                self.logger.info("The {} iteration starts".format(k))
             self.logger.debug("Start the {} iteration".format(k))
 
             process_data = [rdd_data]
@@ -92,11 +96,15 @@ class NeuralNetwork(Constants):
             for l in range(len(model.weights)):
                 layer = process_data[l].map(lambda v: np_atleast_2d(v.features)).sum()
                 delta = deltas[l].map(np_atleast_2d).sum()
-                model.weights[l] += learn_rate * layer.T.dot(delta)
+                delta = layer.T.dot(delta)
+                while (delta < error * rdd_data.count()).all():
+                    delta *= 10
+                model.weights[l] += learn_rate / rdd_data.count() * delta
             self.logger.debug("{} iteration finished".format(k))
+        print model.weights
         return model
 
-    def back_propagation_sgd(self, rdd_data, learn_rate, iteration, model):
+    def back_propagation_sgd(self, rdd_data, learn_rate, iteration, model, error):
         """ Using stochastic gradient descent to do the back propagation """
 
         # define some functions used in the map process
@@ -110,16 +118,19 @@ class NeuralNetwork(Constants):
 
         sample_fraction = float(self.spark_contest.defaultParallelism) / rdd_data.count()
         for k in range(iteration):
+            if k % 100 == 0:
+                self.logger.info("The {} iteration starts".format(k))
             self.logger.debug("Start the {} iteration".format(k))
 
-            sample_rdd = rdd_data.sample(False, sample_fraction)
-            process_data = [sample_rdd.cache()]
+            sample_rdd = rdd_data.sample(False, sample_fraction).cache()
+            process_data = [sample_rdd]
             for layer in model.weights:
                 activation = process_data[-1].map(lambda v: LabeledPoint(features=np_dot(v.features, layer),
                                                                          label=v.label)).cache()
                 process_data.append(activation)
 
-            deltas = [process_data[-1].map(lambda v: (v.label - v.features[0]) * model.act_func_prime(v.features)).cache()]
+            deltas = [
+                process_data[-1].map(lambda v: (v.label - v.features[0]) * model.act_func_prime(v.features)).cache()]
             for l in range(len(process_data) - 2, 0, -1):
                 deltas.append(deltas[-1].zip(process_data[l]).map(lambda (d, p): np_dot(d, model.weights[l].T) *
                                                                                  model.act_func_prime(
@@ -128,7 +139,10 @@ class NeuralNetwork(Constants):
             for l in range(len(model.weights)):
                 layer = process_data[l].map(lambda v: np_atleast_2d(v.features)).sum()
                 delta = deltas[l].map(np_atleast_2d).sum()
-                model.weights[l] += learn_rate * layer.T.dot(delta)
+                delta = layer.T.dot(delta)
+                while (delta < error * rdd_data.count()).all():
+                    delta *= 10
+                model.weights[l] += learn_rate / rdd_data.count() * delta
             self.logger.debug("{} iteration finished".format(k))
         return model
 
@@ -189,7 +203,7 @@ def test_distributed_ann():
         data.get_n_days_history_data(data_list, data_type=LABEL_POINT, normalized=True, spark_context=sc)
 
     neural = NeuralNetwork([4, 5, 1], bias=1)
-    model = neural.train(rdd_data=close_train_data, learn_rate=1e-3, error=1e-8, iteration=10000)
+    model = neural.train(rdd_data=close_train_data, learn_rate=1e-3, error=1e-5, iteration=1000, method=neural.BP)
     predict_result = close_test_data.map(lambda p: (p.label, DataParser.de_normalize(model.predict(p.features),
                                                                                      p.features))).cache()
     mse = DataParser.get_MSE(predict_result)

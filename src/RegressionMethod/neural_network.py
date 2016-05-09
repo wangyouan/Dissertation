@@ -100,17 +100,19 @@ class NeuralNetwork(Regression):
     def predict(self, features):
         temp_feature = np.concatenate((np.ones(1).T * self.bias, np.array(features)))
 
-        self.logger.debug("features are %s", features)
+        # self.logger.debug("features are %s", features)
         for i in range(len(self.weights) - 1):
             temp_feature = self.af(np.dot(temp_feature, self.weights[i]))
         temp_feature = np.dot(temp_feature, self.weights[-1])[0]
 
-        self.logger.debug("Predict value are %s", temp_feature)
+        # self.logger.debug("Predict value are %s", temp_feature)
         return temp_feature
 
 
 def test_nn():
-    data_file = "/home/warn/PythonProjects/Dissertation/data/0051.HK.csv"
+    import os
+    data_file = os.path.join(os.path.abspath('../data'), "0051.HK.csv")
+
     from src.parse_data import DataParser
     from src.constant import NONE_DISTRIBUTED
     data = DataParser(path=data_file, window_size=3)
@@ -121,9 +123,10 @@ def test_nn():
     close_train_data = map(lambda (x, y): [x, sigmoid(y)], close_train_data)
     neural = NeuralNetwork([4, 5, 1], seed=1234, activation_func=sigmoid, activation_func_dot=sigmoid_dot, bias=1)
     neural.train(rdd_data=close_train_data, learn_rate=1e-3, error=1e-8, iteration=10000)
+    print neural.weights
     predict_list = map(lambda (x, y): (DataParser.de_normalize(neural.predict(x), x), y), close_test_data)
-    import pprint
-    pprint.pprint(predict_list)
+    # import pprint
+    # pprint.pprint(predict_list)
     mse = sum(map(lambda (x, y): (x - y)**2, predict_list)) / len(predict_list)
     print mse
 
