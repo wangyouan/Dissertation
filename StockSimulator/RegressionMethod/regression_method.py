@@ -6,7 +6,7 @@
 # Author: Mark Wang
 # Date: 6/5/2016
 
-from src import load_logger
+from StockSimulator import load_logger
 from constants import Constants
 
 

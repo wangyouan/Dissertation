@@ -14,11 +14,11 @@ import sys
 import matplotlib.pyplot as plt
 import numpy as np
 
-from src import load_spark_context
-from src.RandomForestRegression import price_predict
-from src.linear_regression_with_SGD import calculate_data_normalized
-from src.parse_data import DataParser
-from src.plot_data import plot_label_vs_data, plot_bar
+from StockSimulator import load_spark_context
+from StockSimulator.RandomForestRegression import price_predict
+from StockSimulator.linear_regression_with_SGD import calculate_data_normalized
+from StockSimulator.parse_data import DataParser
+from StockSimulator.plot_data import plot_label_vs_data, plot_bar
 
 logging.basicConfig(format='%(asctime)s %(levelname)s:%(message)s', stream=sys.stdout)
 logger = logging.getLogger(__name__)

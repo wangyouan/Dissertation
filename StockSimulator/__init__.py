@@ -8,6 +8,8 @@
 
 import logging
 
+from RegressionMethod import NeuralNetworkSpark, NeuralNetworkModel, NeuralNetwork, Regression, LinearRegression
+
 try:
     from pyspark import SparkContext
     from pyspark.sql import SQLContext

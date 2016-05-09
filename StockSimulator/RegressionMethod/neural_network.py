@@ -9,7 +9,7 @@
 import numpy.random as random
 import numpy as np
 
-from regression_method import Regression
+from StockSimulator import Regression
 
 
 def sigmoid(x):
@@ -145,8 +145,8 @@ def test_nn():
     import os
     data_file = os.path.join(os.path.abspath('../data'), "0051.HK.csv")
 
-    from src.parse_data import DataParser
-    from src.constant import NONE_DISTRIBUTED
+    from StockSimulator.parse_data import DataParser
+    from StockSimulator.constant import NONE_DISTRIBUTED
     data = DataParser(path=data_file, window_size=3)
     data_list = data.load_data_from_yahoo_csv()
     close_train_data, close_test_data, open_train_data, open_test_data = \

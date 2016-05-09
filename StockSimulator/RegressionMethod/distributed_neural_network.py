@@ -13,8 +13,8 @@ from pyspark import SparkContext, RDD
 from pyspark.mllib.regression import LabeledPoint
 from pyspark.mllib.linalg import DenseVector
 
-from regression_method import Regression
-from src import load_logger
+from StockSimulator import Regression
+from StockSimulator import load_logger
 from constants import Constants
 
 
@@ -33,7 +33,7 @@ def sigmoid_prime(x):
     return y / (1 + y) ** 2
 
 
-class NeuralNetwork(Constants):
+class NeuralNetworkSpark(Constants):
     def __init__(self, layers, bias=1.0, act_func=None, act_func_prime=None):
         self.logger = load_logger(self.__class__.__name__)
         if act_func is None:
@@ -184,11 +184,11 @@ class NeuralNetworkModel(Regression):
 
 def test_distributed_ann():
     import os
-    data_file = os.path.join(os.path.abspath('../../data'), "0051.HK.csv")
+    data_file = os.path.join(os.path.abspath('data'), "0051.HK.csv")
 
-    from src.parse_data import DataParser
-    from src.constant import LABEL_POINT
-    from src import load_spark_context
+    from StockSimulator.parse_data import DataParser
+    from StockSimulator.constant import LABEL_POINT
+    from StockSimulator import load_spark_context
     sc = load_spark_context("NeuralNetwork")[0]
 
     logger = sc._jvm.org.apache.log4j
@@ -200,7 +200,7 @@ def test_distributed_ann():
     close_train_data, close_test_data, open_train_data, open_test_data = \
         data.get_n_days_history_data(data_list, data_type=LABEL_POINT, normalized=True, spark_context=sc)
 
-    neural = NeuralNetwork([4, 5, 1], bias=1)
+    neural = NeuralNetworkSpark([4, 5, 1], bias=1)
     model = neural.train(rdd_data=close_train_data, learn_rate=1e-3, error=1e-5, iteration=1000, method=neural.BP)
     predict_result = close_test_data.map(lambda p: (p.label, DataParser.de_normalize(model.predict(p.features),
                                                                                      p.features))).cache()
