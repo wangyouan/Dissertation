@@ -143,7 +143,7 @@ class NeuralNetwork(Regression):
 
 def test_nn():
     import os
-    data_file = os.path.join(os.path.abspath('../data'), "0051.HK.csv")
+    data_file = os.path.join(os.path.abspath('../../data'), "0051.HK.csv")
 
     from StockSimulator.parse_data import DataParser
     from StockSimulator.constant import NONE_DISTRIBUTED
@@ -154,11 +154,11 @@ def test_nn():
 
     close_train_data = map(lambda (x, y): [x, sigmoid(y)], close_train_data)
     neural = NeuralNetwork([4, 5, 1], seed=1234, activation_func=sigmoid, activation_func_dot=sigmoid_dot, bias=1)
-    neural.train(rdd_data=close_train_data, learn_rate=1e-3, error=1e-8, iteration=10000)
+    neural.train(rdd_data=close_train_data, learn_rate=1e-3, error=1e-8, iteration=100)
     print neural.weights
     predict_list = map(lambda (x, y): (DataParser.de_normalize(neural.predict(x), x), y), close_test_data)
-    # import pprint
-    # pprint.pprint(predict_list)
+    import pprint
+    pprint.pprint(predict_list)
     mse = sum(map(lambda (x, y): (x - y)**2, predict_list)) / len(predict_list)
     print mse
 

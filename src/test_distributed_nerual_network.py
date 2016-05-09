@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 # Project: Dissertation
-# File name: test_distributed_nerual_network
+# File name: test_distributed_neural_network
 # Author: Mark Wang
 # Date: 9/5/2016
 

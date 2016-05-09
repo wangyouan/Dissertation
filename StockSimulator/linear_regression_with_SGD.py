@@ -65,8 +65,8 @@ def calculate_data(path=r'../data/0003.HK.csv', sc=None):
 
     # Training model
     logger.debug("Start training")
-    close_model = LinearRegressionWithSGD.train(close_train_data, step=0.001, iterations=1000)
-    open_model = LinearRegressionWithSGD.train(open_train_data, step=0.001, iterations=1000)
+    close_model = LinearRegressionWithSGD.train(close_train_data, step=0.001, iterations=100000)
+    open_model = LinearRegressionWithSGD.train(open_train_data, step=0.001, iterations=100000)
 
     logger.debug("Prepare test data")
     close_test_data_list = []
@@ -126,8 +126,8 @@ def calculate_data_non_normalized(path=r'../data/0003.HK.csv', windows=5, spark_
         data.get_n_days_history_data(data_list, data_type=LABEL_POINT, spark_context=spark_context, normalized=False)
 
     # Training model
-    close_model = LinearRegressionWithSGD.train(close_train_data, step=0.0001, iterations=1000)
-    open_model = LinearRegressionWithSGD.train(open_train_data, step=0.0001, iterations=1000)
+    close_model = LinearRegressionWithSGD.train(close_train_data, step=0.0001, iterations=100000)
+    open_model = LinearRegressionWithSGD.train(open_train_data, step=0.0001, iterations=100000)
 
     # predict close data test
     logger.debug("Calculate close predict data")
