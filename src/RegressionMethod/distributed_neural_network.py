@@ -11,34 +11,37 @@ import numpy as np
 import numpy.random as np_rand
 from pyspark import SparkContext, RDD
 from pyspark.mllib.regression import LabeledPoint
+from pyspark.mllib.linalg import DenseVector
 
 from regression_method import Regression
 from src import load_logger
 from constants import Constants
 
 
-def act_func(x):
+def sigmoid(x):
     import numpy as np
-    y = np.array(x, dtype=np.float64)
-    return 1.0 / (1 + np.exp(-x, y))
+    if isinstance(x, DenseVector):
+        x = x.toArray()
+    return 1.0 / (1 + np.exp(-x))
 
 
-def act_func_prime(x):
+def sigmoid_prime(x):
     import numpy as np
-    y = np.array(x, dtype=np.float64)
-    np.exp(-x, y)
+    if isinstance(x, DenseVector):
+        x = x.toArray()
+    y = np.exp(-x)
     return y / (1 + y) ** 2
 
 
 class NeuralNetwork(Constants):
-    def __init__(self, layers, bias=1.0, act_func_set=None, act_func_prime_set=None):
+    def __init__(self, layers, bias=1.0, act_func=None, act_func_prime=None):
         self.logger = load_logger(self.__class__.__name__)
-        if act_func_set is None:
+        if act_func is None:
+            self.act_func = sigmoid
+            self.act_func_prime = sigmoid_prime
+        else:
             self.act_func = act_func
             self.act_func_prime = act_func_prime
-        else:
-            self.act_func = act_func_set
-            self.act_func_prime = act_func_prime_set
         self.layers = layers
 
         self.bias = bias
@@ -66,7 +69,7 @@ class NeuralNetwork(Constants):
         np_dot = np.dot
         np_atleast_2d = np.atleast_2d
         rdd_data = rdd_data.map(lambda v: LabeledPoint(features=concatenate((ones, np_array(v.features))),
-                                                       label=act_func(v.label))).cache()
+                                                       label=model.act_func(v.label))).cache()
 
         sample_fraction = float(self.spark_contest.defaultParallelism) / rdd_data.count()
         for k in range(iteration):
@@ -79,10 +82,11 @@ class NeuralNetwork(Constants):
                                                                          label=v.label)).cache()
                 process_data.append(activation)
 
-            deltas = [process_data[-1].map(lambda v: (v.label - v.features) * act_func_prime(v.features)).cache()]
+            deltas = [process_data[-1].map(lambda v: (v.label - v.features[0]) * model.act_func_prime(v.features)).cache()]
             for l in range(len(process_data) - 2, 0, -1):
                 deltas.append(deltas[-1].zip(process_data[l]).map(lambda (d, p): np_dot(d, model.weights[l].T) *
-                                                                                 act_func_prime(p.features)).cache())
+                                                                                 model.act_func_prime(
+                                                                                     p.features)).cache())
             deltas.reverse()
             for l in range(len(model.weights)):
                 layer = process_data[l].map(lambda v: np_atleast_2d(v.features)).sum() / process_data[l].count()
@@ -97,8 +101,8 @@ class NeuralNetworkModel(Regression):
         Regression.__init__(self)
         del self.logger
         if act_func_set is None:
-            self.act_func = act_func
-            self.act_func_prime = act_func_prime
+            self.act_func = sigmoid
+            self.act_func_prime = sigmoid_prime
         else:
             self.act_func = act_func_set
             self.act_func_prime = act_func_prime_set
@@ -148,13 +152,7 @@ def test_distributed_ann():
         data.get_n_days_history_data(data_list, data_type=LABEL_POINT, normalized=True, spark_context=sc)
 
     neural = NeuralNetwork([4, 5, 1], bias=1)
-    # model = NeuralNetworkModel([4, 5, 1], seed=1234, bias=1.0)
-    # predict_list = []
-    # def get_predict(p):
-    #     # predict_list.append((p.label, DataParser.de_normalize(neural.predict(p.features), p.features)))
-    #     neural.predict(p.features)
     model = neural.train(rdd_data=close_train_data, learn_rate=1e-3, error=1e-8, iteration=10000)
-    # close_test_data.map(lambda p: (p.label, DataParser.de_normalize(model.predict(p.features), p.features)))
     predict_result = close_test_data.map(lambda p: (p.label, DataParser.de_normalize(model.predict(p.features),
                                                                                      p.features))).cache()
     mse = DataParser.get_MSE(predict_result)
