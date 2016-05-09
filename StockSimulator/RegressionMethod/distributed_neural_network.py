@@ -74,9 +74,7 @@ class NeuralNetworkSpark(Constants):
 
         # print model.weights
         for k in range(iteration):
-            if k % 100 == 0:
-                self.logger.info("The {} iteration starts".format(k))
-            self.logger.debug("Start the {} iteration".format(k))
+            self.logger.info("Start the {} iteration".format(k))
 
             process_data = [rdd_data]
             for layer in model.weights:
@@ -97,7 +95,7 @@ class NeuralNetworkSpark(Constants):
                 # while (delta < error * rdd_data.count()).all():
                 #     delta *= 10
                 model.weights[l] += learn_rate * delta
-            self.logger.debug("{} iteration finished".format(k))
+            self.logger.info("{} iteration finished".format(k))
         print model.weights
         return model
 
@@ -197,7 +195,7 @@ def test_distributed_ann():
         data.get_n_days_history_data(data_list, data_type=LABEL_POINT, normalized=True, spark_context=sc)
 
     neural = NeuralNetworkSpark([4, 5, 1], bias=1)
-    model = neural.train(rdd_data=close_train_data, learn_rate=1e-3, error=1e-5, iteration=1000, method=neural.BP)
+    model = neural.train(rdd_data=close_train_data, learn_rate=1e-3, error=1e-5, iteration=1000, method=neural.BP_SGD)
     predict_result = close_test_data.map(lambda p: (p.label, DataParser.de_normalize(model.predict(p.features),
                                                                                      p.features))).cache()
     mse = DataParser.get_MSE(predict_result)
