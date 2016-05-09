@@ -33,6 +33,7 @@ def test_distributed_ann():
     model = neural.train(rdd_data=close_train_data, learn_rate=1e-3, error=1e-5, iteration=100, method=neural.BP)
     predict_result = close_test_data.map(lambda p: (p.label, DataParser.de_normalize(model.predict(p.features),
                                                                                      p.features))).cache()
+    model.save_model("neural_network_model_0051")
     mse = DataParser.get_MSE(predict_result)
     print mse
 
