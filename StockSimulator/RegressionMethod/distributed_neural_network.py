@@ -6,6 +6,7 @@
 # Author: Mark Wang
 # Date: 8/5/2016
 
+import logging
 
 import numpy as np
 import numpy.random as np_rand
@@ -34,7 +35,7 @@ def sigmoid_prime(x):
 
 class NeuralNetworkSpark(Constants):
     def __init__(self, layers, bias=1.0, act_func=None, act_func_prime=None):
-        self.logger = load_logger(self.__class__.__name__)
+        self.logger = logging.getLogger(self.__class__.__name__)
         if act_func is None:
             self.act_func = sigmoid
             self.act_func_prime = sigmoid_prime
