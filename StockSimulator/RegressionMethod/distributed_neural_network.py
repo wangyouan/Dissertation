@@ -35,7 +35,6 @@ def sigmoid_prime(x):
 
 class NeuralNetworkSpark(Constants):
     def __init__(self, layers, bias=1.0, act_func=None, act_func_prime=None):
-        self.logger = logging.getLogger(self.__class__.__name__)
         if act_func is None:
             self.act_func = sigmoid
             self.act_func_prime = sigmoid_prime
@@ -45,7 +44,10 @@ class NeuralNetworkSpark(Constants):
         self.layers = layers
 
         self.bias = bias
-        self.spark_contest = SparkContext.getOrCreate()
+        self.spark_context = SparkContext.getOrCreate()
+
+        log4jLogger = self.spark_context._jvm.org.apache.log4j
+        self.logger = log4jLogger.LogManager.getLogger(__name__)
 
     def train(self, rdd_data, learn_rate=1e-3, iteration=100, error=1e-8, method=None, model=None):
         if model is None:
@@ -113,7 +115,7 @@ class NeuralNetworkSpark(Constants):
         rdd_data = rdd_data.map(lambda v: LabeledPoint(features=concatenate((ones, np_array(v.features))),
                                                        label=model.act_func(v.label))).cache()
 
-        fraction = float(self.spark_contest.defaultParallelism) / rdd_data.count()
+        fraction = float(self.spark_context.defaultParallelism) / rdd_data.count()
         for k in range(iteration):
             self.logger.info("Start the {} iteration".format(k))
 
