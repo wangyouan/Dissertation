@@ -2,7 +2,7 @@
 
 echo "clear unused file"
 
-for directory in "dist" "build" "output" "StockSimulator.egg-info"
+for directory in "dist" "build" "StockSimulator.egg-info"
 do
     if [ -d $directory ]
     then
@@ -18,6 +18,5 @@ else
     python get_data/yahoo_api.py ./data/
 fi
 
-git reset --hard
 git pull origin dev
 python package.py bdist_egg
