@@ -36,6 +36,7 @@ def test_distributed_ann():
     model.save_model("neural_network_model_0051")
     mse = DataParser.get_MSE(predict_result)
     print mse
+    sc.stop()
 
 
 if __name__ == "__main__":
