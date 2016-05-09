@@ -98,7 +98,7 @@ class NeuralNetworkSpark(Constants):
                 #     delta *= 10
                 model.weights[l] += learn_rate * delta
             self.logger.info("{} iteration finished".format(k))
-        print model.weights
+        self.logger.info("\n{}".format(model.weights))
         return model
 
     def back_propagation_sgd(self, rdd_data, learn_rate, iteration, model, error):
@@ -140,6 +140,7 @@ class NeuralNetworkSpark(Constants):
                 #     delta *= 10
                 model.weights[l] += learn_rate * delta
             self.logger.info("{} iteration finished".format(k))
+        self.logger.info("\n{}".format(model.weights))
         return model
 
 
