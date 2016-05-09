@@ -94,12 +94,11 @@ class NeuralNetwork(Constants):
                                                                                      p.features)).cache())
             deltas.reverse()
             for l in range(len(model.weights)):
-                layer = process_data[l].map(lambda v: np_atleast_2d(v.features)).sum()
-                delta = deltas[l].map(np_atleast_2d).sum()
-                delta = layer.T.dot(delta)
-                while (delta < error * rdd_data.count()).all():
-                    delta *= 10
-                model.weights[l] += learn_rate / rdd_data.count() * delta
+                delta = deltas[l].map(np_atleast_2d).zip(process_data[l].map(lambda v: np_atleast_2d(v.features))) \
+                    .map(lambda (d, l): l.T.dot(d)).sum()
+                # while (delta < error * rdd_data.count()).all():
+                #     delta *= 10
+                model.weights[l] += learn_rate * delta
             self.logger.debug("{} iteration finished".format(k))
         print model.weights
         return model
@@ -116,13 +115,13 @@ class NeuralNetwork(Constants):
         rdd_data = rdd_data.map(lambda v: LabeledPoint(features=concatenate((ones, np_array(v.features))),
                                                        label=model.act_func(v.label))).cache()
 
-        sample_fraction = float(self.spark_contest.defaultParallelism) / rdd_data.count()
+        fraction = float(self.spark_contest.defaultParallelism) / rdd_data.count()
         for k in range(iteration):
             if k % 100 == 0:
                 self.logger.info("The {} iteration starts".format(k))
             self.logger.debug("Start the {} iteration".format(k))
 
-            sample_rdd = rdd_data.sample(False, sample_fraction).cache()
+            sample_rdd = rdd_data.sample(True, fraction)
             process_data = [sample_rdd]
             for layer in model.weights:
                 activation = process_data[-1].map(lambda v: LabeledPoint(features=np_dot(v.features, layer),
@@ -137,12 +136,11 @@ class NeuralNetwork(Constants):
                                                                                      p.features)).cache())
             deltas.reverse()
             for l in range(len(model.weights)):
-                layer = process_data[l].map(lambda v: np_atleast_2d(v.features)).sum()
-                delta = deltas[l].map(np_atleast_2d).sum()
-                delta = layer.T.dot(delta)
-                while (delta < error * rdd_data.count()).all():
-                    delta *= 10
-                model.weights[l] += learn_rate / rdd_data.count() * delta
+                delta = deltas[l].map(np_atleast_2d).zip(process_data[l].map(lambda v: np_atleast_2d(v.features)))\
+                    .map(lambda (d, l): l.T.dot(d)).sum()
+                # while (delta < error * rdd_data.count()).all():
+                #     delta *= 10
+                model.weights[l] += learn_rate * delta
             self.logger.debug("{} iteration finished".format(k))
         return model
 
@@ -214,5 +212,6 @@ if __name__ == "__main__":
     import logging
     import sys
 
-    logging.basicConfig(stream=sys.stdout, level=logging.INFO)
+    logging.basicConfig(stream=sys.stdout, level=logging.INFO,
+                        format='%(asctime)s - %(levelname)s - %(message)s')
     test_distributed_ann()

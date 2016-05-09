@@ -67,6 +67,38 @@ class NeuralNetwork(Regression):
         if method == self.BP_SGD:
             self.back_propagation_sgd(rdd_data, learn_rate, iteration, error)
 
+    def back_propagation(self, rdd_data, learn_rate, iteration, error):
+        """ Using standard gradient descent to do the back propagation """
+        input_data = np.array(rdd_data)
+        real = np.array(map(float, input_data[:, 1]))
+        feature = input_data[:, 0]
+        feature = map(lambda x: map(float, x), feature)
+        ones = np.atleast_2d(np.ones(np.shape(feature)[0])) * self.bias
+        feature = np.concatenate((ones.T, np.array(feature, dtype=float)), axis=1)
+        for i in range(iteration):
+            if i % 50 == 0:
+                self.logger.debug("Start the {} iteration".format(i))
+            k = random.randint(np.shape(feature)[0])
+            train_data = feature[k]
+            process_data = [np.array(train_data)]
+            target = real[k]
+            for layer in self.weights:
+                activation = self.af(np.dot(process_data[-1], layer))
+                process_data.append(activation)
+
+            error = target - process_data[-1]
+            deltas = [error * self.afd(process_data[-1])]
+            for l in range(len(process_data) - 2, 0, -1):
+                deltas.append(deltas[-1].dot(self.weights[l].T) * self.afd(process_data[l]))
+
+            deltas.reverse()
+            for l in range(len(self.weights)):
+                layer = np.atleast_2d(process_data[l])
+                delta = np.atleast_2d(deltas[l])
+                self.weights[l] += learn_rate * layer.T.dot(delta)
+            if i % 50 == 0:
+                self.logger.debug("{} iteration finished".format(i))
+
     def back_propagation_sgd(self, rdd_data, learn_rate, iteration, error):
         """ Using stochastic gradient descent to do the back propagation """
         input_data = np.array(rdd_data)
