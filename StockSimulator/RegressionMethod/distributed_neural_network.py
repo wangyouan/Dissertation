@@ -6,6 +6,8 @@
 # Author: Mark Wang
 # Date: 8/5/2016
 
+import logging
+
 import numpy as np
 import numpy.random as np_rand
 from pyspark import SparkContext, RDD
