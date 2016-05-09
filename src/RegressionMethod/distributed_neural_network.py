@@ -14,13 +14,14 @@ from pyspark.mllib.regression import LabeledPoint
 
 from regression_method import Regression
 
-class NeuralNetwork(Regression):
 
+class NeuralNetwork(Regression):
     def __init__(self, layers, seed=None, bias=1.0, act_func=None, act_func_prime=None):
         Regression.__init__(self)
         if act_func is None:
-            self.act_func = lambda x: 1.0 / (1 + np.exp(-x))
-            self.act_func_prime = lambda x: np.exp(-x) / (1 + np.exp(-x)) ** 2
+            np_exp = np.exp
+            self.act_func = lambda x: 1.0 / (1 + np_exp(-x, None))
+            self.act_func_prime = lambda x: np_exp(-x, None) / (1 + np_exp(-x, None)) ** 2
         else:
             self.act_func = act_func
             self.act_func_prime = act_func_prime
@@ -38,7 +39,6 @@ class NeuralNetwork(Regression):
         for i in range(1, len(layers) - 1):
             self.weights.append(2 * np_rand.random([layers[i - 1] + 1, layers[i] + 1]) - 1)
         self.weights.append(2 * np.random.random((layers[i] + 1, layers[i + 1])) - 1)
-        # self.weights = self.spark_contest.parallelize(weights)
 
     def train(self, rdd_data, learn_rate=1e-3, iteration=100, error=1e-8, method=None):
         if method is None:
@@ -50,32 +50,40 @@ class NeuralNetwork(Regression):
 
     def back_propagation_sgd(self, rdd_data, learn_rate, iteration):
         """ Using stochastic gradient descent to do the back propagation """
-        rdd_data = rdd_data.map(lambda v: LabeledPoint(features=np.concatenate((np.ones(1).T * self.bias,
-                                                                                np.array(v.features))),
-                                                       label=self.act_func(v.label)))
 
-        rdd_data.cache()
+        # define some functions used in the map process
+        ones = np.ones(1).T * self.bias
+        np_array = np.array
+        act_func = self.act_func
+        act_func_prime = self.act_func_prime
+        concatenate = np.concatenate
+        np_dot = np.dot
+        np_atleast_2d = np.atleast_2d
+        rdd_data = rdd_data.map(lambda v: LabeledPoint(features=concatenate((ones, np_array(v.features))),
+                                                       label=act_func(v.label))).cache()
+        weights = self.weights
+
         sample_fraction = float(self.spark_contest.defaultParallelism) / rdd_data.count()
         for k in range(iteration):
             self.logger.debug("Start the {} iteration".format(k))
 
             sample_rdd = rdd_data.sample(False, sample_fraction)
-            process_data = [sample_rdd]
+            process_data = [sample_rdd.cache()]
             for layer in self.weights:
-                activation = process_data[-1].map(lambda v: LabeledPoint(features=np.dot(v.features, layer),
-                                                                         label=v.label))
+                activation = process_data[-1].map(lambda v: LabeledPoint(features=np_dot(v.features, layer),
+                                                                         label=v.label)).cache()
                 process_data.append(activation)
 
-            deltas = [process_data[-1].map(lambda v: (v.label - v.features) * self.act_func_prime(v.features))]
+            deltas = [process_data[-1].map(lambda v: (v.label - v.features) * act_func_prime(v.features)).cache()]
             for l in range(len(process_data) - 2, 0, -1):
-                deltas.append(deltas[-1].zip(process_data[l]).map(lambda (d, p): np.dot(d, self.weights[l].T) *
-                                                                                 self.act_func_prime(p.features)))
+                deltas.append(deltas[-1].zip(process_data[l]).map(lambda (d, p): np_dot(d, weights[l].T) *
+                                                                                 act_func_prime(p.features)).cache())
             deltas.reverse()
             for l in range(len(self.weights)):
-                layer = process_data[l].map(lambda v: np.atleast_2d(v.features)).sum() / process_data[l].count()
-                delta = deltas[l].map(np.atleast_2d).sum() / deltas[l].count()
+                layer = process_data[l].map(lambda v: np_atleast_2d(v.features)).sum() / process_data[l].count()
+                delta = deltas[l].map(np_atleast_2d).sum() / deltas[l].count()
                 self.weights[l] += learn_rate * layer.T.dot(delta)
-            self.logger.debug("{} iteration finished".format(i))
+            self.logger.debug("{} iteration finished".format(k))
 
     def predict(self, features):
         temp_feature = np.concatenate((np.ones(1).T * self.bias, np.array(features)))
@@ -109,13 +117,15 @@ def test_distributed_ann():
 
     neural = NeuralNetwork([4, 5, 1], seed=1234, bias=1)
     neural.train(rdd_data=close_train_data, learn_rate=1e-3, error=1e-8, iteration=10000)
-    predict_result = close_test_data.map(lambda p: (p.label, DataParser.de_normalize(neural.predict(p.features), p.features)))
+    predict_result = close_test_data.map(lambda p: (p.label, DataParser.de_normalize(neural.predict(p.features),
+                                                                                     p.features)))
     mse = DataParser.get_MSE(predict_result)
     print mse
+
 
 if __name__ == "__main__":
     import logging
     import sys
 
-    logging.basicConfig(stream=sys.stdout, level=logging.DEBUG)
+    logging.basicConfig(stream=sys.stdout, level=logging.INFO)
     test_distributed_ann()
