@@ -93,7 +93,7 @@ class NeuralNetworkSpark(Constants):
             deltas.reverse()
             for l in range(len(model.weights)):
                 delta = deltas[l].map(np_atleast_2d).zip(process_data[l].map(lambda v: np_atleast_2d(v.features))) \
-                    .map(lambda (d, l): l.T.dot(d)).sum()
+                    .map(lambda (d, l): l.T.dot(d)).sum() / rdd_data.count()
                 # while (delta < error * rdd_data.count()).all():
                 #     delta *= 10
                 model.weights[l] += learn_rate * delta
@@ -117,7 +117,9 @@ class NeuralNetworkSpark(Constants):
         for k in range(iteration):
             self.logger.info("Start the {} iteration".format(k))
 
-            sample_rdd = rdd_data.sample(True, fraction)
+            sample_rdd = rdd_data.sample(True, fraction).cache()
+            if sample_rdd.count() == 0:
+                continue
             process_data = [sample_rdd]
             for layer in model.weights:
                 activation = process_data[-1].map(lambda v: LabeledPoint(features=np_dot(v.features, layer),
@@ -133,7 +135,7 @@ class NeuralNetworkSpark(Constants):
             deltas.reverse()
             for l in range(len(model.weights)):
                 delta = deltas[l].map(np_atleast_2d).zip(process_data[l].map(lambda v: np_atleast_2d(v.features)))\
-                    .map(lambda (d, l): l.T.dot(d)).sum()
+                    .map(lambda (d, l): l.T.dot(d)).sum() / sample_rdd.count()
                 # while (delta < error * rdd_data.count()).all():
                 #     delta *= 10
                 model.weights[l] += learn_rate * delta
