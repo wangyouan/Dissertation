@@ -9,5 +9,5 @@
 
 class NeuralNetwork(object):
 
-    def __init__(self, layers, spark_contest=None, seed=None):
+    def __init__(self, layers, spark_contest=None, seed=None, bias=1.0, act_func=None, act_func_prime=None):
         pass
