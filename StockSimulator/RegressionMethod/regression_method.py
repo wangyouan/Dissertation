@@ -17,20 +17,16 @@ class Regression(Constants):
         self.logger = logging.getLogger(self.__class__.__name__)
 
     def save_model(self, path):
-        self.logger.debug("Save model to {}".format(path))
         f = open(path, 'w')
         import pickle
         pickle.dump(self.weights, f)
         f.close()
-        self.logger.debug("Model saved successfully")
 
     def load_model(self, path):
-        self.logger.debug("Load model from {}".format(path))
         f = open(path)
         import pickle
         self.weights = pickle.load(f)
         f.close()
-        self.logger.debug("Model load successfully")
 
     def get_loss(self, features, target, method=None):
         """
@@ -44,7 +40,6 @@ class Regression(Constants):
         if method is None:
             method = self.LSE
 
-        self.logger.debug("Get loss using {}".format(method))
         if method == self.LSE:
             return (target - predict_value) ** 2
 
