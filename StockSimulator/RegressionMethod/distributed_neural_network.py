@@ -13,8 +13,7 @@ from pyspark import SparkContext, RDD
 from pyspark.mllib.regression import LabeledPoint
 from pyspark.mllib.linalg import DenseVector
 
-from StockSimulator import Regression
-from StockSimulator import load_logger
+from StockSimulator.RegressionMethod.regression_method import Regression
 from constants import Constants
 
 

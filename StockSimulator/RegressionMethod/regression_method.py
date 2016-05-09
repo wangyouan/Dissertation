@@ -6,14 +6,15 @@
 # Author: Mark Wang
 # Date: 6/5/2016
 
-from StockSimulator import load_logger
+import logging
+
 from constants import Constants
 
 
 class Regression(Constants):
     def __init__(self):
         self.weights = None
-        self.logger = load_logger(self.__class__.__name__)
+        self.logger = logging.getLogger(self.__class__.__name__)
 
     def save_model(self, path):
         self.logger.debug("Save model to {}".format(path))

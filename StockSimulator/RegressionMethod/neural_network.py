@@ -9,7 +9,7 @@
 import numpy.random as random
 import numpy as np
 
-from StockSimulator import Regression
+from StockSimulator.RegressionMethod.regression_method import Regression
 
 
 def sigmoid(x):

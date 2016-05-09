@@ -9,7 +9,7 @@
 import numpy as np
 import numpy.random as random
 
-from StockSimulator import Regression
+from StockSimulator.RegressionMethod.regression_method import Regression
 
 
 class LinearRegression(Regression):

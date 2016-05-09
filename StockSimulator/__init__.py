@@ -8,15 +8,11 @@
 
 import logging
 
-from RegressionMethod import NeuralNetworkSpark, NeuralNetworkModel, NeuralNetwork, Regression, LinearRegression
-
 try:
     from pyspark import SparkContext
     from pyspark.sql import SQLContext
     from pyspark import SparkConf
 except ImportError, e:
-    logger = logging.getLogger(__name__)
-    logger.warning("Cannot load spark, as {}".format(e))
     SparkContext = None
     SQLContext = None
     SparkConf = None
@@ -36,9 +32,8 @@ def load_spark_context(application_name=None):
     logger.LogManager.getLogger("akka").setLevel(logger.Level.ERROR)
     return sc, sql_context
 
+def load_logger(application_name=None):
+    if application_name is None:
+        application_name = __name__
 
-def load_logger(application_name="", level=None):
-    logger = logging.getLogger(application_name)
-    if level is not None:
-        logger.setLevel(level=level)
-    return logger
+    return logging.getLogger(application_name)
