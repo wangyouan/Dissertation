@@ -49,16 +49,16 @@ class NeuralNetworkSpark(Constants):
         log4jLogger = self.spark_context._jvm.org.apache.log4j
         self.logger = log4jLogger.LogManager.getLogger(__name__)
 
-    def train(self, rdd_data, learn_rate=1e-3, iteration=100, error=1e-8, method=None, model=None):
+    def train(self, rdd_data, learn_rate=1e-3, iteration=100, error=1e-8, method=None, model=None, seed=None):
         if model is None:
-            model = NeuralNetworkModel(self.layers, seed=1234, bias=self.bias, act_func_set=self.act_func,
+            model = NeuralNetworkModel(self.layers, seed=seed or 1234, bias=self.bias, act_func_set=self.act_func,
                                        act_func_prime_set=self.act_func_prime)
         if method is None:
             method = self.BP_SGD
 
         self.logger.debug("Using {} method to update the model".format(method))
         if method == self.BP_SGD:
-            model = self.back_propagation_sgd(rdd_data, learn_rate, iteration, model, error)
+            model = self.back_propagation_sgd(rdd_data, learn_rate, iteration, model, error, seed)
         elif method == self.BP:
             model = self.back_propagation(rdd_data=rdd_data, learn_rate=learn_rate, iteration=iteration, model=model,
                                           error=error)
@@ -116,7 +116,7 @@ class NeuralNetworkSpark(Constants):
         self.logger.info("\n{}".format(model.weights))
         return model
 
-    def back_propagation_sgd(self, rdd_data, learn_rate, iteration, model, error):
+    def back_propagation_sgd(self, rdd_data, learn_rate, iteration, model, error, seed):
         """ Using stochastic gradient descent to do the back propagation """
 
         # define some functions used in the map process
@@ -128,7 +128,8 @@ class NeuralNetworkSpark(Constants):
         rdd_data = rdd_data.map(lambda v: LabeledPoint(features=concatenate((ones, np_array(v.features))),
                                                        label=model.act_func(v.label))).zipWithIndex().cache()
         rdd_num = rdd_data.count()
-        np_rand.seed(1234)
+        if seed is not None:
+            np_rand.seed(1234)
 
         # fraction = float(self.spark_context.defaultParallelism) / rdd_data.count()
         sample_num = max(self.spark_context.defaultParallelism, 1)

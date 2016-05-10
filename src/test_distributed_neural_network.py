@@ -33,7 +33,8 @@ def test_distributed_ann():
     neural = NeuralNetworkSpark([4, 5, 1], bias=1)
     # model = NeuralNetworkModel([4, 5, 1])
     # model.load_model("neural_network_model_0051")
-    model = neural.train(rdd_data=close_train_data, learn_rate=0.001, error=1e-5, iteration=1000, method=neural.BP_SGD
+    model = neural.train(rdd_data=close_train_data, learn_rate=0.001, error=1e-5, iteration=1000, method=neural.BP_SGD,
+                         seed=1234
                          # model=model
                          )
     predict_result = close_test_data.map(lambda p: (p.label, DataParser.de_normalize(model.predict(p.features),
