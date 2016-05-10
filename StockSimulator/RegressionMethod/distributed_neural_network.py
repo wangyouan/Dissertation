@@ -126,15 +126,18 @@ class NeuralNetworkSpark(Constants):
         np_dot = np.dot
         np_atleast_2d = np.atleast_2d
         rdd_data = rdd_data.map(lambda v: LabeledPoint(features=concatenate((ones, np_array(v.features))),
-                                                       label=model.act_func(v.label))).cache()
+                                                       label=model.act_func(v.label))).zipWithIndex().cache()
+        rdd_num = rdd_data.count()
+        np_rand.seed(1234)
 
-        fraction = float(self.spark_context.defaultParallelism) / rdd_data.count()
+        # fraction = float(self.spark_context.defaultParallelism) / rdd_data.count()
+        sample_num = max(self.spark_context.defaultParallelism, 1)
         for k in range(iteration):
             self.logger.info("Start the {} iteration".format(k))
 
-            sample_rdd = rdd_data.sample(True, fraction).cache()
-            if sample_rdd.count() == 0:
-                continue
+            sample_index = np_rand.randint(low=0, high=rdd_num, size=sample_num)
+            # sample_index = np_rand.randint(rdd_num)
+            sample_rdd = rdd_data.filter(lambda (l, i): i in sample_index).map(lambda (l, i): l).cache()
             process_data = [sample_rdd]
             for layer in model.weights:
                 activation = process_data[-1].map(lambda v: LabeledPoint(features=np_dot(v.features, layer),
@@ -153,7 +156,7 @@ class NeuralNetworkSpark(Constants):
             #                 .map(lambda (d, l): l.T.dot(d)).sum() / sample_rdd.count()
             #     model.weights[l] += learn_rate * delta
 
-            deltas = process_data[-1].map(lambda v: (v.label - v.features[0]) * model.act_func_prime(v.features))
+            deltas = process_data[-1].map(lambda v: (v.label - v.features[0]) * model.act_func_prime(v.features)).cache()
             delta = deltas.map(np_atleast_2d).zip(process_data[-1].map(lambda v: np_atleast_2d(v.features))) \
                         .map(lambda (d, l): l.T.dot(d)).sum()
             model.weights[-1] += learn_rate * delta
@@ -161,7 +164,7 @@ class NeuralNetworkSpark(Constants):
                 delta = deltas.map(np_atleast_2d).zip(process_data[l].map(lambda v: np_atleast_2d(v.features))) \
                     .map(lambda (d, l): l.T.dot(d)).sum()
                 deltas = deltas.zip(process_data[l]).map(
-                    lambda (d, p): np_dot(d, model.weights[l].T) * model.act_func_prime(p.features))
+                    lambda (d, p): np_dot(d, model.weights[l].T) * model.act_func_prime(p.features)).cache()
                 model.weights[l] += learn_rate * delta
             self.logger.info("{} iteration finished".format(k))
         self.logger.info("\n{}".format(model.weights))

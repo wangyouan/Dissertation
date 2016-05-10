@@ -9,15 +9,16 @@
 import os
 import logging
 import sys
+import time
 
-from StockSimulator.RegressionMethod.distributed_neural_network import NeuralNetworkSpark
+from StockSimulator.RegressionMethod.distributed_neural_network import NeuralNetworkSpark, NeuralNetworkModel
 from StockSimulator.parse_data import DataParser
 from StockSimulator.constant import LABEL_POINT
 from StockSimulator import load_spark_context
 
 
 def test_distributed_ann():
-    data_file = os.path.join(os.path.abspath('../data'), "0051.HK.csv")
+    data_file = os.path.join(os.path.abspath('data'), "0051.HK.csv")
     sc = load_spark_context("NeuralNetwork")[0]
 
     # logger = sc._jvm.org.apache.log4j
@@ -30,10 +31,14 @@ def test_distributed_ann():
         data.get_n_days_history_data(data_list, data_type=LABEL_POINT, normalized=True, spark_context=sc)
 
     neural = NeuralNetworkSpark([4, 5, 1], bias=1)
-    model = neural.train(rdd_data=close_train_data, learn_rate=0.2, error=1e-5, iteration=1000, method=neural.BP)
+    # model = NeuralNetworkModel([4, 5, 1])
+    # model.load_model("neural_network_model_0051")
+    model = neural.train(rdd_data=close_train_data, learn_rate=0.001, error=1e-5, iteration=1000, method=neural.BP_SGD
+                         # model=model
+                         )
     predict_result = close_test_data.map(lambda p: (p.label, DataParser.de_normalize(model.predict(p.features),
                                                                                      p.features))).cache()
-    model.save_model("neural_network_model_0051")
+    model.save_model("models/0051HK{}.model".format(time.time()))
     mse = DataParser.get_MSE(predict_result)
     print mse
     sc.stop()

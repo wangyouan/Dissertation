@@ -22,7 +22,7 @@ def load_spark_context(application_name=None):
     if application_name is None:
         application_name = __name__
 
-    conf = SparkConf().setAppName(application_name).setMaster('local[2]')
+    conf = SparkConf().setAppName(application_name)
     sc = SparkContext.getOrCreate(conf=conf)
     sql_context = SQLContext(sc)
 

@@ -18,5 +18,5 @@ else
     python get_data/yahoo_api.py ./data/
 fi
 
-git pull origin dev
+#git pull origin dev
 python package.py bdist_egg

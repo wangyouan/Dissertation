@@ -107,6 +107,7 @@ class NeuralNetwork(Regression):
         feature = map(lambda x: map(float, x), feature)
         ones = np.atleast_2d(np.ones(np.shape(feature)[0])) * self.bias
         feature = np.concatenate((ones.T, np.array(feature, dtype=float)), axis=1)
+        random.seed(1234)
         for i in range(iteration):
             self.logger.debug("Start the {} iteration".format(i))
             k = random.randint(np.shape(feature)[0])
