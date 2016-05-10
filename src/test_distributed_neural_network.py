@@ -17,7 +17,7 @@ from StockSimulator import load_spark_context
 
 
 def test_distributed_ann():
-    data_file = os.path.join(os.path.abspath('data'), "0051.HK.csv")
+    data_file = os.path.join(os.path.abspath('../data'), "0051.HK.csv")
     sc = load_spark_context("NeuralNetwork")[0]
 
     # logger = sc._jvm.org.apache.log4j
@@ -30,7 +30,7 @@ def test_distributed_ann():
         data.get_n_days_history_data(data_list, data_type=LABEL_POINT, normalized=True, spark_context=sc)
 
     neural = NeuralNetworkSpark([4, 5, 1], bias=1)
-    model = neural.train(rdd_data=close_train_data, learn_rate=1e-3, error=1e-5, iteration=100, method=neural.BP_SGD)
+    model = neural.train(rdd_data=close_train_data, learn_rate=0.2, error=1e-5, iteration=1000, method=neural.BP)
     predict_result = close_test_data.map(lambda p: (p.label, DataParser.de_normalize(model.predict(p.features),
                                                                                      p.features))).cache()
     model.save_model("neural_network_model_0051")

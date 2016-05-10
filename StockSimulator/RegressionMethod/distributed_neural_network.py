@@ -76,6 +76,8 @@ class NeuralNetworkSpark(Constants):
         rdd_data = rdd_data.map(lambda v: LabeledPoint(features=concatenate((ones, np_array(v.features))),
                                                        label=model.act_func(v.label))).cache()
 
+        data_num = rdd_data.count()
+
         # print model.weights
         for k in range(iteration):
             self.logger.info("Start the {} iteration".format(k))
@@ -86,19 +88,30 @@ class NeuralNetworkSpark(Constants):
                                                                          label=v.label)).cache()
                 process_data.append(activation)
 
-            deltas = [
-                process_data[-1].map(lambda v: (v.label - v.features[0]) * model.act_func_prime(v.features)).cache()]
+            # deltas = [
+            #     process_data[-1].map(lambda v: (v.label - v.features[0]) * model.act_func_prime(v.features)).cache()]
+            # for l in range(len(process_data) - 2, 0, -1):
+            #     deltas.append(deltas[-1].zip(process_data[l]).map(lambda (d, p): np_dot(d, model.weights[l].T) *
+            #                                                                      model.act_func_prime(
+            #                                                                          p.features)).cache())
+            # deltas.reverse()
+            # for l in range(len(model.weights)):
+            #     delta = deltas[l].map(np_atleast_2d).zip(process_data[l].map(lambda v: np_atleast_2d(v.features))) \
+            #         .map(lambda (d, l): l.T.dot(d)).sum() / rdd_data.count()
+            #     model.weights[l] += learn_rate * delta
+
+            # Update weights
+            deltas = process_data[-1].map(lambda v: (v.label - v.features[0]) * model.act_func_prime(v.features))
+            delta = deltas.map(np_atleast_2d).zip(process_data[-1].map(lambda v: np_atleast_2d(v.features))) \
+                        .map(lambda (d, l): l.T.dot(d)).sum() / data_num
+            model.weights[-1] += learn_rate * delta
             for l in range(len(process_data) - 2, 0, -1):
-                deltas.append(deltas[-1].zip(process_data[l]).map(lambda (d, p): np_dot(d, model.weights[l].T) *
-                                                                                 model.act_func_prime(
-                                                                                     p.features)).cache())
-            deltas.reverse()
-            for l in range(len(model.weights)):
-                delta = deltas[l].map(np_atleast_2d).zip(process_data[l].map(lambda v: np_atleast_2d(v.features))) \
-                    .map(lambda (d, l): l.T.dot(d)).sum() / rdd_data.count()
-                # while (delta < error * rdd_data.count()).all():
-                #     delta *= 10
-                model.weights[l] += learn_rate * delta
+                delta = deltas.map(np_atleast_2d).zip(process_data[l].map(lambda v: np_atleast_2d(v.features))) \
+                    .map(lambda (d, l): l.T.dot(d)).sum()
+                deltas = deltas.zip(process_data[l]).map(
+                    lambda (d, p): np_dot(d, model.weights[l].T) * model.act_func_prime(p.features))
+                model.weights[l] += learn_rate * delta / data_num
+
             self.logger.info("{} iteration finished".format(k))
         self.logger.info("\n{}".format(model.weights))
         return model
@@ -128,18 +141,27 @@ class NeuralNetworkSpark(Constants):
                                                                          label=v.label)).cache()
                 process_data.append(activation)
 
-            deltas = [
-                process_data[-1].map(lambda v: (v.label - v.features[0]) * model.act_func_prime(v.features)).cache()]
+            # deltas = [
+            #     process_data[-1].map(lambda v: (v.label - v.features[0]) * model.act_func_prime(v.features)).cache()]
+            # for l in range(len(process_data) - 2, 0, -1):
+            #     deltas.append(deltas[-1].zip(process_data[l]).map(lambda (d, p): np_dot(d, model.weights[l].T) *
+            #                                                                      model.act_func_prime(
+            #                                                                          p.features)).cache())
+            # deltas.reverse()
+            # for l in range(len(model.weights)):
+            #     delta = deltas[l].map(np_atleast_2d).zip(process_data[l].map(lambda v: np_atleast_2d(v.features))) \
+            #                 .map(lambda (d, l): l.T.dot(d)).sum() / sample_rdd.count()
+            #     model.weights[l] += learn_rate * delta
+
+            deltas = process_data[-1].map(lambda v: (v.label - v.features[0]) * model.act_func_prime(v.features))
+            delta = deltas.map(np_atleast_2d).zip(process_data[-1].map(lambda v: np_atleast_2d(v.features))) \
+                        .map(lambda (d, l): l.T.dot(d)).sum()
+            model.weights[-1] += learn_rate * delta
             for l in range(len(process_data) - 2, 0, -1):
-                deltas.append(deltas[-1].zip(process_data[l]).map(lambda (d, p): np_dot(d, model.weights[l].T) *
-                                                                                 model.act_func_prime(
-                                                                                     p.features)).cache())
-            deltas.reverse()
-            for l in range(len(model.weights)):
-                delta = deltas[l].map(np_atleast_2d).zip(process_data[l].map(lambda v: np_atleast_2d(v.features)))\
-                    .map(lambda (d, l): l.T.dot(d)).sum() / sample_rdd.count()
-                # while (delta < error * rdd_data.count()).all():
-                #     delta *= 10
+                delta = deltas.map(np_atleast_2d).zip(process_data[l].map(lambda v: np_atleast_2d(v.features))) \
+                    .map(lambda (d, l): l.T.dot(d)).sum()
+                deltas = deltas.zip(process_data[l]).map(
+                    lambda (d, p): np_dot(d, model.weights[l].T) * model.act_func_prime(p.features))
                 model.weights[l] += learn_rate * delta
             self.logger.info("{} iteration finished".format(k))
         self.logger.info("\n{}".format(model.weights))

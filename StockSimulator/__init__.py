@@ -22,14 +22,14 @@ def load_spark_context(application_name=None):
     if application_name is None:
         application_name = __name__
 
-    conf = SparkConf().setAppName(application_name)
+    conf = SparkConf().setAppName(application_name).setMaster('local[2]')
     sc = SparkContext.getOrCreate(conf=conf)
     sql_context = SQLContext(sc)
 
     # Close logger
-    logger = sc._jvm.org.apache.log4j
-    logger.LogManager.getLogger("org").setLevel(logger.Level.ERROR)
-    logger.LogManager.getLogger("akka").setLevel(logger.Level.ERROR)
+    # logger = sc._jvm.org.apache.log4j
+    # logger.LogManager.getLogger("org").setLevel(logger.Level.ERROR)
+    # logger.LogManager.getLogger("akka").setLevel(logger.Level.ERROR)
     return sc, sql_context
 
 def load_logger(application_name=None):
