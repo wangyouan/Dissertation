@@ -84,8 +84,9 @@ class NeuralNetworkSpark(Constants):
 
             process_data = [rdd_data]
             for layer in model.weights:
-                activation = process_data[-1].map(lambda v: LabeledPoint(features=np_dot(v.features, layer),
-                                                                         label=v.label)).cache()
+                activation = process_data[-1].map(
+                    lambda v: LabeledPoint(features=model.act_func(np_dot(v.features, layer)),
+                                           label=v.label)).cache()
                 process_data.append(activation)
 
             # deltas = [
@@ -101,18 +102,21 @@ class NeuralNetworkSpark(Constants):
             #     model.weights[l] += learn_rate * delta
 
             # Update weights
-            deltas = process_data[-1].map(lambda v: (v.label - v.features[0]) * model.act_func_prime(v.features))
+            deltas = process_data[-1].map(
+                lambda v: (v.label - v.features[0]) * model.act_func_prime(v.features)).cache()
             delta = deltas.map(np_atleast_2d).zip(process_data[-1].map(lambda v: np_atleast_2d(v.features))) \
                         .map(lambda (d, l): l.T.dot(d)).sum() / data_num
             model.weights[-1] += learn_rate * delta
-            for l in range(len(process_data) - 2, 0, -1):
+            for l in range(len(process_data) - 2, -1, -1):
                 delta = deltas.map(np_atleast_2d).zip(process_data[l].map(lambda v: np_atleast_2d(v.features))) \
                     .map(lambda (d, l): l.T.dot(d)).sum()
                 deltas = deltas.zip(process_data[l]).map(
-                    lambda (d, p): np_dot(d, model.weights[l].T) * model.act_func_prime(p.features))
-                model.weights[l] += learn_rate * delta / data_num
+                    lambda (d, p): np_dot(d, model.weights[l].T) * model.act_func_prime(p.features)).cache()
+                model.weights[l] += learn_rate * delta
+                self.logger.debug("the {} layer delta is \n{}".format(l, delta))
 
             self.logger.info("{} iteration finished".format(k))
+            self.logger.debug("The {} updated weights is\n{}".format(k, model.weights))
         self.logger.info("\n{}".format(model.weights))
         return model
 
@@ -129,21 +133,27 @@ class NeuralNetworkSpark(Constants):
                                                        label=model.act_func(v.label))).zipWithIndex().cache()
         rdd_num = rdd_data.count()
         if seed is not None:
-            np_rand.seed(1234)
+            np_rand.seed(seed)
 
         # fraction = float(self.spark_context.defaultParallelism) / rdd_data.count()
         sample_num = max(self.spark_context.defaultParallelism, 1)
+        self.logger.debug("initial weights is\n{}".format(model.weights))
         for k in range(iteration):
             self.logger.info("Start the {} iteration".format(k))
 
             sample_index = np_rand.randint(low=0, high=rdd_num, size=sample_num)
             # sample_index = np_rand.randint(rdd_num)
+            # sample_index = [815]
             sample_rdd = rdd_data.filter(lambda (l, i): i in sample_index).map(lambda (l, i): l).cache()
+            self.logger.debug("total number is {}, che choose number is {}".format(rdd_num, sample_index))
+            self.logger.debug("sample rdd feature is {}".format(sample_rdd.take(1)[0].features))
             process_data = [sample_rdd]
             for layer in model.weights:
-                activation = process_data[-1].map(lambda v: LabeledPoint(features=np_dot(v.features, layer),
-                                                                         label=v.label)).cache()
+                activation = process_data[-1].map(
+                    lambda v: LabeledPoint(features=model.act_func(np_dot(v.features, layer)),
+                                           label=v.label)).cache()
                 process_data.append(activation)
+                self.logger.debug("process data are \n{}".format(activation.collect()))
 
             # deltas = [
             #     process_data[-1].map(lambda v: (v.label - v.features[0]) * model.act_func_prime(v.features)).cache()]
@@ -157,17 +167,21 @@ class NeuralNetworkSpark(Constants):
             #                 .map(lambda (d, l): l.T.dot(d)).sum() / sample_rdd.count()
             #     model.weights[l] += learn_rate * delta
 
-            deltas = process_data[-1].map(lambda v: (v.label - v.features[0]) * model.act_func_prime(v.features)).cache()
+            deltas = process_data[-1].map(
+                lambda v: (v.label - v.features[0]) * model.act_func_prime(v.features)).cache()
             delta = deltas.map(np_atleast_2d).zip(process_data[-1].map(lambda v: np_atleast_2d(v.features))) \
-                        .map(lambda (d, l): l.T.dot(d)).sum()
+                .map(lambda (d, l): l.T.dot(d)).sum()
             model.weights[-1] += learn_rate * delta
-            for l in range(len(process_data) - 2, 0, -1):
+            for l in range(len(process_data) - 2, -1, -1):
+                self.logger.debug("the {} layer deltas is \n{}".format(l, deltas.collect()))
                 delta = deltas.map(np_atleast_2d).zip(process_data[l].map(lambda v: np_atleast_2d(v.features))) \
                     .map(lambda (d, l): l.T.dot(d)).sum()
                 deltas = deltas.zip(process_data[l]).map(
                     lambda (d, p): np_dot(d, model.weights[l].T) * model.act_func_prime(p.features)).cache()
                 model.weights[l] += learn_rate * delta
+                self.logger.debug("the {} layer delta is \n{}".format(l, delta))
             self.logger.info("{} iteration finished".format(k))
+            self.logger.debug("The {} updated weights is\n{}".format(k, model.weights))
         self.logger.info("\n{}".format(model.weights))
         return model
 

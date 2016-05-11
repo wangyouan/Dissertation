@@ -108,15 +108,18 @@ class NeuralNetwork(Regression):
         ones = np.atleast_2d(np.ones(np.shape(feature)[0])) * self.bias
         feature = np.concatenate((ones.T, np.array(feature, dtype=float)), axis=1)
         random.seed(1234)
+        self.logger.debug("initial weights is\n{}".format(self.weights))
         for i in range(iteration):
-            self.logger.debug("Start the {} iteration".format(i))
+            self.logger.info("Start the {} iteration".format(i))
             k = random.randint(np.shape(feature)[0])
+            self.logger.debug("the are total {} numbers and the random number is {}".format(np.shape(feature)[0], k))
             train_data = feature[k]
             process_data = [np.array(train_data)]
             target = real[k]
             for layer in self.weights:
                 activation = self.af(np.dot(process_data[-1], layer))
                 process_data.append(activation)
+                self.logger.debug("Process data is \n{}".format(activation))
 
             error = target - process_data[-1]
             deltas = [error * self.afd(process_data[-1])]
@@ -127,7 +130,10 @@ class NeuralNetwork(Regression):
             for l in range(len(self.weights)):
                 layer = np.atleast_2d(process_data[l])
                 delta = np.atleast_2d(deltas[l])
+                self.logger.debug("the {} layer's deltas is \n{}".format(l, delta))
                 self.weights[l] += learn_rate * layer.T.dot(delta)
+                self.logger.debug("the {} layer's delta is \n{}".format(l, layer.T.dot(delta)))
+            self.logger.debug("After update, weights is\n{}".format(self.weights))
             self.logger.debug("{} iteration finished".format(i))
 
     def predict(self, features):
