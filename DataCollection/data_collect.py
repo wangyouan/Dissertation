@@ -17,12 +17,14 @@ from fundamental_analysis import FundamentalAnalysis
 
 
 class DataCollect(StockPriceHandler, StockIndicatorHandler, FundamentalAnalysis):
+    def __init__(self, stock_symbol):
+        StockIndicatorHandler.__init__(self)
+        self._stock_symbol = stock_symbol
 
-    def get_all_required_data(self, stock_symbol, start_date, end_date, label_info, normalized_method, required_info):
+    def get_all_required_data(self, start_date, end_date, label_info, normalized_method, required_info):
         """
         Used to get all dict
 
-        :param stock_symbol: symbol of the target stock
         :param start_date: start date of the required info data type 2016-02-01
         :param end_date: end data of the required info data type 2016-02-01
         :param required_info: a dict contains all the required info
@@ -33,7 +35,8 @@ class DataCollect(StockPriceHandler, StockIndicatorHandler, FundamentalAnalysis)
         if not self._stock_price or self._start_date != start_date or self._end_date != end_date:
             self._start_date = start_date
             self._end_date = end_date
-            self._stock_price = get_all_data_about_stock(symbol=stock_symbol, start_date=start_date, end_date=end_date)
+            self._stock_price = get_all_data_about_stock(symbol=self._stock_symbol, start_date=start_date,
+                                                         end_date=end_date)
             self._date_list = [i[0] for i in self._stock_price[:-1]]
             self._true_end_date = self._date_list[-1]
 
@@ -66,13 +69,8 @@ class DataCollect(StockPriceHandler, StockIndicatorHandler, FundamentalAnalysis)
             fundamental_info = self.fundamental_analysis(required_info[self.FUNDAMENTAL_ANALYSIS])
             collected_data = [i + j for i, j in zip(collected_data, fundamental_info)]
 
+        label_pointed_list = []
         for i, j in zip(collected_data, label_list):
-            pass
+            label_pointed_list.append(LabeledPoint(features=i, label=j))
 
-    @staticmethod
-    def __concatenation_collected_data_list(list1, list2):
-        result = []
-        for i, j in zip(list1, list2):
-            result.append(i + j)
-
-        return result
+        return label_pointed_list

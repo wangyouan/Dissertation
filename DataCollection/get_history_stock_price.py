@@ -38,6 +38,7 @@ def get_all_data_about_stock(symbol, start_date=None, end_date=None):
     stock_info = response.read()
     stock_info = [i.split(',') for i in stock_info.split('\n')][1:-1]
     stock_info = [i[:5] for i in stock_info]
+    stock_info.reverse()
     return stock_info
 
 

@@ -6,6 +6,8 @@
 # Author: Mark Wang
 # Date: 1/6/2016
 
+import datetime
+
 from constant import Constant
 
 
@@ -16,3 +18,9 @@ class BaseClass(Constant):
         self._end_date = None
         self._true_end_date = None
         self._date_list = None
+        self._stock_symbol = None
+
+    def get_ahead_date(self, detailed_date, ahead_period):
+        date_object = datetime.date.strptime(detailed_date, "%Y-%m-%d")
+        date_object -= datetime.timedelta(ahead_period)
+        return date_object.strftime("%Y-%m-%d")
