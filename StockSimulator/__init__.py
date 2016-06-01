@@ -32,6 +32,7 @@ def load_spark_context(application_name=None):
     # logger.LogManager.getLogger("akka").setLevel(logger.Level.ERROR)
     return sc, sql_context
 
+
 def load_logger(application_name=None):
     if application_name is None:
         application_name = __name__

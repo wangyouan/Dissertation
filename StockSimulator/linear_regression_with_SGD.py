@@ -8,7 +8,9 @@
 
 import os
 
-from __init__ import load_spark_context, load_logger
+from pyspark import SparkContext
+
+from StockSimulator import load_logger
 from constant import *
 from parse_data import DataParser
 from plot_data import plot_label_vs_data
@@ -34,7 +36,7 @@ def calculate_data(path=r'../data/0003.HK.csv', sc=None):
     logger.debug("input file is {}".format(path.split('/')[-1]))
     if sc is None:
         logger.info("Start spark context")
-        sc = load_spark_context()[0]
+        sc = SparkContext.getOrCreate()
         logger.info("Load spark successfully")
 
     # Read date from given file
@@ -116,7 +118,7 @@ def calculate_data_non_normalized(path=r'../data/0003.HK.csv', windows=5, spark_
     :return: None
     """
     if spark_context is None:
-        spark_context = load_spark_context()[0]
+        spark_context = SparkContext.getOrCreate()
 
     # Read date from given file
     data = DataParser(path=path, window_size=windows)
@@ -165,7 +167,7 @@ def calculate_data_normalized(path=r'../data/0003.HK.csv', windows=5, spark_cont
     """
     logger.info("Start to calculate data with normalized using Linear regression")
     if spark_context is None:
-        spark_context = load_spark_context()[0]
+        spark_context = SparkContext.getOrCreate()
 
     # Read date from given file
     logger.debug("Load data")
@@ -214,7 +216,7 @@ def calculate_data_normalized(path=r'../data/0003.HK.csv', windows=5, spark_cont
 
 
 def test_non_vs_normalize(show_plt=False, windows=10, stock_num=None):
-    sc = load_spark_context()[0]
+    sc = SparkContext.getOrCreate()
     if show_plt:
         import matplotlib.pyplot as plt
     else:

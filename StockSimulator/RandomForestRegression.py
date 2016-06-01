@@ -11,8 +11,6 @@ from pyspark.mllib.tree import RandomForest
 
 from constant import *
 from parse_data import DataParser
-from plot_data import plot_label_vs_data
-from __init__ import load_spark_context, load_logger
 
 mad_list = []
 mape_list = []
