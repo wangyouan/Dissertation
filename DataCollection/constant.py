@@ -34,6 +34,8 @@ class Constant(object):
 
     # Fundamental Analysis
     FUNDAMENTAL_ANALYSIS = "fundamental analysis"
+
+    # Bond, index and ETF related
     US10Y_BOND = "CBOE Interest Rate 10 Year T No" # Symbol ^TNX
     US30Y_BOND = "Treasury Yield 30 Years" # Symbol ^TYX
     HSI = "Hang Seng Index" # ^HSI
@@ -42,3 +44,7 @@ class Constant(object):
     IA = "iShares CSI A-Share Financials" # 2829.HK
     IA300 = "iShares CSI 300 A-Share" # 2846.HK
     IMSCI = "iShares MSCI AC Asia ex Japan" # 3010.HK
+
+    # Normalization method
+    MIN_MAX = "Min-Max Normalization"
+    SIGMOID = "Sigmoid Normalization"
