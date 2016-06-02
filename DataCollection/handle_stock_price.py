@@ -42,4 +42,7 @@ class StockPriceHandler(BaseClass):
         return features
 
     def normalized_label(self, normalized_method, label_list, price_list):
-        pass
+        new_label_list = []
+        for i, label in enumerate(label_list):
+            new_label_list.append(normalized_method(label, price_list[i][1], price_list[i][2]))
+        return new_label_list

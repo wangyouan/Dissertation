@@ -16,6 +16,12 @@ from get_history_stock_price import get_all_data_about_stock
 from fundamental_analysis import FundamentalAnalysis
 
 
+def normalize(price, max_price, min_price):
+    if abs(max_price - min_price) < 1e-4:
+        return 0
+    return (2 * price - (max_price + min_price)) / (max_price - min_price)
+
+
 class DataCollect(StockPriceHandler, StockIndicatorHandler, FundamentalAnalysis):
     def __init__(self, stock_symbol):
         StockIndicatorHandler.__init__(self)
@@ -33,6 +39,7 @@ class DataCollect(StockPriceHandler, StockIndicatorHandler, FundamentalAnalysis)
         :return: an RDD data structure based on the required info
         """
         if not self._stock_price or self._start_date != start_date or self._end_date != end_date:
+            self._removed_date = []
             self._start_date = start_date
             self._end_date = end_date
             self._stock_price = get_all_data_about_stock(symbol=self._stock_symbol, start_date=start_date,
@@ -40,14 +47,7 @@ class DataCollect(StockPriceHandler, StockIndicatorHandler, FundamentalAnalysis)
             self._date_list = [i[0] for i in self._stock_price[:-1]]
             self._true_end_date = self._date_list[-1]
 
-        if normalized_method is None:
-            normalized_method = lambda (x, y, z): x
-        elif normalized_method == self.MIN_MAX:
-            def normalize(price, max_price, min_price):
-                if abs(max_price - min_price) < 1e-4:
-                    return 0
-                return (2 * price - (max_price + min_price)) / (max_price - min_price)
-
+        if normalized_method is None or normalized_method == self.MIN_MAX:
             normalized_method = normalize
         elif normalized_method == self.SIGMOID:
             normalized_method = lambda (x, y, z): 1.0 / (1 + math.exp(x))

@@ -9,5 +9,9 @@
 from base_class import BaseClass
 
 class StockIndicatorHandler(BaseClass):
+    def __init__(self):
+        BaseClass.__init__(self)
+        self._append_data = []
+
     def handle_indicator(self, required_info):
         pass
