@@ -7,6 +7,7 @@
 # Date: 1/6/2016
 
 import datetime
+import logging
 
 from StockInference.constant import Constants
 
@@ -20,10 +21,12 @@ class BaseClass(Constants):
         self._true_end_date = None
         self._date_list = None
         self._stock_symbol = None
+        self.logger = logging.getLogger(self.__class__.__name__)
 
     @staticmethod
     def get_ahead_date(detailed_date, ahead_period):
-        date_object = datetime.date.strptime(detailed_date, "%Y-%m-%d")
+        date_list = detailed_date.split('-')
+        date_object = datetime.date(year=int(date_list[0]), month=int(date_list[1]), day=int(date_list[2]))
         date_object -= datetime.timedelta(ahead_period)
         return date_object.strftime("%Y-%m-%d")
 

@@ -45,7 +45,7 @@ class FundamentalAnalysis(BaseClass):
         bond_info = [i.split(',') for i in bond_info.split('\n')][1:-1]
         bond_price = {}
         for i in bond_info:
-            bond_price[i[0]] = i[4]
+            bond_price[i[0]] = float(i[4])
         return bond_price
 
     def fundamental_analysis(self, required_info):
@@ -55,5 +55,7 @@ class FundamentalAnalysis(BaseClass):
                 bond_price = self._get_bond_price(self._bond_label_dict[info])
 
                 calculated_info = self._merge_info(calculated_info=calculated_info, info_dict=bond_price)
+
+        calculated_info = [i[1:] for i in calculated_info]
 
         return calculated_info

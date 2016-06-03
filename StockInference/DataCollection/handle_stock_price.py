@@ -39,6 +39,7 @@ class StockPriceHandler(BaseClass):
             close_avg_price.append(numpy.mean([i[3] for i in window]))
             open_avg_price.append(numpy.mean([i[0] for i in window]))
         features = zip(open_avg_price, max_price, min_price, close_avg_price)
+        features = map(list, features)
         return features
 
     def normalized_label(self, normalized_method, label_list, price_list):

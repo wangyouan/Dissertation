@@ -25,6 +25,8 @@ def normalize(price, max_price, min_price):
 class DataCollect(StockPriceHandler, StockIndicatorHandler, FundamentalAnalysis):
     def __init__(self, stock_symbol):
         StockIndicatorHandler.__init__(self)
+        StockPriceHandler.__init__(self)
+        FundamentalAnalysis.__init__(self)
         self._stock_symbol = stock_symbol
 
     def get_all_required_data(self, start_date, end_date, label_info, normalized_method, required_info):
