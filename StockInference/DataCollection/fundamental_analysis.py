@@ -9,7 +9,7 @@
 from urllib import urlencode
 from urllib2 import Request, urlopen
 
-from base_class import BaseClass
+from StockInference.DataCollection.base_class import BaseClass
 
 
 class FundamentalAnalysis(BaseClass):
@@ -43,8 +43,17 @@ class FundamentalAnalysis(BaseClass):
         response = urlopen(query)
         bond_info = response.read()
         bond_info = [i.split(',') for i in bond_info.split('\n')][1:-1]
-        bond_info = [(i[0], i[4]) for i in bond_info]
-        return bond_info
+        bond_price = {}
+        for i in bond_info:
+            bond_price[i[0]] = i[4]
+        return bond_price
 
     def fundamental_analysis(self, required_info):
-        pass
+        calculated_info = [[i] for i in self._date_list]
+        for info in required_info:
+            if info in self._bond_label_dict:
+                bond_price = self._get_bond_price(self._bond_label_dict[info])
+
+                calculated_info = self._merge_info(calculated_info=calculated_info, info_dict=bond_price)
+
+        return calculated_info

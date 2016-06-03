@@ -7,7 +7,7 @@
 # Date: 30/5/2016
 
 
-class Constant(object):
+class Constants(object):
 
     # information used in stock price info
     STOCK_PRICE = "history_price"
@@ -48,3 +48,14 @@ class Constant(object):
     # Normalization method
     MIN_MAX = "Min-Max Normalization"
     SIGMOID = "Sigmoid Normalization"
+
+    # define constants used in get loss function
+    LSE = 'least square error'
+    LAE = 'least absolute error'
+
+    # define method type used in neural network regression type
+    BP_SGD = 'back propagation with stochastic gradient descent'
+    BP = 'back propagation'
+
+    # define method used in linear regression
+    GD = 'Standard gradient descent'

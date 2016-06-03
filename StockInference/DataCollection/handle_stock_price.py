@@ -8,8 +8,8 @@
 
 import numpy
 
-from base_class import BaseClass
-from get_history_stock_price import get_all_data_about_stock
+from StockInference.DataCollection.base_class import BaseClass
+from util.get_history_stock_price import get_all_data_about_stock
 
 
 class StockPriceHandler(BaseClass):

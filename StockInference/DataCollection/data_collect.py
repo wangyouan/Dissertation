@@ -10,10 +10,10 @@ import math
 
 from pyspark.mllib.regression import LabeledPoint
 
-from handle_stock_price import StockPriceHandler
-from stock_indicator_handler import StockIndicatorHandler
-from get_history_stock_price import get_all_data_about_stock
-from fundamental_analysis import FundamentalAnalysis
+from StockInference.DataCollection.fundamental_analysis import FundamentalAnalysis
+from StockInference.DataCollection.handle_stock_price import StockPriceHandler
+from StockInference.DataCollection.stock_indicator_handler import StockIndicatorHandler
+from StockInference.util.get_history_stock_price import get_all_data_about_stock
 
 
 def normalize(price, max_price, min_price):
@@ -39,7 +39,7 @@ class DataCollect(StockPriceHandler, StockIndicatorHandler, FundamentalAnalysis)
         :return: an RDD data structure based on the required info
         """
         if not self._stock_price or self._start_date != start_date or self._end_date != end_date:
-            self._removed_date = []
+            self._removed_date = set()
             self._start_date = start_date
             self._end_date = end_date
             self._stock_price = get_all_data_about_stock(symbol=self._stock_symbol, start_date=start_date,

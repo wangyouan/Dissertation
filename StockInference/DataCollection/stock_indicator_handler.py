@@ -6,7 +6,7 @@
 # Author: Mark Wang
 # Date: 1/6/2016
 
-from base_class import BaseClass
+from StockInference.DataCollection.base_class import BaseClass
 
 class StockIndicatorHandler(BaseClass):
     def __init__(self):
