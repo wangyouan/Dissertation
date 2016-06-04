@@ -9,7 +9,6 @@
 import datetime
 import logging
 
-import numpy as np
 import pandas as pd
 from sklearn.decomposition import PCA
 from pandas.tseries.offsets import BDay
@@ -27,7 +26,6 @@ class BaseClass(Constants):
         self._date_list = None
         self._stock_symbol = None
         self.logger = logging.getLogger(self.__class__.__name__)
-        self.pca_transformer = None
 
     @staticmethod
     def get_ahead_date(detailed_date, ahead_period):
@@ -66,15 +64,10 @@ class BaseClass(Constants):
                 self._removed_date.add(i[0])
         return calculated_info
 
-    def pca_data_reduction(self, data):
-        if self.pca_transformer is None:
-            n_components = len(data[0])
-            # X = np.array(data).astype(np.float)
-            self.pca_transformer = PCA(n_components=n_components)
-            Y = self.pca_transformer.fit_transform(data)
-        else:
-            Y = self.pca_transformer.transform(data)
-        return Y
+    def get_pca_transformer(self, data, n_components=None):
+        pca_transformer = PCA(n_components=n_components)
+        pca_transformer.fit(data)
+        return pca_transformer
 
 
 if __name__ == "__main__":
@@ -84,4 +77,3 @@ if __name__ == "__main__":
     dc.set_start_date("2012-03-01")
     dc.set_end_date("2012-04-01")
     data = dc.fundamental_analysis([dc.US10Y_BOND, dc.US30Y_BOND, dc.HSI, dc.FXI, dc.IC, dc.IA])
-    print dc.pca_data_reduction(data)

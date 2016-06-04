@@ -15,6 +15,9 @@ from util.get_history_stock_price import get_all_data_about_stock
 class StockPriceHandler(BaseClass):
     def __init__(self):
         BaseClass.__init__(self)
+        self.stock_price_pca_transformer = None
+        self.stock_price_min_list = None
+        self.stock_price_max_list = None
 
     def handle_stock_price(self, data_period):
         stock_info = [i[1:] for i in self._stock_price]

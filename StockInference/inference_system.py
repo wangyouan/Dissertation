@@ -26,7 +26,7 @@ class InferenceSystem(Constants):
     def predict_historical_data(self, train_test_ratio, start_date, end_date):
         required_info = {
             self.STOCK_PRICE: {self.DATA_PERIOD: 5},
-            self.FUNDAMENTAL_ANALYSIS: [self.US10Y_BOND, self.US30Y_BOND, self.HSI, self.FXI, self.IC, self.IA]
+            self.FUNDAMENTAL_ANALYSIS: [self.US10Y_BOND, self.US30Y_BOND, self.FXI, self.IC, self.IA]
         }
         calculated_data = self.data_collection.get_all_required_data(start_date=start_date, end_date=end_date,
                                                                      label_info=self.STOCK_CLOSE,
@@ -41,11 +41,11 @@ class InferenceSystem(Constants):
         model = self.neural_network.train(training_rdd, method=self.neural_network.BP, seed=1234, learn_rate=0.001,
                                           iteration=100)
         predict_result = testing_rdd.map(
-            lambda p: (p.label, de_normalize(model.predict(p.features), p.features))).cache()
+            lambda p: (de_normalize(p.label, p.features), de_normalize(model.predict(p.features), p.features)))
         print get_MSE(predict_result)
         self.sc.stop()
 
 
 if __name__ == "__main__":
-    test = InferenceSystem('0001.HK')
-    test.predict_historical_data(0.8, "2005-06-01", "2015-07-01")
+    test = InferenceSystem('0003.HK')
+    test.predict_historical_data(0.8, "2006-04-14", "2016-04-15")

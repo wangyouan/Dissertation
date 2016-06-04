@@ -9,6 +9,8 @@
 from urllib import urlencode
 from urllib2 import Request, urlopen
 
+import numpy as np
+
 from StockInference.DataCollection.base_class import BaseClass
 
 
@@ -25,6 +27,9 @@ class FundamentalAnalysis(BaseClass):
             self.IA300: "2846.HK",
             self.IMSCI: "3010.HK",
         }
+        self.fa_pca_transformer = None
+        self.fa_min_list = []
+        self.fa_max_list = []
 
     def _get_bond_price(self, symbol):
         start_date = self._start_date.split('-')
@@ -48,6 +53,26 @@ class FundamentalAnalysis(BaseClass):
             bond_price[i[0]] = float(i[4])
         return bond_price
 
+    def fa_pca_data_reduction(self, data):
+        if self.fa_pca_transformer is None:
+            self.fa_pca_transformer = self.get_pca_transformer(data, 'mle')
+        Y = self.fa_pca_transformer.transform(data)
+        return Y
+
+    def fa_data_normalization(self, data):
+        pca_data = self.fa_pca_data_reduction(data)
+        if not self.fa_min_list or not self.fa_max_list:
+            n_y = len(pca_data[0])
+            self.fa_max_list = np.zeros(n_y)
+            self.fa_min_list = np.zeros(n_y)
+            for i in range(n_y):
+                self.fa_min_list[i] = np.min(pca_data[:,i])
+                self.fa_max_list[i] = np.max(pca_data[:,i])
+        diff = self.fa_max_list - self.fa_min_list
+        nor_data = map(lambda p: (p - self.fa_min_list) / diff, pca_data)
+
+        return nor_data
+
     def fundamental_analysis(self, required_info):
         if not self._date_list:
             self.generate_date_list()
@@ -59,5 +84,4 @@ class FundamentalAnalysis(BaseClass):
                 calculated_info = self._merge_info(calculated_info=calculated_info, info_dict=bond_price)
 
         calculated_info = [i[1:] for i in calculated_info]
-
-        return calculated_info
+        return self.fa_data_normalization(calculated_info)
