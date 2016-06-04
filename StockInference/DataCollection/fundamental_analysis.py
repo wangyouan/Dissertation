@@ -49,6 +49,8 @@ class FundamentalAnalysis(BaseClass):
         return bond_price
 
     def fundamental_analysis(self, required_info):
+        if not self._date_list:
+            self.generate_date_list()
         calculated_info = [[i] for i in self._date_list]
         for info in required_info:
             if info in self._bond_label_dict:
