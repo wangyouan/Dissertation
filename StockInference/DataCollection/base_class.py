@@ -7,7 +7,6 @@
 # Date: 1/6/2016
 
 import datetime
-import logging
 
 import pandas as pd
 from sklearn.decomposition import PCA
@@ -25,7 +24,6 @@ class BaseClass(Constants):
         self._true_end_date = None
         self._date_list = None
         self._stock_symbol = None
-        self.logger = logging.getLogger(self.__class__.__name__)
 
     @staticmethod
     def get_ahead_date(detailed_date, ahead_period):
@@ -68,6 +66,9 @@ class BaseClass(Constants):
         pca_transformer = PCA(n_components=n_components)
         pca_transformer.fit(data)
         return pca_transformer
+
+    def get_date_list(self):
+        return self._date_list[:]
 
 
 if __name__ == "__main__":

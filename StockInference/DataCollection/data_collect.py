@@ -14,12 +14,7 @@ from StockInference.DataCollection.fundamental_analysis import FundamentalAnalys
 from StockInference.DataCollection.handle_stock_price import StockPriceHandler
 from StockInference.DataCollection.stock_indicator_handler import StockIndicatorHandler
 from StockInference.util.get_history_stock_price import get_all_data_about_stock
-
-
-def normalize(price, max_price, min_price):
-    if abs(max_price - min_price) < 1e-4:
-        return 0
-    return (2 * price - (max_price + min_price)) / (max_price - min_price)
+from StockInference.util.data_parse import min_max_normalize
 
 
 class DataCollect(StockPriceHandler, StockIndicatorHandler, FundamentalAnalysis):
@@ -50,7 +45,7 @@ class DataCollect(StockPriceHandler, StockIndicatorHandler, FundamentalAnalysis)
             self._true_end_date = self._date_list[-1]
 
         if normalized_method is None or normalized_method == self.MIN_MAX:
-            normalized_method = normalize
+            normalized_method = min_max_normalize
         elif normalized_method == self.SIGMOID:
             normalized_method = lambda (x, y, z): 1.0 / (1 + math.exp(x))
 
@@ -60,8 +55,9 @@ class DataCollect(StockPriceHandler, StockIndicatorHandler, FundamentalAnalysis)
             label_list = [i[1] for i in self._stock_price[1:]]
 
         collected_data = self.handle_stock_price(required_info[self.STOCK_PRICE][self.DATA_PERIOD])
-        label_list = self.normalized_label(normalized_method=normalized_method, label_list=label_list,
-                                           price_list=collected_data)
+        new_label_list = self.normalized_label(normalized_method=normalized_method, label_list=label_list,
+                                               price_list=collected_data)
+        collected_data = self.normalize_stock_price(collected_data)
 
         if self.STOCK_INDICATOR in required_info:
             indicator_info = self.handle_indicator(required_info[self.STOCK_INDICATOR])
@@ -72,7 +68,7 @@ class DataCollect(StockPriceHandler, StockIndicatorHandler, FundamentalAnalysis)
             collected_data = [i + j for i, j in zip(collected_data, fundamental_info)]
 
         label_pointed_list = []
-        for i, j in zip(collected_data, label_list):
+        for i, j in zip(collected_data, new_label_list):
             label_pointed_list.append(LabeledPoint(features=i, label=j))
 
-        return label_pointed_list
+        return label_pointed_list, label_list

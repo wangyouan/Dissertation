@@ -7,10 +7,16 @@
 # Date: 3/6/2016
 
 
-def de_normalize(label, features):
+def min_max_de_normalize(label, features):
     max_price = features[1]
     min_price = features[2]
     return label * (max_price - min_price) / 2 + (max_price + min_price) / 2
+
+
+def min_max_normalize(price, max_price, min_price):
+    if abs(max_price - min_price) < 1e-4:
+        return 0
+    return (2 * price - (max_price + min_price)) / (max_price - min_price)
 
 
 def get_MSE(label_and_prediction):

@@ -69,7 +69,7 @@ class FundamentalAnalysis(BaseClass):
                 self.fa_min_list[i] = np.min(pca_data[:,i])
                 self.fa_max_list[i] = np.max(pca_data[:,i])
         diff = self.fa_max_list - self.fa_min_list
-        nor_data = map(lambda p: (p - self.fa_min_list) / diff, pca_data)
+        nor_data = map(lambda p: ((p - self.fa_min_list) / diff).tolist(), pca_data)
 
         return nor_data
 

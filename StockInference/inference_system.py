@@ -7,41 +7,57 @@
 # Date: 1/6/2016
 
 from pyspark import SparkContext, SparkConf
+from pyspark.mllib.regression import LabeledPoint
 
 from StockInference.constant import Constants
 from StockInference.DataCollection.data_collect import DataCollect
 from StockInference.Regression.distributed_neural_network import NeuralNetworkSpark
-from StockInference.util.data_parse import de_normalize, get_MSE
+from StockInference.util.data_parse import min_max_de_normalize, get_MSE
 
 
 class InferenceSystem(Constants):
     def __init__(self, stock_symbol):
         self.stock_symbol = stock_symbol
-        self.data_collection = DataCollect(stock_symbol=stock_symbol)
         self.neural_network = None
         conf = SparkConf()
         conf.setAppName("StockInference")
         self.sc = SparkContext(conf=conf)
 
     def predict_historical_data(self, train_test_ratio, start_date, end_date):
+        data_collection = DataCollect(stock_symbol=self.stock_symbol)
         required_info = {
             self.STOCK_PRICE: {self.DATA_PERIOD: 5},
             self.FUNDAMENTAL_ANALYSIS: [self.US10Y_BOND, self.US30Y_BOND, self.FXI, self.IC, self.IA]
         }
-        calculated_data = self.data_collection.get_all_required_data(start_date=start_date, end_date=end_date,
-                                                                     label_info=self.STOCK_CLOSE,
-                                                                     normalized_method=self.MIN_MAX,
-                                                                     required_info=required_info)
+        calculated_data, label_list = data_collection.get_all_required_data(start_date=start_date, end_date=end_date,
+                                                                label_info=self.STOCK_CLOSE,
+                                                                normalized_method=self.MIN_MAX,
+                                                                required_info=required_info)
+
         input_num = len(calculated_data[0].features)
         self.neural_network = NeuralNetworkSpark(layers=[input_num, input_num + 2, input_num - 4, 1])
         total_data_num = len(calculated_data)
         train_data_num = int(train_test_ratio * total_data_num)
         training_rdd = self.sc.parallelize(calculated_data[:train_data_num])
-        testing_rdd = self.sc.parallelize(calculated_data[train_data_num:])
+        testing_rdd = calculated_data[train_data_num:]
+        test_label_list = label_list[train_data_num:]
+        for i in range(total_data_num - train_data_num):
+            testing_rdd[i] = LabeledPoint(label=test_label_list[i], features=testing_rdd[i].features)
+        testing_rdd = self.sc.parallelize(testing_rdd)
         model = self.neural_network.train(training_rdd, method=self.neural_network.BP, seed=1234, learn_rate=0.001,
                                           iteration=100)
         predict_result = testing_rdd.map(
-            lambda p: (de_normalize(p.label, p.features), de_normalize(model.predict(p.features), p.features)))
+            lambda p: (p.label, model.predict(p.features), p.features)) \
+            .map(lambda p: (p[0], p[1], data_collection.de_normalize_stock_price(p[2]))) \
+            .map(lambda p: (p[0], min_max_de_normalize(p[1], p[2]))).cache()
+        test_date_list = data_collection.get_date_list()[train_data_num:]
+        predict_list = predict_result.collect()
+        f = open("test.csv", "w")
+        f.write("date,origin,predict\n")
+        for i in range(total_data_num - train_data_num):
+            f.write("%s,%2f,%2f\n" % (
+            test_date_list[i], predict_list[i][0], predict_list[i][1]))
+        f.close()
         print get_MSE(predict_result)
         self.sc.stop()
 

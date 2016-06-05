@@ -15,7 +15,6 @@ from util.get_history_stock_price import get_all_data_about_stock
 class StockPriceHandler(BaseClass):
     def __init__(self):
         BaseClass.__init__(self)
-        self.stock_price_pca_transformer = None
         self.stock_price_min_list = None
         self.stock_price_max_list = None
 
@@ -50,3 +49,19 @@ class StockPriceHandler(BaseClass):
         for i, label in enumerate(label_list):
             new_label_list.append(normalized_method(label, price_list[i][1], price_list[i][2]))
         return new_label_list
+
+    def normalize_stock_price(self, stock_price_list):
+        temp_list = numpy.array(stock_price_list).astype(numpy.float)
+        if not self.stock_price_max_list or not self.stock_price_min_list:
+            self.stock_price_max_list = numpy.array([numpy.max(temp_list[:,i]) for i in range(4)])
+            self.stock_price_min_list = numpy.array([numpy.min(temp_list[:,i]) for i in range(4)])
+
+        diff = self.stock_price_max_list - self.stock_price_min_list
+        temp_list2 = map(lambda p: ((2 * p - self.stock_price_min_list - self.stock_price_max_list) / diff).tolist(),
+                         temp_list)
+        return temp_list2
+
+    def de_normalize_stock_price(self, stock_price_list):
+        diff = self.stock_price_max_list - self.stock_price_min_list
+        stock_price_list = numpy.array(stock_price_list[:4])
+        return stock_price_list * diff /2 + (self.stock_price_min_list + self.stock_price_max_list) / 2
