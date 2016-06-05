@@ -74,6 +74,9 @@ class FundamentalAnalysis(BaseClass):
         return nor_data
 
     def fundamental_analysis(self, required_info):
+        return self.fa_data_normalization(self.raw_fundamental_analysis(required_info))
+
+    def raw_fundamental_analysis(self, required_info):
         if not self._date_list:
             self.generate_date_list()
         calculated_info = [[i] for i in self._date_list]
@@ -83,5 +86,5 @@ class FundamentalAnalysis(BaseClass):
 
                 calculated_info = self._merge_info(calculated_info=calculated_info, info_dict=bond_price)
 
-        calculated_info = [i[1:] for i in calculated_info]
-        return self.fa_data_normalization(calculated_info)
+        return [i[1:] for i in calculated_info]
+
