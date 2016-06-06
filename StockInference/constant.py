@@ -11,10 +11,11 @@ class Constants(object):
 
     # information used in stock price info
     STOCK_PRICE = "history_price"
-    STOCK_HIGH = "stock_high"
-    STOCK_LOW = "stock_low"
-    STOCK_OPEN = "stock_open"
-    STOCK_CLOSE = "stock_close"
+    STOCK_HIGH = "high"
+    STOCK_LOW = "low"
+    STOCK_OPEN = "open"
+    STOCK_CLOSE = "close"
+    STOCK_VOLUME = "volume"
     DATA_PERIOD = "data_period"
 
     # information for indicators info

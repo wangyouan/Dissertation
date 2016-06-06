@@ -83,13 +83,13 @@ class InferenceSystem(Constants):
 
         # training
         input_num = len(train_data.take(1)[0].features)
-        if input_num <= 5:
+        if input_num < 6:
             layers = [input_num, input_num + 1, 1]
         else:
-            layers = [input_num, input_num + 2, input_num - 2, 1]
+            layers = [input_num, input_num - 2, input_num - 4, 1]
         self.neural_network = NeuralNetworkSpark(layers=layers, bias=0)
-        model = self.neural_network.train(train_data, method=self.neural_network.BP, seed=1234, learn_rate=0.001,
-                                          iteration=8)
+        model = self.neural_network.train(train_data, method=self.neural_network.BP, seed=1234, learn_rate=0.0001,
+                                          iteration=25)
 
         # predicting
         predict_result = test_data.map(lambda p: (p.label, model.predict(p.features))).zip(test_data_features) \
@@ -111,5 +111,5 @@ class InferenceSystem(Constants):
 
 
 if __name__ == "__main__":
-    test = InferenceSystem('0001.HK')
+    test = InferenceSystem('0700.HK')
     test.predict_historical_data_new_process(0.8, "2006-04-14", "2016-04-15")

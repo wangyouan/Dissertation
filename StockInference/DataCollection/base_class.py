@@ -32,6 +32,12 @@ class BaseClass(Constants):
         date_object -= datetime.timedelta(ahead_period)
         return date_object.strftime("%Y-%m-%d")
 
+    def get_start_date(self):
+        return self._start_date
+
+    def get_end_date(self):
+        return self._end_date
+
     def set_start_date(self, date):
         self._start_date = date
 

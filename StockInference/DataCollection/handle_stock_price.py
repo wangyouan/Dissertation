@@ -9,7 +9,7 @@
 import numpy
 
 from StockInference.DataCollection.base_class import BaseClass
-from util.get_history_stock_price import get_all_data_about_stock
+from StockInference.util.get_history_stock_price import get_all_data_about_stock
 
 
 class StockPriceHandler(BaseClass):
