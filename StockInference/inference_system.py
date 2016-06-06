@@ -69,10 +69,29 @@ class InferenceSystem(Constants):
         data_collection = DataCollect(stock_symbol=self.stock_symbol)
         required_info = {
             self.STOCK_PRICE: {self.DATA_PERIOD: 5},
-            self.FUNDAMENTAL_ANALYSIS: [self.US10Y_BOND, self.US30Y_BOND, self.FXI, self.IC, self.IA, self.HSI]
+            self.STOCK_INDICATOR: [
+                (self.MACD, {self.MACD_FAST_PERIOD:12, self.MACD_SLOW_PERIOD: 26, self.MACD_TIME_PERIOD: 9}),
+                (self.MACD, {self.MACD_FAST_PERIOD:7, self.MACD_SLOW_PERIOD: 14, self.MACD_TIME_PERIOD: 9}),
+                (self.SMA, 3),
+                (self.SMA, 13),
+                (self.SMA, 21),
+                (self.EMA, 5),
+                (self.EMA, 13),
+                (self.EMA, 21),
+                (self.ROC, 13),
+                (self.ROC, 21),
+                (self.RSI, 9),
+                (self.RSI, 14),
+                (self.RSI, 21),
+            ],
+            self.FUNDAMENTAL_ANALYSIS: [self.US10Y_BOND, self.US30Y_BOND, self.FXI,
+                                        # self.IC, self.IA,
+                                        self.HSI]
         }
         raw_data = data_collection.get_raw_data(start_date=start_date, end_date=end_date,
                                                 label_info=self.STOCK_CLOSE, required_info=required_info)
+
+        print raw_data
 
         # Split train and test
         data_parser = DataParser()
@@ -89,7 +108,7 @@ class InferenceSystem(Constants):
             layers = [input_num, input_num - 2, input_num - 4, 1]
         self.neural_network = NeuralNetworkSpark(layers=layers, bias=0)
         model = self.neural_network.train(train_data, method=self.neural_network.BP, seed=1234, learn_rate=0.0001,
-                                          iteration=25)
+                                          iteration=10)
 
         # predicting
         predict_result = test_data.map(lambda p: (p.label, model.predict(p.features))).zip(test_data_features) \
@@ -111,5 +130,5 @@ class InferenceSystem(Constants):
 
 
 if __name__ == "__main__":
-    test = InferenceSystem('0700.HK')
+    test = InferenceSystem('0003.HK')
     test.predict_historical_data_new_process(0.8, "2006-04-14", "2016-04-15")

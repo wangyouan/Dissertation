@@ -37,7 +37,7 @@ class StockIndicatorHandler(BaseClass):
                 get_data = self.get_ROC(time_period=info_parameter)
 
             if get_data is not None:
-                if not indicator_data:
+                if not indicator_data.any():
                     indicator_data = np.atleast_2d(get_data).T
                 else:
                     indicator_data = np.concatenate((indicator_data, np.atleast_2d(get_data).T), axis=1)
@@ -53,23 +53,25 @@ class StockIndicatorHandler(BaseClass):
         return abstract.RSI(data, timeperiod=time_period)[-self._data_num:]
 
     def get_EMA(self, ema_period, price=None):
-        data = self._get_stock_price_data(ema_period - 1)
+        data = self._get_stock_price_data(ema_period)
+        if price is None:
+            price = self.STOCK_CLOSE
         return abstract.EMA(data, timeperiod=ema_period, price=price)[-self._data_num:]
 
     def get_SMA(self, sma_period, price=None):
-        data = self._get_stock_price_data(sma_period - 1)
+        data = self._get_stock_price_data(sma_period)
         if price is None:
             price = self.STOCK_CLOSE
         return abstract.SMA(data, timeperiod=sma_period, price=price)[-self._data_num:]
 
     def get_MACD(self, slow_period, fast_period, signal_period):
-        additional_date = fast_period + signal_period
+        additional_date = slow_period + signal_period
         data = self._get_stock_price_data(additional_date)
         macd, macd_signal, macd_hist = abstract.MACD(data, fast_period, slow_period, signal_period)
         return macd[-self._data_num:]
 
     def _get_stock_price_data(self, ahead_days):
-        new_start_date = self.get_ahead_date(self._start_date, ahead_days)
+        new_start_date = self.get_ahead_date(self._start_date, ahead_days * 2)
         ahead_data = get_all_data_about_stock(self._stock_symbol, start_date=new_start_date,
                                               end_date=self.get_start_date())[:-1]
         ahead_data.extend(self._stock_price)
