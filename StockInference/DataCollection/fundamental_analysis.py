@@ -66,8 +66,8 @@ class FundamentalAnalysis(BaseClass):
             self.fa_max_list = np.zeros(n_y)
             self.fa_min_list = np.zeros(n_y)
             for i in range(n_y):
-                self.fa_min_list[i] = np.min(pca_data[:,i])
-                self.fa_max_list[i] = np.max(pca_data[:,i])
+                self.fa_min_list[i] = np.min(pca_data[:, i])
+                self.fa_max_list[i] = np.max(pca_data[:, i])
         diff = self.fa_max_list - self.fa_min_list
         nor_data = map(lambda p: ((p - self.fa_min_list) / diff).tolist(), pca_data)
 
@@ -88,3 +88,48 @@ class FundamentalAnalysis(BaseClass):
 
         return [i[1:] for i in calculated_info]
 
+    def raw_fundamental_analysis_change_rate(self, required_info):
+        if not self._date_list:
+            self.generate_date_list()
+
+        calculated_info = [[i] for i in self._date_list]
+        for info in required_info:
+            if info in self._bond_label_dict:
+                bond_price = self._get_bond_change_rate(self._bond_label_dict[info])
+
+                calculated_info = self._merge_info(calculated_info=calculated_info, info_dict=bond_price)
+
+        return [i[1:] for i in calculated_info]
+
+    def _get_bond_change_rate(self, symbol):
+        start_date = self.get_ahead_date(self._start_date, 10).split('-')
+        end_date = self._true_end_date.split('-')
+        data_list = [('s', symbol),
+                     ('a', int(start_date[1]) - 1),
+                     ('b', start_date[2]),
+                     ('c', start_date[0]),
+                     ('d', int(end_date[1]) - 1),
+                     ('e', end_date[2]),
+                     ('f', end_date[0]),
+                     ('g', 'd')
+                     ]
+        url = "http://ichart.finance.yahoo.com/table.csv?{}".format(urlencode(data_list))
+        query = Request(url)
+        response = urlopen(query)
+        bond_info = response.read()
+        bond_info = [i.split(',') for i in bond_info.split('\n')][1:-1]
+        bond_price_index = {}
+        bond_price_map = {}
+        for i in range(len(bond_info)):
+            bond_price_index[bond_info[i][0]] = i
+
+        for date in self._date_list:
+            if date not in bond_price_index:
+                bond_price_map[date] = 0
+            else:
+                today_index = bond_price_index[date]
+                today_price = float(bond_info[today_index][4])
+                last_day_price = float(bond_info[today_index + 1][4])
+                bond_price_map[date] = (today_price - last_day_price) / last_day_price
+
+        return bond_price_map

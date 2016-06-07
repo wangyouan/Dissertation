@@ -91,7 +91,6 @@ class InferenceSystem(Constants):
         raw_data = data_collection.get_raw_data(start_date=start_date, end_date=end_date,
                                                 label_info=self.STOCK_CLOSE, required_info=required_info)
 
-        print raw_data
 
         # Split train and test
         data_parser = DataParser()

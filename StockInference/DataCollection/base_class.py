@@ -11,8 +11,10 @@ import datetime
 import pandas as pd
 from sklearn.decomposition import PCA
 from pandas.tseries.offsets import BDay
+from pandas.tseries.offsets import CustomBusinessDay
 
 from StockInference.constant import Constants
+from StockInference.util.hongkong_calendar import HongKongCalendar
 
 
 class BaseClass(Constants):
@@ -45,17 +47,27 @@ class BaseClass(Constants):
         self._end_date = date
         self._true_end_date = date
 
-    def generate_date_list(self):
-        start_date = self._start_date.split('-')
-        end_date = self._end_date.split('-')
+    def generate_date_list(self, start_date=None, end_date=None):
+        if start_date is None:
+            start_date = self._start_date.split('-')
+        else:
+            start_date = start_date.split('-')
+
+        if end_date is None:
+            end_date = self._end_date.split('-')
+        else:
+            end_date = end_date.split('-')
+
         start_date = map(int, start_date)
         end_date = map(int, end_date)
+        cal = HongKongCalendar(start_year=start_date[0] - 1, end_year=end_date[0])
+        CDay = CustomBusinessDay(calendar=cal)
         start_date = pd.datetime(year=start_date[0], month=start_date[1], day=start_date[2])
         end_date = pd.datetime(year=end_date[0], month=end_date[1], day=end_date[2])
         self._date_list = []
         while start_date <= end_date:
             self._date_list.append(start_date.strftime("%Y-%m-%d"))
-            start_date += BDay(1)
+            start_date += CDay
 
     def _merge_info(self, calculated_info, info_dict):
 
