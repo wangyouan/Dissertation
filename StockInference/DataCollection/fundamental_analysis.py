@@ -139,7 +139,7 @@ class FundamentalAnalysis(BaseClass):
             else:
                 today_index = bond_price_index[date]
                 today_price = float(bond_info[today_index][4])
-                last_day_price = float(bond_info[today_index + 1][4])
+                last_day_price = float(bond_info[today_index - 1][4])
                 bond_price_map[date] = (today_price - last_day_price) / last_day_price
 
         return bond_price_map

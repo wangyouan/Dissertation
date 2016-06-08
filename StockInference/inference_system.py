@@ -130,12 +130,12 @@ class InferenceSystem(Constants):
 if __name__ == "__main__":
     f = open('ratio_mse.csv', 'w')
     f.write('stock,MSE,MAPE,MAD\n')
-    for stock in ['0001.HK', '0002.HK', '0003.HK', '0700.HK', '0066.HK', '0045.HK', '1983.HK']:
+    for stock in ['0001.HK', '0002.HK', '0003.HK', '0700.HK', '0066.HK', '0045.HK']:
         test = InferenceSystem(stock)
         predict_result = test.predict_historical_data_new_process(0.8, "2006-04-14", "2016-04-15")
         mse = get_MSE(predict_result)
         mape = get_MAPE(predict_result)
         mad = get_MAD(predict_result)
-        f.write('{},{},{},{}'.format(stock, mse, mape, mad))
+        f.write('{},{},{},{}\n'.format(stock, mse, mape, mad))
 
     f.close()

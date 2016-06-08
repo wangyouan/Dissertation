@@ -10,7 +10,6 @@ import datetime
 
 import pandas as pd
 from sklearn.decomposition import PCA
-from pandas.tseries.offsets import BDay
 from pandas.tseries.offsets import CustomBusinessDay
 
 from StockInference.constant import Constants
@@ -26,12 +25,13 @@ class BaseClass(Constants):
         self._true_end_date = None
         self._date_list = None
         self._stock_symbol = None
+        cal = HongKongCalendar()
+        self.custom_business_day = CustomBusinessDay(calendar=cal)
 
-    @staticmethod
-    def get_ahead_date(detailed_date, ahead_period):
+    def get_ahead_date(self, detailed_date, ahead_period):
         date_list = detailed_date.split('-')
-        date_object = datetime.date(year=int(date_list[0]), month=int(date_list[1]), day=int(date_list[2]))
-        date_object -= datetime.timedelta(ahead_period)
+        date_object = datetime.datetime(year=int(date_list[0]), month=int(date_list[1]), day=int(date_list[2]))
+        date_object -= ahead_period * self.custom_business_day
         return date_object.strftime("%Y-%m-%d")
 
     def get_start_date(self):
@@ -60,14 +60,12 @@ class BaseClass(Constants):
 
         start_date = map(int, start_date)
         end_date = map(int, end_date)
-        cal = HongKongCalendar(start_year=start_date[0] - 1, end_year=end_date[0])
-        CDay = CustomBusinessDay(calendar=cal)
         start_date = pd.datetime(year=start_date[0], month=start_date[1], day=start_date[2])
         end_date = pd.datetime(year=end_date[0], month=end_date[1], day=end_date[2])
         self._date_list = []
         while start_date <= end_date:
             self._date_list.append(start_date.strftime("%Y-%m-%d"))
-            start_date += CDay
+            start_date += self.custom_business_day
 
     def _merge_info(self, calculated_info, info_dict):
 

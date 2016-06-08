@@ -13,11 +13,10 @@ from pandas.tseries.holiday import AbstractHolidayCalendar, Holiday
 
 
 class HongKongCalendar(AbstractHolidayCalendar):
-    def __init__(self, start_year, end_year):
+    def __init__(self, start_year=2006, end_year=2016):
         AbstractHolidayCalendar.__init__(self, "Hong Kong")
         self.start_year = int(start_year)
         self.end_year = int(end_year)
-        self._add_rules()
         self.rules = []
         self.month_dict = {
             'Jan': 1,
@@ -33,9 +32,10 @@ class HongKongCalendar(AbstractHolidayCalendar):
             "Nov": 11,
             "Dec": 12
         }
+        self._add_rules()
 
     def _add_rules(self):
-        for year in range(start=self.start_year, stop=self.end_year + 1):
+        for year in range(self.start_year, self.end_year + 1):
             self._add_year_rules(year=year)
 
     def _add_year_rules(self, year):
@@ -49,4 +49,4 @@ class HongKongCalendar(AbstractHolidayCalendar):
             detail_date = holiday('td')[0].text.split(' ')
             holiday_name = holiday('td')[1].text
             self.rules.append(Holiday(name=holiday_name, year=year, day=int(detail_date[0]),
-                                      month=self.month_dict[detail_date[0]]))
+                                      month=self.month_dict[detail_date[1]]))
