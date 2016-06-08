@@ -114,23 +114,25 @@ class InferenceSystem(Constants):
             .map(lambda (p, v): (p[0], min_max_de_normalize(p[1], v))).cache()
 
         # for testing only
-        # total_data_num = len(raw_data)
-        # train_data_num = train_data.count()
-        # test_date_list = data_collection.get_date_list()[train_data_num:]
-        # predict_list = predict_result.collect()
-        # f = open("test.csv", "w")
-        # f.write("date,origin,predict\n")
-        # for i in range(total_data_num - train_data_num):
-        #     f.write("%s,%2f,%2f\n" % (
-        #         test_date_list[i], predict_list[i][0], predict_list[i][1]))
-        # f.close()
+        total_data_num = len(raw_data)
+        train_data_num = train_data.count()
+        test_date_list = data_collection.get_date_list()[train_data_num:]
+        predict_list = predict_result.collect()
+        f = open("test.csv", "w")
+        f.write("date,origin,predict\n")
+        for i in range(total_data_num - train_data_num):
+            f.write("%s,%2f,%2f\n" % (
+                test_date_list[i], predict_list[i][0], predict_list[i][1]))
+        f.close()
         return predict_result
 
 
 if __name__ == "__main__":
-    f = open('ratio_mse.csv', 'w')
-    f.write('stock,MSE,MAPE,MAD\n')
-    for stock in ['0001.HK', '0002.HK', '0003.HK', '0700.HK', '0066.HK', '0045.HK']:
+    f = open('0700.csv', 'a')
+    # f.write('stock,MSE,MAPE,MAD\n')
+    # stock_list = ['0001.HK', '0002.HK', '0003.HK', '0700.HK', '0066.HK', '0045.HK', '0007.HK']
+    stock_list = ['0700.HK']
+    for stock in stock_list:
         test = InferenceSystem(stock)
         predict_result = test.predict_historical_data_new_process(0.8, "2006-04-14", "2016-04-15")
         mse = get_MSE(predict_result)

@@ -97,7 +97,7 @@ class DataCollect(StockPriceHandler, StockIndicatorHandler, FundamentalAnalysis)
 
         if self.FUNDAMENTAL_ANALYSIS in required_info:
             fundamental_info = self.fundamental_analysis(required_info[self.FUNDAMENTAL_ANALYSIS],
-                                                         type=self.FA_RAW_DATA)
+                                                         type=self.FA_RATIO)
             collected_data = [i + j for i, j in zip(collected_data, fundamental_info)]
 
         label_pointed_list = []
