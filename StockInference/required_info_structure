@@ -1,0 +1,19 @@
+required_info = {
+    self.STOCK_PRICE: {self.DATA_PERIOD: 5},
+    self.STOCK_INDICATOR: [
+        (self.MACD, {self.MACD_FAST_PERIOD:12, self.MACD_SLOW_PERIOD: 26, self.MACD_TIME_PERIOD: 9}),
+        (self.MACD, {self.MACD_FAST_PERIOD:7, self.MACD_SLOW_PERIOD: 14, self.MACD_TIME_PERIOD: 9}),
+        (self.SMA, 3),
+        (self.SMA, 13),
+        (self.SMA, 21),
+        (self.EMA, 5),
+        (self.EMA, 13),
+        (self.EMA, 21),
+        (self.ROC, 13),
+        (self.ROC, 21),
+        (self.RSI, 9),
+        (self.RSI, 14),
+        (self.RSI, 21),
+    ],
+    self.FUNDAMENTAL_ANALYSIS: [self.US10Y_BOND, self.US30Y_BOND, self.FXI, self.IC, self.IA, self.HSI]
+}

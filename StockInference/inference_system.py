@@ -12,7 +12,7 @@ from pyspark.mllib.regression import LabeledPoint
 from StockInference.constant import Constants
 from StockInference.DataCollection.data_collect import DataCollect
 from StockInference.Regression.distributed_neural_network import NeuralNetworkSpark
-from StockInference.util.data_parse import min_max_de_normalize, get_MSE
+from StockInference.util.data_parse import min_max_de_normalize, get_MSE, get_MAD, get_MAPE
 from StockInference.DataParser.data_parser import DataParser
 
 
@@ -22,7 +22,7 @@ class InferenceSystem(Constants):
         self.neural_network = None
         conf = SparkConf()
         conf.setAppName("StockInference")
-        self.sc = SparkContext(conf=conf)
+        self.sc = SparkContext.getOrCreate(conf=conf)
 
     def predict_historical_data(self, train_test_ratio, start_date, end_date):
         data_collection = DataCollect(stock_symbol=self.stock_symbol)
@@ -114,20 +114,28 @@ class InferenceSystem(Constants):
             .map(lambda (p, v): (p[0], min_max_de_normalize(p[1], v))).cache()
 
         # for testing only
-        total_data_num = len(raw_data)
-        train_data_num = train_data.count()
-        test_date_list = data_collection.get_date_list()[train_data_num:]
-        predict_list = predict_result.collect()
-        f = open("test.csv", "w")
-        f.write("date,origin,predict\n")
-        for i in range(total_data_num - train_data_num):
-            f.write("%s,%2f,%2f\n" % (
-                test_date_list[i], predict_list[i][0], predict_list[i][1]))
-        f.close()
-        print get_MSE(predict_result)
-        self.sc.stop()
+        # total_data_num = len(raw_data)
+        # train_data_num = train_data.count()
+        # test_date_list = data_collection.get_date_list()[train_data_num:]
+        # predict_list = predict_result.collect()
+        # f = open("test.csv", "w")
+        # f.write("date,origin,predict\n")
+        # for i in range(total_data_num - train_data_num):
+        #     f.write("%s,%2f,%2f\n" % (
+        #         test_date_list[i], predict_list[i][0], predict_list[i][1]))
+        # f.close()
+        return predict_result
 
 
 if __name__ == "__main__":
-    test = InferenceSystem('0003.HK')
-    test.predict_historical_data_new_process(0.8, "2006-04-14", "2016-04-15")
+    f = open('ratio_mse.csv', 'w')
+    f.write('stock,MSE,MAPE,MAD\n')
+    for stock in ['0001.HK', '0002.HK', '0003.HK', '0700.HK', '0066.HK', '0045.HK', '1983.HK']:
+        test = InferenceSystem(stock)
+        predict_result = test.predict_historical_data_new_process(0.8, "2006-04-14", "2016-04-15")
+        mse = get_MSE(predict_result)
+        mape = get_MAPE(predict_result)
+        mad = get_MAD(predict_result)
+        f.write('{},{},{},{}'.format(stock, mse, mape, mad))
+
+    f.close()

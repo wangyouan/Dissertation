@@ -12,6 +12,7 @@ from urllib2 import Request, urlopen
 import numpy as np
 
 from StockInference.DataCollection.base_class import BaseClass
+from StockInference.util.get_history_stock_price import get_all_data_about_stock
 
 
 class FundamentalAnalysis(BaseClass):
@@ -32,22 +33,24 @@ class FundamentalAnalysis(BaseClass):
         self.fa_max_list = []
 
     def _get_bond_price(self, symbol):
-        start_date = self._start_date.split('-')
-        end_date = self._true_end_date.split('-')
-        data_list = [('s', symbol),
-                     ('a', int(start_date[1]) - 1),
-                     ('b', start_date[2]),
-                     ('c', start_date[0]),
-                     ('d', int(end_date[1]) - 1),
-                     ('e', end_date[2]),
-                     ('f', end_date[0]),
-                     ('g', 'd')
-                     ]
-        url = "http://ichart.finance.yahoo.com/table.csv?{}".format(urlencode(data_list))
-        query = Request(url)
-        response = urlopen(query)
-        bond_info = response.read()
-        bond_info = [i.split(',') for i in bond_info.split('\n')][1:-1]
+        # start_date = self._start_date.split('-')
+        # end_date = self._true_end_date.split('-')
+        # data_list = [('s', symbol),
+        #              ('a', int(start_date[1]) - 1),
+        #              ('b', start_date[2]),
+        #              ('c', start_date[0]),
+        #              ('d', int(end_date[1]) - 1),
+        #              ('e', end_date[2]),
+        #              ('f', end_date[0]),
+        #              ('g', 'd')
+        #              ]
+        # url = "http://ichart.finance.yahoo.com/table.csv?{}".format(urlencode(data_list))
+        # query = Request(url)
+        # response = urlopen(query)
+        # bond_info = response.read()
+        # bond_info = [i.split(',') for i in bond_info.split('\n')][1:-1]
+        bond_info = get_all_data_about_stock(symbol=symbol, start_date=self.get_start_date(),
+                                             end_date=self._true_end_date)
         bond_price = {}
         for i in bond_info:
             bond_price[i[0]] = float(i[4])
@@ -73,8 +76,13 @@ class FundamentalAnalysis(BaseClass):
 
         return nor_data
 
-    def fundamental_analysis(self, required_info):
-        return self.fa_data_normalization(self.raw_fundamental_analysis(required_info))
+    def fundamental_analysis(self, required_info, type=None):
+        if type is None or type == self.FA_NORMALIZATION:
+            return self.fa_data_normalization(self.raw_fundamental_analysis(required_info))
+        elif type == self.FA_RATIO:
+            return self.raw_fundamental_analysis_change_rate(required_info=required_info)
+        elif type == self.FA_RAW_DATA:
+            return self.raw_fundamental_analysis(required_info=required_info)
 
     def raw_fundamental_analysis(self, required_info):
         if not self._date_list:
@@ -102,22 +110,24 @@ class FundamentalAnalysis(BaseClass):
         return [i[1:] for i in calculated_info]
 
     def _get_bond_change_rate(self, symbol):
-        start_date = self.get_ahead_date(self._start_date, 10).split('-')
-        end_date = self._true_end_date.split('-')
-        data_list = [('s', symbol),
-                     ('a', int(start_date[1]) - 1),
-                     ('b', start_date[2]),
-                     ('c', start_date[0]),
-                     ('d', int(end_date[1]) - 1),
-                     ('e', end_date[2]),
-                     ('f', end_date[0]),
-                     ('g', 'd')
-                     ]
-        url = "http://ichart.finance.yahoo.com/table.csv?{}".format(urlencode(data_list))
-        query = Request(url)
-        response = urlopen(query)
-        bond_info = response.read()
-        bond_info = [i.split(',') for i in bond_info.split('\n')][1:-1]
+        # start_date = self.get_ahead_date(self._start_date, 10).split('-')
+        # end_date = self._true_end_date.split('-')
+        # data_list = [('s', symbol),
+        #              ('a', int(start_date[1]) - 1),
+        #              ('b', start_date[2]),
+        #              ('c', start_date[0]),
+        #              ('d', int(end_date[1]) - 1),
+        #              ('e', end_date[2]),
+        #              ('f', end_date[0]),
+        #              ('g', 'd')
+        #              ]
+        # url = "http://ichart.finance.yahoo.com/table.csv?{}".format(urlencode(data_list))
+        # query = Request(url)
+        # response = urlopen(query)
+        # bond_info = response.read()
+        # bond_info = [i.split(',') for i in bond_info.split('\n')][1:-1]
+        bond_info = get_all_data_about_stock(symbol=symbol, start_date=self.get_ahead_date(self._start_date, 10),
+                                             end_date=self._true_end_date)
         bond_price_index = {}
         bond_price_map = {}
         for i in range(len(bond_info)):

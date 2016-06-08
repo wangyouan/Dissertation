@@ -6,6 +6,7 @@
 # Author: Mark Wang
 # Date: 29/5/2016
 
+import time
 from urllib import urlencode
 from urllib2 import Request, urlopen
 
@@ -34,12 +35,21 @@ def get_all_data_about_stock(symbol, start_date=None, end_date=None):
 
     url = "http://ichart.finance.yahoo.com/table.csv?{}".format(urlencode(data_list))
     query = Request(url)
-    response = urlopen(query)
-    stock_info = response.read()
-    stock_info = [i.split(',') for i in stock_info.split('\n')][1:-1]
-    stock_info = [[i[0], float(i[1]), float(i[2]), float(i[3]), float(i[4]), float(i[5])] for i in stock_info]
-    stock_info.reverse()
-    return stock_info
+    max_try = 3
+    current_try = 0
+    while current_try < max_try:
+        try:
+            response = urlopen(query)
+            stock_info = response.read()
+            stock_info = [i.split(',') for i in stock_info.split('\n')][1:-1]
+            stock_info = [[i[0], float(i[1]), float(i[2]), float(i[3]), float(i[4]), float(i[5])] for i in stock_info]
+            stock_info.reverse()
+            return stock_info
+        except Exception, e:
+            print e
+            current_try += 1
+            time.sleep(10)
+    raise Exception("Cannot open page {}".format(url))
 
 
 if __name__ == "__main__":

@@ -60,3 +60,8 @@ class Constants(object):
 
     # define method used in linear regression
     GD = 'Standard gradient descent'
+
+    # Fundamental analysis type
+    FA_RAW_DATA = "raw data"
+    FA_RATIO = "ratio"
+    FA_NORMALIZATION = "Normalization"
