@@ -65,3 +65,15 @@ class Constants(object):
     FA_RAW_DATA = "raw data"
     FA_RATIO = "ratio"
     FA_NORMALIZATION = "Normalization"
+
+    # Used in currency exchange
+    HKD = "Hong Kong Dollar"
+    AUD = "Australian Dollar"
+    USD = "United States Dollar"
+    CNY = "China Yuan"
+    EUR = "European Euro"
+
+    FROM = "from"
+    TO = "to"
+
+    GOLDEN_PRICE = "gold price in CNY"

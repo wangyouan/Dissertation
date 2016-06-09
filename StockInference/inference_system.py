@@ -70,8 +70,8 @@ class InferenceSystem(Constants):
         required_info = {
             self.STOCK_PRICE: {self.DATA_PERIOD: 5},
             self.STOCK_INDICATOR: [
-                (self.MACD, {self.MACD_FAST_PERIOD:12, self.MACD_SLOW_PERIOD: 26, self.MACD_TIME_PERIOD: 9}),
-                (self.MACD, {self.MACD_FAST_PERIOD:7, self.MACD_SLOW_PERIOD: 14, self.MACD_TIME_PERIOD: 9}),
+                (self.MACD, {self.MACD_FAST_PERIOD: 12, self.MACD_SLOW_PERIOD: 26, self.MACD_TIME_PERIOD: 9}),
+                (self.MACD, {self.MACD_FAST_PERIOD: 7, self.MACD_SLOW_PERIOD: 14, self.MACD_TIME_PERIOD: 9}),
                 (self.SMA, 3),
                 (self.SMA, 13),
                 (self.SMA, 21),
@@ -86,12 +86,16 @@ class InferenceSystem(Constants):
             ],
             self.FUNDAMENTAL_ANALYSIS: [self.US10Y_BOND, self.US30Y_BOND, self.FXI,
                                         # self.IC, self.IA,
-                                        self.HSI]
+                                        self.HSI, {self.FROM: self.USD, self.TO: self.HKD},
+                                        {self.FROM: self.EUR, self.TO: self.HKD},
+                                        {self.FROM: self.AUD, self.TO: self.HKD},
+                                        {self.GOLDEN_PRICE: False}]
         }
-        raw_data = data_collection.get_raw_data(start_date=start_date, end_date=end_date,
+        raw_data = data_collection.get_raw_data(start_date=start_date, end_date=end_date, using_ratio=True,
                                                 label_info=self.STOCK_CLOSE, required_info=required_info)
 
-
+        # print raw_data
+        # return
         # Split train and test
         data_parser = DataParser()
         n_components = 'mle'
@@ -118,7 +122,7 @@ class InferenceSystem(Constants):
         train_data_num = train_data.count()
         test_date_list = data_collection.get_date_list()[train_data_num:]
         predict_list = predict_result.collect()
-        f = open("test.csv", "w")
+        f = open("../output/{}.csv".format(self.stock_symbol), "w")
         f.write("date,origin,predict\n")
         for i in range(total_data_num - train_data_num):
             f.write("%s,%2f,%2f\n" % (
@@ -128,11 +132,19 @@ class InferenceSystem(Constants):
 
 
 if __name__ == "__main__":
-    f = open('0700.csv', 'a')
-    # f.write('stock,MSE,MAPE,MAD\n')
-    # stock_list = ['0001.HK', '0002.HK', '0003.HK', '0700.HK', '0066.HK', '0045.HK', '0007.HK']
-    stock_list = ['0700.HK']
-    for stock in stock_list:
+    f = open('stock_test.csv', 'w')
+    f.write('stock,MSE,MAPE,MAD\n')
+    stock_list = ['0001.HK', '0002.HK', '0003.HK', '0004.HK', '0005.HK', '0006.HK', '0007.HK', '0008.HK', '0009.HK',
+                  '0010.HK', '0011.HK', '0012.HK', '0013.HK', '0014.HK', '0015.HK', '0016.HK', '0017.HK', '0018.HK',
+                  '0019.HK', '0020.HK', '0021.HK', '0022.HK', '0023.HK', '0024.HK', '0025.HK', '0026.HK', '0027.HK',
+                  '0028.HK', '0029.HK', '0030.HK', '0031.HK', '0032.HK', '0033.HK', '0034.HK', '0035.HK', '0036.HK',
+                  '0037.HK', '0038.HK', '0039.HK', '0040.HK', '0041.HK', '0042.HK', '0043.HK', '0044.HK', '0045.HK',
+                  '0046.HK', '0048.HK', '0050.HK', '0051.HK', '0052.HK', '0053.HK', '0054.HK', '0055.HK', '0056.HK',
+                  '0057.HK', '0058.HK', '0059.HK', '0060.HK', '0061.HK', '0062.HK', '0063.HK', '0064.HK', '0065.HK',
+                  '0066.HK', '1123.HK']
+
+    # stock_list = ['0700.HK']
+    for stock in stock_list[:5]:
         test = InferenceSystem(stock)
         predict_result = test.predict_historical_data_new_process(0.8, "2006-04-14", "2016-04-15")
         mse = get_MSE(predict_result)

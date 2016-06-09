@@ -73,7 +73,7 @@ class DataCollect(StockPriceHandler, StockIndicatorHandler, FundamentalAnalysis)
 
         return label_pointed_list, label_list
 
-    def get_raw_data(self, start_date, end_date, label_info, required_info):
+    def get_raw_data(self, start_date, end_date, label_info, required_info, using_ratio=False):
 
         if not self._stock_price or self._start_date != start_date or self._end_date != end_date:
             self._removed_date = set()
@@ -97,7 +97,7 @@ class DataCollect(StockPriceHandler, StockIndicatorHandler, FundamentalAnalysis)
 
         if self.FUNDAMENTAL_ANALYSIS in required_info:
             fundamental_info = self.fundamental_analysis(required_info[self.FUNDAMENTAL_ANALYSIS],
-                                                         type=self.FA_RATIO)
+                                                         fa_type=self.FA_RATIO if using_ratio else self.FA_RAW_DATA)
             collected_data = [i + j for i, j in zip(collected_data, fundamental_info)]
 
         label_pointed_list = []

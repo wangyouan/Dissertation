@@ -6,10 +6,8 @@
 # Author: Mark Wang
 # Date: 1/6/2016
 
-from urllib import urlencode
-from urllib2 import Request, urlopen
-
 import numpy as np
+import quandl
 
 from StockInference.DataCollection.base_class import BaseClass
 from StockInference.util.get_history_stock_price import get_all_data_about_stock
@@ -31,30 +29,32 @@ class FundamentalAnalysis(BaseClass):
         self.fa_pca_transformer = None
         self.fa_min_list = []
         self.fa_max_list = []
+        quandl.ApiConfig.api_key = "RYdPmBZoFyLXxg1RQ3fY"
 
-    def _get_bond_price(self, symbol):
-        # start_date = self._start_date.split('-')
-        # end_date = self._true_end_date.split('-')
-        # data_list = [('s', symbol),
-        #              ('a', int(start_date[1]) - 1),
-        #              ('b', start_date[2]),
-        #              ('c', start_date[0]),
-        #              ('d', int(end_date[1]) - 1),
-        #              ('e', end_date[2]),
-        #              ('f', end_date[0]),
-        #              ('g', 'd')
-        #              ]
-        # url = "http://ichart.finance.yahoo.com/table.csv?{}".format(urlencode(data_list))
-        # query = Request(url)
-        # response = urlopen(query)
-        # bond_info = response.read()
-        # bond_info = [i.split(',') for i in bond_info.split('\n')][1:-1]
-        bond_info = get_all_data_about_stock(symbol=symbol, start_date=self.get_start_date(),
+    def _get_bond_price(self, symbol, ratio):
+        bond_info = get_all_data_about_stock(symbol=symbol, start_date=self.get_ahead_date(self.get_start_date(), 5),
                                              end_date=self._true_end_date)
-        bond_price = {}
-        for i in bond_info:
-            bond_price[i[0]] = float(i[4])
-        return bond_price
+        bond_price_map = {}
+        if not ratio:
+            for i in bond_info:
+                bond_price_map[i[0]] = float(i[4])
+
+        else:
+
+            bond_price_index = {}
+            for i in range(len(bond_info)):
+                bond_price_index[bond_info[i][0]] = i
+
+            for date in self._date_list:
+                if date not in bond_price_index:
+                    bond_price_map[date] = 0
+                else:
+                    today_index = bond_price_index[date]
+                    today_price = float(bond_info[today_index][4])
+                    last_day_price = float(bond_info[today_index - 1][4])
+                    bond_price_map[date] = (today_price - last_day_price) / last_day_price
+
+        return bond_price_map
 
     def fa_pca_data_reduction(self, data):
         if self.fa_pca_transformer is None:
@@ -76,70 +76,72 @@ class FundamentalAnalysis(BaseClass):
 
         return nor_data
 
-    def fundamental_analysis(self, required_info, type=None):
-        if type is None or type == self.FA_NORMALIZATION:
-            return self.fa_data_normalization(self.raw_fundamental_analysis(required_info))
-        elif type == self.FA_RATIO:
-            return self.raw_fundamental_analysis_change_rate(required_info=required_info)
-        elif type == self.FA_RAW_DATA:
-            return self.raw_fundamental_analysis(required_info=required_info)
+    def fundamental_analysis(self, required_info, fa_type=None):
+        if fa_type is None or fa_type == self.FA_NORMALIZATION:
+            return self.fa_data_normalization(self.raw_fundamental_analysis(required_info, ratio=False))
+        elif fa_type == self.FA_RATIO:
+            return self.raw_fundamental_analysis(required_info=required_info, ratio=True)
+        elif fa_type == self.FA_RAW_DATA:
+            return self.raw_fundamental_analysis(required_info=required_info, ratio=False)
 
-    def raw_fundamental_analysis(self, required_info):
+    def raw_fundamental_analysis(self, required_info, ratio=False):
         if not self._date_list:
             self.generate_date_list()
         calculated_info = [[i] for i in self._date_list]
         for info in required_info:
-            if info in self._bond_label_dict:
-                bond_price = self._get_bond_price(self._bond_label_dict[info])
+            if not isinstance(info, dict) and info in self._bond_label_dict:
+                bond_price = self._get_bond_price(self._bond_label_dict[info], ratio=ratio)
 
                 calculated_info = self._merge_info(calculated_info=calculated_info, info_dict=bond_price)
+            elif self.FROM in info:
+                currency_exchange_rate = self._get_currency_exchange_rate(info[self.FROM], info[self.TO])
+                calculated_info = self._merge_info(calculated_info=calculated_info, info_dict=currency_exchange_rate)
+            elif self.GOLDEN_PRICE in info:
+                golden_price = self._get_golden_price_in_cny(ratio=info.get(self.GOLDEN_PRICE, False))
+                calculated_info = self._merge_info(calculated_info=calculated_info, info_dict=golden_price)
 
         return [i[1:] for i in calculated_info]
 
-    def raw_fundamental_analysis_change_rate(self, required_info):
-        if not self._date_list:
-            self.generate_date_list()
+    def _get_golden_price_in_cny(self, ratio=False):
+        if not ratio:
+            return self.get_quandl_data("WGC/GOLD_DAILY_CNY")
+        else:
+            data = self.get_quandl_data("WGC/GOLD_DAILY_CNY", transform='rdiff')
+            for date in data:
+                data[date] *= 100
+            return data
 
-        calculated_info = [[i] for i in self._date_list]
-        for info in required_info:
-            if info in self._bond_label_dict:
-                bond_price = self._get_bond_change_rate(self._bond_label_dict[info])
+    def _get_currency_exchange_rate(self, from_cur, to_cur):
+        rate_info = None
+        if from_cur == self.EUR and to_cur == self.HKD:
+            rate_info = self.get_quandl_data('ECB/EURHKD', transform='rdiff')
 
-                calculated_info = self._merge_info(calculated_info=calculated_info, info_dict=bond_price)
+        elif from_cur == self.USD and to_cur == self.HKD:
+            rate_info = self.get_quandl_data('FRED/DEXHKUS', transform='rdiff')
 
-        return [i[1:] for i in calculated_info]
+        elif from_cur == self.AUD and to_cur == self.HKD:
+            rate_info = self.get_quandl_data('RBA/FXRHKD', transform='rdiff')
 
-    def _get_bond_change_rate(self, symbol):
-        # start_date = self.get_ahead_date(self._start_date, 10).split('-')
-        # end_date = self._true_end_date.split('-')
-        # data_list = [('s', symbol),
-        #              ('a', int(start_date[1]) - 1),
-        #              ('b', start_date[2]),
-        #              ('c', start_date[0]),
-        #              ('d', int(end_date[1]) - 1),
-        #              ('e', end_date[2]),
-        #              ('f', end_date[0]),
-        #              ('g', 'd')
-        #              ]
-        # url = "http://ichart.finance.yahoo.com/table.csv?{}".format(urlencode(data_list))
-        # query = Request(url)
-        # response = urlopen(query)
-        # bond_info = response.read()
-        # bond_info = [i.split(',') for i in bond_info.split('\n')][1:-1]
-        bond_info = get_all_data_about_stock(symbol=symbol, start_date=self.get_ahead_date(self._start_date, 10),
-                                             end_date=self._true_end_date)
-        bond_price_index = {}
-        bond_price_map = {}
-        for i in range(len(bond_info)):
-            bond_price_index[bond_info[i][0]] = i
+        return rate_info
 
-        for date in self._date_list:
-            if date not in bond_price_index:
-                bond_price_map[date] = 0
-            else:
-                today_index = bond_price_index[date]
-                today_price = float(bond_info[today_index][4])
-                last_day_price = float(bond_info[today_index - 1][4])
-                bond_price_map[date] = (today_price - last_day_price) / last_day_price
+    def get_quandl_data(self, query_info, start_date=None, end_date=None, data_dict=True, transform=None):
+        if start_date is None:
+            start_date = self.get_start_date()
 
-        return bond_price_map
+        if end_date is None:
+            end_date = self.get_end_date()
+        quandl_data = quandl.get(query_info, start_date=start_date, end_date=end_date, returns='numpy',
+                                 transform=transform)
+        if not data_dict:
+            return quandl_data
+        data_dict = {}
+        for date, rate in quandl_data:
+            data_dict[date.strftime("%Y-%m-%d")] = rate
+        return data_dict
+
+
+if __name__ == "__main__":
+    test = FundamentalAnalysis()
+    test.set_start_date("2012-03-04")
+    test.set_end_date("2013-03-04")
+    print test.fundamental_analysis([{test.GOLDEN_PRICE: True}], fa_type=test.FA_RAW_DATA)

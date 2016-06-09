@@ -15,5 +15,12 @@ required_info = {
         (self.RSI, 14),
         (self.RSI, 21),
     ],
-    self.FUNDAMENTAL_ANALYSIS: [self.US10Y_BOND, self.US30Y_BOND, self.FXI, self.IC, self.IA, self.HSI]
+    self.FUNDAMENTAL_ANALYSIS: 
+    [
+        self.US10Y_BOND, self.US30Y_BOND, self.FXI, self.IC, self.IA, self.HSI,
+        {self.FROM: self.USD, self.TO: self.HKD},
+        {self.FROM: self.EUR, self.TO: self.HKD},
+        {self.FROM: self.AUD, self.TO: self.HKD},
+        {self.GOLDEN_PRICE: True}]
+    ],
 }

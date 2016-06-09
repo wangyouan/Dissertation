@@ -70,6 +70,8 @@ class BaseClass(Constants):
     def _merge_info(self, calculated_info, info_dict):
 
         # merge bond info into calculated list
+        if info_dict is None:
+            return calculated_info
         for i in calculated_info:
             if i[0] in info_dict:
                 i.append(info_dict[i[0]])
