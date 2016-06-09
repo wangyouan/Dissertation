@@ -47,19 +47,19 @@ class InferenceSystem(Constants):
         testing_rdd = self.sc.parallelize(testing_rdd)
         model = self.neural_network.train(training_rdd, method=self.neural_network.BP, seed=1234, learn_rate=0.001,
                                           iteration=100)
-        predict_result = testing_rdd.map(
+        predict = testing_rdd.map(
             lambda p: (p.label, model.predict(p.features), p.features)) \
             .map(lambda p: (p[0], p[1], data_collection.de_normalize_stock_price(p[2]))) \
             .map(lambda p: (p[0], min_max_de_normalize(p[1], p[2]))).cache()
         test_date_list = data_collection.get_date_list()[train_data_num:]
-        predict_list = predict_result.collect()
-        f = open("test.csv", "w")
-        f.write("date,origin,predict\n")
+        predict_list = predict.collect()
+        test_file = open("test.csv", "w")
+        test_file.write("date,origin,predict\n")
         for i in range(total_data_num - train_data_num):
-            f.write("%s,%2f,%2f\n" % (
+            test_file.write("%s,%2f,%2f\n" % (
                 test_date_list[i], predict_list[i][0], predict_list[i][1]))
-        f.close()
-        print get_MSE(predict_result)
+        test_file.close()
+        print get_MSE(predict)
         self.sc.stop()
 
     def predict_historical_data_new_process(self, train_test_ratio, start_date, end_date):
@@ -89,7 +89,7 @@ class InferenceSystem(Constants):
                                         self.HSI, {self.FROM: self.USD, self.TO: self.HKD},
                                         {self.FROM: self.EUR, self.TO: self.HKD},
                                         {self.FROM: self.AUD, self.TO: self.HKD},
-                                        {self.GOLDEN_PRICE: False}]
+                                        {self.GOLDEN_PRICE: True}]
         }
         raw_data = data_collection.get_raw_data(start_date=start_date, end_date=end_date, using_ratio=True,
                                                 label_info=self.STOCK_CLOSE, required_info=required_info)
@@ -114,25 +114,25 @@ class InferenceSystem(Constants):
                                           iteration=10)
 
         # predicting
-        predict_result = test_data.map(lambda p: (p.label, model.predict(p.features))).zip(test_data_features) \
+        predict = test_data.map(lambda p: (p.label, model.predict(p.features))).zip(test_data_features) \
             .map(lambda (p, v): (p[0], min_max_de_normalize(p[1], v))).cache()
 
         # for testing only
         total_data_num = len(raw_data)
         train_data_num = train_data.count()
         test_date_list = data_collection.get_date_list()[train_data_num:]
-        predict_list = predict_result.collect()
-        f = open("../output/{}.csv".format(self.stock_symbol), "w")
-        f.write("date,origin,predict\n")
+        predict_list = predict.collect()
+        predict_file = open("../output/gold_true_ratio/{}.csv".format(self.stock_symbol), "w")
+        predict_file.write("date,origin,predict\n")
         for i in range(total_data_num - train_data_num):
-            f.write("%s,%2f,%2f\n" % (
+            predict_file.write("%s,%2f,%2f\n" % (
                 test_date_list[i], predict_list[i][0], predict_list[i][1]))
-        f.close()
-        return predict_result
+        predict_file.close()
+        return predict
 
 
 if __name__ == "__main__":
-    f = open('stock_test.csv', 'w')
+    f = open('../output/gold_true_ratio/stock_test.csv', 'w')
     f.write('stock,MSE,MAPE,MAD\n')
     stock_list = ['0001.HK', '0002.HK', '0003.HK', '0004.HK', '0005.HK', '0006.HK', '0007.HK', '0008.HK', '0009.HK',
                   '0010.HK', '0011.HK', '0012.HK', '0013.HK', '0014.HK', '0015.HK', '0016.HK', '0017.HK', '0018.HK',
@@ -144,7 +144,7 @@ if __name__ == "__main__":
                   '0066.HK', '1123.HK']
 
     # stock_list = ['0700.HK']
-    for stock in stock_list[:5]:
+    for stock in stock_list:
         test = InferenceSystem(stock)
         predict_result = test.predict_historical_data_new_process(0.8, "2006-04-14", "2016-04-15")
         mse = get_MSE(predict_result)
