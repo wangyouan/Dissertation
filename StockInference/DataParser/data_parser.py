@@ -18,7 +18,6 @@ from StockInference.util.data_parse import min_max_normalize
 class DataParser(Constants):
     def __init__(self):
         self.data_pca_transformer = None
-        self.sc = SparkContext.getOrCreate()
         self.min_list = None
         self.max_list = None
 
@@ -32,7 +31,7 @@ class DataParser(Constants):
         train_num = int(train_ratio * total_num)
         train_raw_data = raw_data[:train_num]
         test_raw_data = raw_data[train_num:]
-        test_raw_features = self.sc.parallelize([i.features[:4] for i in test_raw_data])
+        test_raw_features = [i.features[:4] for i in test_raw_data]
 
         normalized_label = map(
             lambda p: LabeledPoint(features=p.features, label=min_max_normalize(p.label, p.features[1], p.features[0])),
@@ -48,7 +47,7 @@ class DataParser(Constants):
         after_pca = self.data_pca_transformer.transform(raw_features)
         after_normalize = map(lambda p: (2 * p - self.min_list - self.max_list) / (self.max_list - self.min_list),
                               after_pca)
-        return self.sc.parallelize([LabeledPoint(label=i.label, features=j) for i, j in zip(raw_data, after_normalize)])
+        return [LabeledPoint(label=i.label, features=j) for i, j in zip(raw_data, after_normalize)]
 
     def fit_transform(self, raw_data, n_components=None):
         self.data_pca_transformer = PCA(n_components=n_components)
@@ -64,4 +63,4 @@ class DataParser(Constants):
         after_normalize = map(lambda p: (2 * p - self.min_list - self.max_list) / (self.max_list - self.min_list),
                               after_pca)
 
-        return self.sc.parallelize([LabeledPoint(label=i.label, features=j) for i, j in zip(raw_data, after_normalize)])
+        return [LabeledPoint(label=i.label, features=j) for i, j in zip(raw_data, after_normalize)]

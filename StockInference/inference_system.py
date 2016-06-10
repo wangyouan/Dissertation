@@ -17,13 +17,14 @@ from StockInference.util.data_parse import min_max_de_normalize, get_MSE, get_MA
 from StockInference.DataParser.data_parser import DataParser
 from StockInference.util.date_parser import get_ahead_date
 
-folder = "not_adj_lr"
+
+iterations = 15
+folder = "ann_{}_layer_not_adj_{}".format(4, iterations)
 
 
 class InferenceSystem(Constants):
     def __init__(self, stock_symbol, adjusted=False):
         self.stock_symbol = stock_symbol
-        self.neural_network = None
         conf = SparkConf()
         conf.setAppName("StockInference")
         self.sc = SparkContext.getOrCreate(conf=conf)
@@ -86,36 +87,46 @@ class InferenceSystem(Constants):
         if self.train_data is None or self.test_data is None or self.test_data_features is None:
             self.get_train_test_data(train_test_ratio, start_date=start_date, end_date=end_date)
 
+        training_data = self.sc.parallelize(self.train_data)
+        testing_data = self.sc.parallelize(self.test_data)
+        testing_data_features = self.sc.parallelize(self.test_data_features)
+
         if training_method == self.ARTIFICIAL_NEURAL_NETWORK:
             # training
-            input_num = len(self.train_data.take(1)[0].features)
-            if input_num < 6:
-                layers = [input_num, input_num + 1, 1]
-            else:
-                layers = [input_num, input_num - 2, input_num - 4, 1]
-            self.neural_network = NeuralNetworkSpark(layers=layers, bias=0)
-            model = self.neural_network.train(self.train_data, method=self.neural_network.BP, seed=1234, learn_rate=0.0001,
-                                              iteration=10)
+            input_num = len(self.train_data[0].features)
+            layers = [input_num, input_num / 3 * 2, input_num / 3, 1]
+            layer_file = open("../output/{}/layers.txt".format(folder), 'w')
+            layer_file.write(str(layers))
+            layer_file.close()
+            neural_network = NeuralNetworkSpark(layers=layers, bias=0)
+            model = neural_network.train(training_data, method=neural_network.BP, seed=1234, learn_rate=0.0001,
+                                         iteration=iterations)
         elif training_method == self.RANDOM_FOREST:
-            model = RandomForest.trainRegressor(self.train_data, categoricalFeaturesInfo={}, numTrees=4,
+            model = RandomForest.trainRegressor(training_data, categoricalFeaturesInfo={}, numTrees=4,
                                                 featureSubsetStrategy="auto", impurity='variance', maxDepth=5,
-                                                maxBins=32)
+                                                maxBins=32, seed=1234)
 
         elif training_method == self.LINEAR_REGRESSION:
-            model = LinearRegressionWithSGD.train(self.train_data, iterations=1000, step=0.001)
+            model = LinearRegressionWithSGD.train(training_data, iterations=10000, step=0.001)
 
         else:
             raise ValueError("Unknown training method {}".format(training_method))
 
-        # predicting
-        predict = self.test_data.map(lambda p: (p.label, model.predict(p.features))).zip(self.test_data_features) \
-            .map(lambda (p, v): (p[0], min_max_de_normalize(p[1], v))).cache()
-
         # for testing only
-        train_data_num = self.train_data.count()
+        if training_method != self.RANDOM_FOREST:
+            # predicting
+            predict = testing_data.map(lambda p: (p.label, model.predict(p.features))) \
+                .zip(testing_data_features) \
+                .map(lambda (p, v): (p[0], min_max_de_normalize(p[1], v))).cache()
+        else:
+            predict = model.predict(testing_data.map(lambda x: x.features))
+            predict = testing_data.zip(predict).zip(testing_data_features) \
+                .map(lambda (m, n): (m[0].label, min_max_de_normalize(m[1], n))).cache()
+
+        train_data_num = len(self.train_data)
         test_date_list = self.date_list[train_data_num:]
-        predict_list = predict.collect()
         if save_data:
+            predict_list = predict.collect()
             predict_file = open("../output/{}/{}.csv".format(folder, self.stock_symbol), "w")
             predict_file.write("date,origin,predict\n")
             test_date_list = test_date_list[1:]
@@ -124,6 +135,7 @@ class InferenceSystem(Constants):
                 predict_file.write("%s,%2f,%2f\n" % (
                     test_date_list[i], predict_list[i][0], predict_list[i][1]))
             predict_file.close()
+
         return predict
 
 
@@ -138,16 +150,16 @@ if __name__ == "__main__":
     stock_list = ['0001.HK', '0002.HK', '0003.HK', '0004.HK', '0005.HK', '0006.HK', '0007.HK', '0008.HK', '0009.HK',
                   '0010.HK', '0011.HK', '0012.HK', '0013.HK', '0014.HK', '0015.HK', '0016.HK', '0017.HK', '0018.HK',
                   '0019.HK', '0020.HK', '0021.HK', '0022.HK', '0023.HK', '0024.HK', '0025.HK', '0026.HK', '0027.HK',
-                  '0028.HK', '0029.HK', '0030.HK', '0031.HK', '0032.HK', '0033.HK', '0034.HK', '0035.HK', '0036.HK',
-                  '0037.HK', '0038.HK', '0039.HK', '0040.HK', '0041.HK', '0042.HK', '0043.HK', '0044.HK', '0045.HK',
-                  '0046.HK', '0048.HK', '0050.HK', '0051.HK', '0052.HK', '0053.HK', '0054.HK', '0055.HK', '0056.HK',
-                  '0057.HK', '0058.HK', '0059.HK', '0060.HK', '0061.HK', '0062.HK', '0063.HK', '0064.HK', '0065.HK',
+                  '0028.HK', '0029.HK', '0030.HK', '0031.HK', '0032.HK', '0700.HK', '0034.HK', '0035.HK', '0036.HK',
+                  '0068.HK', '0038.HK', '0039.HK', '0040.HK', '0041.HK', '0042.HK', '0043.HK', '0044.HK', '0045.HK',
+                  '0046.HK', '0088.HK', '0050.HK', '0051.HK', '0052.HK', '0053.HK', '0054.HK', '0168.HK', '0056.HK',
+                  '0057.HK', '0058.HK', '0059.HK', '0060.HK', '0888.HK', '0062.HK', '0063.HK', '0064.HK', '0065.HK',
                   '0066.HK', '1123.HK']
 
-    for stock in stock_list[:5]:
+    for stock in stock_list:
         test = InferenceSystem(stock, False)
         predict_result = test.predict_historical_data(0.8, "2006-04-14", "2016-04-15", save_data=True,
-                                                      training_method=test.LINEAR_REGRESSION)
+                                                      training_method=test.ARTIFICIAL_NEURAL_NETWORK)
         mse = get_MSE(predict_result)
         mape = get_MAPE(predict_result)
         mad = get_MAD(predict_result)
