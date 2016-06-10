@@ -84,7 +84,7 @@ class StockIndicatorHandler(BaseClass):
         if self._adj_close:
             multiplier = np_array[:,5] / np_array[:, 3]
         else:
-            multiplier = np.ones(len(np_array.size[1]))
+            multiplier = np.ones(np_array.shape[0])
         inputs = {
             self.STOCK_OPEN: np_array[:, 0] * multiplier,
             self.STOCK_HIGH: np_array[:, 1] * multiplier,
