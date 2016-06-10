@@ -77,3 +77,7 @@ class Constants(object):
     TO = "to"
 
     GOLDEN_PRICE = "gold price in CNY"
+
+    ARTIFICIAL_NEURAL_NETWORK = "Artificial Neural Network"
+    RANDOM_FOREST = "Random Forest"
+    LINEAR_REGRESSION = "Linear Regression"

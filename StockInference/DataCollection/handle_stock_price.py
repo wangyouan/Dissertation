@@ -10,6 +10,7 @@ import numpy
 
 from StockInference.DataCollection.base_class import BaseClass
 from StockInference.util.get_history_stock_price import get_all_data_about_stock
+from StockInference.util.date_parser import get_ahead_date
 
 
 class StockPriceHandler(BaseClass):
@@ -21,8 +22,8 @@ class StockPriceHandler(BaseClass):
     def handle_stock_price(self, data_period):
         stock_info = [i[1:] for i in self._stock_price]
         if data_period > 1:
-            append_start_date = self.get_ahead_date(self._start_date, (data_period - 1) * 5)
-            append_end_date = self.get_ahead_date(self._start_date, 1)
+            append_start_date = get_ahead_date(self._start_date, (data_period - 1) * 5)
+            append_end_date = get_ahead_date(self._start_date, 1)
             append_stock_price = get_all_data_about_stock(self._stock_symbol, append_start_date, append_end_date)[
                                  -(data_period - 1):]
             append_stock_info = [i[1:] for i in append_stock_price]

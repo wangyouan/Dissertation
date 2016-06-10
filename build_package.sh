@@ -2,7 +2,7 @@
 
 echo "clear unused file"
 
-for directory in "dist" "build" "StockSimulator.egg-info"
+for directory in "build" "StockSimulator.egg-info" "StockInference.egg-info"
 do
     if [ -d $directory ]
     then
@@ -11,12 +11,12 @@ do
     fi
 done
 
-if [ -d "data" ]
-then
-    echo "data already exists"
-else
-    python get_data/yahoo_api.py ./data/
-fi
+#if [ -d "data" ]
+#then
+#    echo "data already exists"
+#else
+#    python get_data/yahoo_api.py ./data/
+#fi
 
 #git pull origin dev
 python package.py bdist_egg

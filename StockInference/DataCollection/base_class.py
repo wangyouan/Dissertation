@@ -10,10 +10,8 @@ import datetime
 
 import pandas as pd
 from sklearn.decomposition import PCA
-from pandas.tseries.offsets import CustomBusinessDay
 
 from StockInference.constant import Constants
-from StockInference.util.hongkong_calendar import HongKongCalendar
 
 
 class BaseClass(Constants):
@@ -26,14 +24,6 @@ class BaseClass(Constants):
         self._date_list = None
         self._stock_symbol = None
         self._adj_close = False
-        cal = HongKongCalendar()
-        self.custom_business_day = CustomBusinessDay(calendar=cal)
-
-    def get_ahead_date(self, detailed_date, ahead_period):
-        date_list = detailed_date.split('-')
-        date_object = datetime.datetime(year=int(date_list[0]), month=int(date_list[1]), day=int(date_list[2]))
-        date_object -= ahead_period * self.custom_business_day
-        return date_object.strftime("%Y-%m-%d")
 
     def get_start_date(self):
         return self._start_date

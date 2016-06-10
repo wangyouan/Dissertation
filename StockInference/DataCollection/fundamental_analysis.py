@@ -11,6 +11,7 @@ import quandl
 
 from StockInference.DataCollection.base_class import BaseClass
 from StockInference.util.get_history_stock_price import get_all_data_about_stock
+from StockInference.util.date_parser import get_ahead_date
 
 
 class FundamentalAnalysis(BaseClass):
@@ -32,7 +33,7 @@ class FundamentalAnalysis(BaseClass):
         quandl.ApiConfig.api_key = "RYdPmBZoFyLXxg1RQ3fY"
 
     def _get_bond_price(self, symbol, ratio):
-        bond_info = get_all_data_about_stock(symbol=symbol, start_date=self.get_ahead_date(self.get_start_date(), 5),
+        bond_info = get_all_data_about_stock(symbol=symbol, start_date=get_ahead_date(self.get_start_date(), 5),
                                              end_date=self._true_end_date)
         bond_price_map = {}
         if not ratio:

@@ -7,65 +7,34 @@
 # Date: 1/6/2016
 
 from pyspark import SparkContext, SparkConf
-from pyspark.mllib.regression import LabeledPoint
+from pyspark.mllib.tree import RandomForest
+from pyspark.mllib.regression import LinearRegressionWithSGD
 
 from StockInference.constant import Constants
 from StockInference.DataCollection.data_collect import DataCollect
 from StockInference.Regression.distributed_neural_network import NeuralNetworkSpark
 from StockInference.util.data_parse import min_max_de_normalize, get_MSE, get_MAD, get_MAPE
 from StockInference.DataParser.data_parser import DataParser
+from StockInference.util.date_parser import get_ahead_date
 
-folder = "gold_true_ratio_ajd_close"
+folder = "not_adj_lr"
 
 
 class InferenceSystem(Constants):
-    def __init__(self, stock_symbol):
+    def __init__(self, stock_symbol, adjusted=False):
         self.stock_symbol = stock_symbol
         self.neural_network = None
         conf = SparkConf()
         conf.setAppName("StockInference")
         self.sc = SparkContext.getOrCreate(conf=conf)
+        self.train_data = None
+        self.test_data = None
+        self.test_data_features = None
+        self.total_data_num = 0
+        self.date_list = None
+        self.adjusted_close = False
 
-    def predict_historical_data(self, train_test_ratio, start_date, end_date):
-        data_collection = DataCollect(stock_symbol=self.stock_symbol)
-        required_info = {
-            self.STOCK_PRICE: {self.DATA_PERIOD: 5},
-            self.FUNDAMENTAL_ANALYSIS: [self.US10Y_BOND, self.US30Y_BOND, self.FXI, self.IC, self.IA]
-        }
-        calculated_data, label_list = data_collection.get_all_required_data(start_date=start_date, end_date=end_date,
-                                                                            label_info=self.STOCK_CLOSE,
-                                                                            normalized_method=self.MIN_MAX,
-                                                                            required_info=required_info)
-
-        input_num = len(calculated_data[0].features)
-        self.neural_network = NeuralNetworkSpark(layers=[input_num, input_num + 2, input_num - 4, 1])
-        total_data_num = len(calculated_data)
-        train_data_num = int(train_test_ratio * total_data_num)
-        training_rdd = self.sc.parallelize(calculated_data[:train_data_num])
-        testing_rdd = calculated_data[train_data_num:]
-        test_label_list = label_list[train_data_num:]
-        for i in range(total_data_num - train_data_num):
-            testing_rdd[i] = LabeledPoint(label=test_label_list[i], features=testing_rdd[i].features)
-        testing_rdd = self.sc.parallelize(testing_rdd)
-        model = self.neural_network.train(training_rdd, method=self.neural_network.BP, seed=1234, learn_rate=0.001,
-                                          iteration=100)
-        predict = testing_rdd.map(
-            lambda p: (p.label, model.predict(p.features), p.features)) \
-            .map(lambda p: (p[0], p[1], data_collection.de_normalize_stock_price(p[2]))) \
-            .map(lambda p: (p[0], min_max_de_normalize(p[1], p[2]))).cache()
-        test_date_list = data_collection.get_date_list()[train_data_num:]
-        predict_list = predict.collect()
-        test_file = open("test.csv", "w")
-        test_file.write("date,origin,predict\n")
-        for i in range(total_data_num - train_data_num):
-            test_file.write("%s,%2f,%2f\n" % (
-                test_date_list[i], predict_list[i][0], predict_list[i][1]))
-        test_file.close()
-        print get_MSE(predict)
-        self.sc.stop()
-
-    def predict_historical_data_new_process(self, train_test_ratio, start_date, end_date):
-        """ Get raw data -> process data -> pca -> normalization -> train -> test """
+    def get_train_test_data(self, train_test_ratio, start_date, end_date):
 
         # collect data, will do some preliminary process to stock process
         data_collection = DataCollect(stock_symbol=self.stock_symbol)
@@ -87,14 +56,14 @@ class InferenceSystem(Constants):
                 (self.RSI, 21),
             ],
             self.FUNDAMENTAL_ANALYSIS: [self.US10Y_BOND, self.US30Y_BOND, self.FXI,
-                                        # self.IC, self.IA,
+                                        # self.IC, self.IA, # comment this  two because this two bond is a little newer
                                         self.HSI, {self.FROM: self.USD, self.TO: self.HKD},
                                         {self.FROM: self.EUR, self.TO: self.HKD},
                                         {self.FROM: self.AUD, self.TO: self.HKD},
                                         {self.GOLDEN_PRICE: True}]
         }
         raw_data = data_collection.get_raw_data(start_date=start_date, end_date=end_date, using_ratio=True,
-                                                using_adj=True, label_info=self.STOCK_CLOSE,
+                                                using_adj=self.adjusted_close, label_info=self.STOCK_CLOSE,
                                                 required_info=required_info)
 
         # print raw_data
@@ -102,37 +71,59 @@ class InferenceSystem(Constants):
         # Split train and test
         data_parser = DataParser()
         n_components = 'mle'
-        train_data, test_data, test_data_features = data_parser.split_train_test_data(train_ratio=train_test_ratio,
-                                                                                      raw_data=raw_data,
-                                                                                      n_components=n_components)
+        self.train_data, self.test_data, self.test_data_features = data_parser.split_train_test_data(
+            train_ratio=train_test_ratio, raw_data=raw_data, n_components=n_components)
+        self.total_data_num = len(raw_data)
+        self.date_list = data_collection.get_date_list()
 
-        # training
-        input_num = len(train_data.take(1)[0].features)
-        if input_num < 6:
-            layers = [input_num, input_num + 1, 1]
+    def predict_historical_data(self, train_test_ratio, start_date, end_date, save_data=True,
+                                training_method=None):
+        """ Get raw data -> process data -> pca -> normalization -> train -> test """
+
+        if training_method is None:
+            training_method = self.ARTIFICIAL_NEURAL_NETWORK
+
+        if self.train_data is None or self.test_data is None or self.test_data_features is None:
+            self.get_train_test_data(train_test_ratio, start_date=start_date, end_date=end_date)
+
+        if training_method == self.ARTIFICIAL_NEURAL_NETWORK:
+            # training
+            input_num = len(self.train_data.take(1)[0].features)
+            if input_num < 6:
+                layers = [input_num, input_num + 1, 1]
+            else:
+                layers = [input_num, input_num - 2, input_num - 4, 1]
+            self.neural_network = NeuralNetworkSpark(layers=layers, bias=0)
+            model = self.neural_network.train(self.train_data, method=self.neural_network.BP, seed=1234, learn_rate=0.0001,
+                                              iteration=10)
+        elif training_method == self.RANDOM_FOREST:
+            model = RandomForest.trainRegressor(self.train_data, categoricalFeaturesInfo={}, numTrees=4,
+                                                featureSubsetStrategy="auto", impurity='variance', maxDepth=5,
+                                                maxBins=32)
+
+        elif training_method == self.LINEAR_REGRESSION:
+            model = LinearRegressionWithSGD.train(self.train_data, iterations=1000, step=0.001)
+
         else:
-            layers = [input_num, input_num - 2, input_num - 4, 1]
-        self.neural_network = NeuralNetworkSpark(layers=layers, bias=0)
-        model = self.neural_network.train(train_data, method=self.neural_network.BP, seed=1234, learn_rate=0.0001,
-                                          iteration=10)
+            raise ValueError("Unknown training method {}".format(training_method))
 
         # predicting
-        predict = test_data.map(lambda p: (p.label, model.predict(p.features))).zip(test_data_features) \
+        predict = self.test_data.map(lambda p: (p.label, model.predict(p.features))).zip(self.test_data_features) \
             .map(lambda (p, v): (p[0], min_max_de_normalize(p[1], v))).cache()
 
         # for testing only
-        total_data_num = len(raw_data)
-        train_data_num = train_data.count()
-        test_date_list = data_collection.get_date_list()[train_data_num:]
+        train_data_num = self.train_data.count()
+        test_date_list = self.date_list[train_data_num:]
         predict_list = predict.collect()
-        predict_file = open("../output/{}/{}.csv".format(folder, self.stock_symbol), "w")
-        predict_file.write("date,origin,predict\n")
-        test_date_list = test_date_list[1:]
-        test_date_list.append(data_collection.get_ahead_date(test_date_list[-1], -1))
-        for i in range(total_data_num - train_data_num):
-            predict_file.write("%s,%2f,%2f\n" % (
-                test_date_list[i], predict_list[i][0], predict_list[i][1]))
-        predict_file.close()
+        if save_data:
+            predict_file = open("../output/{}/{}.csv".format(folder, self.stock_symbol), "w")
+            predict_file.write("date,origin,predict\n")
+            test_date_list = test_date_list[1:]
+            test_date_list.append(get_ahead_date(test_date_list[-1], -1))
+            for i in range(self.total_data_num - train_data_num):
+                predict_file.write("%s,%2f,%2f\n" % (
+                    test_date_list[i], predict_list[i][0], predict_list[i][1]))
+            predict_file.close()
         return predict
 
 
@@ -153,9 +144,10 @@ if __name__ == "__main__":
                   '0057.HK', '0058.HK', '0059.HK', '0060.HK', '0061.HK', '0062.HK', '0063.HK', '0064.HK', '0065.HK',
                   '0066.HK', '1123.HK']
 
-    for stock in stock_list:
-        test = InferenceSystem(stock)
-        predict_result = test.predict_historical_data_new_process(0.8, "2006-04-14", "2016-04-15")
+    for stock in stock_list[:5]:
+        test = InferenceSystem(stock, False)
+        predict_result = test.predict_historical_data(0.8, "2006-04-14", "2016-04-15", save_data=True,
+                                                      training_method=test.LINEAR_REGRESSION)
         mse = get_MSE(predict_result)
         mape = get_MAPE(predict_result)
         mad = get_MAD(predict_result)
