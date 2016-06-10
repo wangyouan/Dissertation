@@ -73,7 +73,8 @@ class DataCollect(StockPriceHandler, StockIndicatorHandler, FundamentalAnalysis)
 
         return label_pointed_list, label_list
 
-    def get_raw_data(self, start_date, end_date, label_info, required_info, using_ratio=False):
+    def get_raw_data(self, start_date, end_date, label_info, required_info, using_ratio=False, using_adj=False):
+        self._adj_close = using_adj
 
         if not self._stock_price or self._start_date != start_date or self._end_date != end_date:
             self._removed_date = set()
@@ -85,9 +86,15 @@ class DataCollect(StockPriceHandler, StockIndicatorHandler, FundamentalAnalysis)
             self._true_end_date = self._date_list[-1]
 
         if label_info == self.STOCK_CLOSE:
-            label_list = [i[4] for i in self._stock_price[1:]]
+            if self._adj_close:
+                label_list = [i[6] for i in self._stock_price[1:]]
+            else:
+                label_list = [i[4] for i in self._stock_price[1:]]
         else:
-            label_list = [i[1] for i in self._stock_price[1:]]
+            if self._adj_close:
+                label_list = [i[1] / i[4] * i[6] for i in self._stock_price[1:]]
+            else:
+                label_list = [i[1] for i in self._stock_price[1:]]
 
         collected_data = self.handle_stock_price(required_info[self.STOCK_PRICE][self.DATA_PERIOD])
 
@@ -105,3 +112,7 @@ class DataCollect(StockPriceHandler, StockIndicatorHandler, FundamentalAnalysis)
             label_pointed_list.append(LabeledPoint(features=i, label=j))
 
         return label_pointed_list
+
+
+if __name__ == "__main__":
+    test = DataCollect('0001.HK')

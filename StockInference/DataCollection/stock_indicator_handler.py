@@ -80,11 +80,15 @@ class StockIndicatorHandler(BaseClass):
 
     def _transform_data_to_talib_input(self, data):
         np_array = np.array(data).astype(np.float)
+        if self._adj_close:
+            multiplier = np_array[:,5] / np_array[:, 3]
+        else:
+            multiplier = np.ones(len(np_array.size[1]))
         inputs = {
-            self.STOCK_OPEN: np_array[:, 0],
-            self.STOCK_HIGH: np_array[:, 1],
-            self.STOCK_LOW: np_array[:, 2],
-            self.STOCK_CLOSE: np_array[:, 3],
-            self.STOCK_VOLUME: np_array[:, 4]
+            self.STOCK_OPEN: np_array[:, 0] * multiplier,
+            self.STOCK_HIGH: np_array[:, 1] * multiplier,
+            self.STOCK_LOW: np_array[:, 2] * multiplier,
+            self.STOCK_CLOSE: np_array[:, 3] * multiplier,
+            self.STOCK_VOLUME: np_array[:, 4] * multiplier
         }
         return inputs

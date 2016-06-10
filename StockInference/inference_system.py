@@ -15,6 +15,8 @@ from StockInference.Regression.distributed_neural_network import NeuralNetworkSp
 from StockInference.util.data_parse import min_max_de_normalize, get_MSE, get_MAD, get_MAPE
 from StockInference.DataParser.data_parser import DataParser
 
+folder = "gold_true_ratio_ajd_close"
+
 
 class InferenceSystem(Constants):
     def __init__(self, stock_symbol):
@@ -92,7 +94,8 @@ class InferenceSystem(Constants):
                                         {self.GOLDEN_PRICE: True}]
         }
         raw_data = data_collection.get_raw_data(start_date=start_date, end_date=end_date, using_ratio=True,
-                                                label_info=self.STOCK_CLOSE, required_info=required_info)
+                                                using_adj=True, label_info=self.STOCK_CLOSE,
+                                                required_info=required_info)
 
         # print raw_data
         # return
@@ -122,8 +125,10 @@ class InferenceSystem(Constants):
         train_data_num = train_data.count()
         test_date_list = data_collection.get_date_list()[train_data_num:]
         predict_list = predict.collect()
-        predict_file = open("../output/gold_true_ratio/{}.csv".format(self.stock_symbol), "w")
+        predict_file = open("../output/{}/{}.csv".format(folder, self.stock_symbol), "w")
         predict_file.write("date,origin,predict\n")
+        test_date_list = test_date_list[1:]
+        test_date_list.append(data_collection.get_ahead_date(test_date_list[-1], -1))
         for i in range(total_data_num - train_data_num):
             predict_file.write("%s,%2f,%2f\n" % (
                 test_date_list[i], predict_list[i][0], predict_list[i][1]))
@@ -132,7 +137,12 @@ class InferenceSystem(Constants):
 
 
 if __name__ == "__main__":
-    f = open('../output/gold_true_ratio/stock_test.csv', 'w')
+    import os
+
+    if not os.path.isdir('../output/{}'.format(folder)):
+        os.mkdir('../output/{}'.format(folder))
+
+    f = open('../output/{}/stock_test.csv'.format(folder), 'w')
     f.write('stock,MSE,MAPE,MAD\n')
     stock_list = ['0001.HK', '0002.HK', '0003.HK', '0004.HK', '0005.HK', '0006.HK', '0007.HK', '0008.HK', '0009.HK',
                   '0010.HK', '0011.HK', '0012.HK', '0013.HK', '0014.HK', '0015.HK', '0016.HK', '0017.HK', '0018.HK',
@@ -144,12 +154,13 @@ if __name__ == "__main__":
                   '0066.HK', '1123.HK']
 
     # stock_list = ['0700.HK']
-    for stock in stock_list:
+    for stock in stock_list[:1]:
         test = InferenceSystem(stock)
         predict_result = test.predict_historical_data_new_process(0.8, "2006-04-14", "2016-04-15")
         mse = get_MSE(predict_result)
         mape = get_MAPE(predict_result)
         mad = get_MAD(predict_result)
         f.write('{},{},{},{}\n'.format(stock, mse, mape, mad))
+        test.sc.stop()
 
     f.close()

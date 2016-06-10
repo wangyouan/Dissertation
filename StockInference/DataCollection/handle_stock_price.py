@@ -29,6 +29,9 @@ class StockPriceHandler(BaseClass):
             append_stock_info.extend(stock_info)
             stock_info = append_stock_info
 
+        if self._adj_close:
+            stock_info = map(lambda p: [p[0] * p[5] / p[3], p[1] * p[5]/p[3], p[2] * p[5]/p[3], p[5]], stock_info)
+
         data_num = len(stock_info)
         window_data = [stock_info[i:(i + data_period)] for i in range(data_num - data_period)]
         max_price = []

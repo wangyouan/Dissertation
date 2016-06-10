@@ -25,6 +25,7 @@ class BaseClass(Constants):
         self._true_end_date = None
         self._date_list = None
         self._stock_symbol = None
+        self._adj_close = False
         cal = HongKongCalendar()
         self.custom_business_day = CustomBusinessDay(calendar=cal)
 
