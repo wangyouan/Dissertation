@@ -81,3 +81,6 @@ class Constants(object):
     ARTIFICIAL_NEURAL_NETWORK = "Artificial Neural Network"
     RANDOM_FOREST = "Random Forest"
     LINEAR_REGRESSION = "Linear Regression"
+
+    PCA = "Principal Component Analysis"
+    STANDARD_SCALE = "Standard Scaler"

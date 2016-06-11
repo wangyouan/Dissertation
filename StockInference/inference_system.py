@@ -6,6 +6,8 @@
 # Author: Mark Wang
 # Date: 1/6/2016
 
+import sys
+
 from pyspark import SparkContext, SparkConf
 from pyspark.mllib.tree import RandomForest
 from pyspark.mllib.regression import LinearRegressionWithSGD
@@ -20,6 +22,9 @@ from StockInference.util.date_parser import get_ahead_date
 
 iterations = 15
 folder = "output/ann_{}_layer_not_adj_{}".format(4, iterations)
+
+if sys.platform == 'darwin':
+    folder = "../{}".format(folder)
 
 
 class InferenceSystem(Constants):

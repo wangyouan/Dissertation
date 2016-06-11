@@ -8,7 +8,7 @@
 
 import numpy as np
 from sklearn.decomposition import PCA
-from pyspark import SparkContext
+from sklearn.preprocessing import StandardScaler
 from pyspark.mllib.regression import LabeledPoint
 
 from StockInference.constant import Constants
@@ -17,9 +17,8 @@ from StockInference.util.data_parse import min_max_normalize
 
 class DataParser(Constants):
     def __init__(self):
-        self.data_pca_transformer = None
-        self.min_list = None
-        self.max_list = None
+        self.data_transformer = None
+        self.standard_scale = None
 
     def split_train_test_data(self, train_ratio, raw_data, n_components='mle'):
         """
@@ -44,23 +43,15 @@ class DataParser(Constants):
 
     def transform(self, raw_data):
         raw_features = [np.array(p.features) for p in raw_data]
-        after_pca = self.data_pca_transformer.transform(raw_features)
-        after_normalize = map(lambda p: (2 * p - self.min_list - self.max_list) / (self.max_list - self.min_list),
-                              after_pca)
+        after_pca = self.data_transformer.transform(raw_features)
+        after_normalize = self.standard_scale.transform(after_pca)
         return [LabeledPoint(label=i.label, features=j) for i, j in zip(raw_data, after_normalize)]
 
     def fit_transform(self, raw_data, n_components=None):
-        self.data_pca_transformer = PCA(n_components=n_components)
+        self.data_transformer = PCA(n_components=n_components)
+        self.standard_scale = StandardScaler()
         raw_features = [np.array(p.features) for p in raw_data]
-        after_pca = self.data_pca_transformer.fit_transform(raw_features)
+        after_pca = self.data_transformer.fit_transform(raw_features)
+        after_stand = self.standard_scale.fit_transform(after_pca)
 
-        self.min_list = np.zeros(len(after_pca[0]))
-        self.max_list = np.zeros(len(after_pca[0]))
-        for i in range(len(after_pca[0])):
-            self.min_list[i] = np.min(after_pca[:, i])
-            self.max_list[i] = np.max(after_pca[:, i])
-
-        after_normalize = map(lambda p: (2 * p - self.min_list - self.max_list) / (self.max_list - self.min_list),
-                              after_pca)
-
-        return [LabeledPoint(label=i.label, features=j) for i, j in zip(raw_data, after_normalize)]
+        return [LabeledPoint(label=i.label, features=j) for i, j in zip(raw_data, after_stand)]
