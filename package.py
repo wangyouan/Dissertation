@@ -10,7 +10,7 @@ from setuptools import setup, find_packages
 
 setup(
     name="StockInference",
-    version="0.1",
+    version="0.2",
     packages=find_packages(exclude=("src", 'get_data', 'StockSimulator', 'StockSimulator.RegressionMethod')),
     author="Mark Wang",
     author_email="markwang@connect.hku.hk",
