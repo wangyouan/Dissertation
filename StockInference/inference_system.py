@@ -161,7 +161,7 @@ if __name__ == "__main__":
                   '0057.HK', '0058.HK', '0059.HK', '0060.HK', '0888.HK', '0062.HK', '0063.HK', '0064.HK', '0065.HK',
                   '0066.HK', '1123.HK']
 
-    for stock in stock_list[:1]:
+    for stock in stock_list:
         test = InferenceSystem(stock, False)
         predict_result = test.predict_historical_data(0.8, "2006-04-14", "2016-04-15", save_data=True,
                                                       training_method=test.ARTIFICIAL_NEURAL_NETWORK)
