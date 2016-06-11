@@ -12,7 +12,7 @@ from pyspark import SparkContext, RDD
 from pyspark.mllib.regression import LabeledPoint
 from pyspark.mllib.linalg import DenseVector
 
-from constants import Constants
+from StockInference.constant import Constants
 
 
 def sigmoid(x):
