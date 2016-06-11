@@ -21,7 +21,7 @@ from StockInference.util.date_parser import get_ahead_date
 
 
 iterations = 20
-folder = "output/ann_{}_layer_not_adj_{}".format(4, iterations)
+folder = "output/linear_regression_not_adj".format(4, iterations)
 
 if sys.platform == 'darwin':
     folder = "../{}".format(folder)
@@ -164,7 +164,7 @@ if __name__ == "__main__":
     for stock in stock_list:
         test = InferenceSystem(stock, False)
         predict_result = test.predict_historical_data(0.8, "2006-04-14", "2016-04-15", save_data=True,
-                                                      training_method=test.ARTIFICIAL_NEURAL_NETWORK)
+                                                      training_method=test.LINEAR_REGRESSION)
         mse = get_MSE(predict_result)
         mape = get_MAPE(predict_result)
         mad = get_MAD(predict_result)
