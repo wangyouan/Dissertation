@@ -2,7 +2,7 @@
 
 echo "clear unused file"
 
-for directory in "build" "StockSimulator.egg-info" "StockInference.egg-info"
+for directory in "build" "StockSimulator.egg-info" "StockInference.egg-info" "dist"
 do
     if [ -d $directory ]
     then
@@ -20,3 +20,14 @@ done
 
 #git pull origin dev
 python package.py bdist_egg
+
+echo "Build success, clean processing files"
+
+for directory in "build" "StockInference.egg-info"
+do
+    if [ -d $directory ]
+    then
+        echo "remove $directory"
+        rm -rf $directory
+    fi
+done

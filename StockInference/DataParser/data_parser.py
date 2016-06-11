@@ -28,8 +28,8 @@ class DataParser(Constants):
         pca_transformer = PCA(n_components=n_components)
         standard_scale = StandardScaler(with_std=True)
         min_max_scale = MinMaxScaler(feature_range=(-1, 1))
-        self.first_transformer = pca_transformer
-        self.second_transformer = standard_scale
+        self.first_transformer = standard_scale
+        self.second_transformer = pca_transformer
         self.third_transformer = min_max_scale
 
     def split_train_test_data(self, train_ratio, raw_data):

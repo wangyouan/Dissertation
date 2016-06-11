@@ -197,7 +197,7 @@ if __name__ == "__main__":
     for stock in stock_list[:5]:
         test = InferenceSystem(stock, False)
         predict_result = test.predict_historical_data(0.8, "2006-04-14", "2016-04-15", save_data=True,
-                                                      training_method=test.RANDOM_FOREST)
+                                                      training_method=test.ARTIFICIAL_NEURAL_NETWORK)
         mse = get_MSE(predict_result)
         mape = get_MAPE(predict_result)
         mad = get_MAD(predict_result)
