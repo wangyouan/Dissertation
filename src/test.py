@@ -33,6 +33,9 @@ if os.path.exists('stock_data'):
 
 sc = load_spark_context()[0]
 
+def test_file():
+    print __file__
+
 
 def compare_lr_and_rt(stock_num=None, window_size=5, show_price_prediction=False):
     column = ["Real", "LinearRegression", "RandomForest"]

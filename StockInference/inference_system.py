@@ -21,8 +21,8 @@ from StockInference.util.date_parser import get_ahead_date
 
 
 iterations = 20
-folder = "output/random_forest_not_adj".format(4, iterations)
-# folder = "output/ann_{}_layer_not_adj_{}".format(4, iterations)
+# folder = "output/random_forest_not_adj".format(4, iterations)
+folder = "output/ann_{}_layer_not_adj_{}_pca_none".format(4, iterations)
 
 if sys.platform == 'darwin':
     folder = "../{}".format(folder)
@@ -40,8 +40,16 @@ class InferenceSystem(Constants):
         self.total_data_num = 0
         self.date_list = None
         self.adjusted_close = adjusted
+        self.model = None
+        log4jLogger = self.sc._jvm.org.apache.log4j
+        self.logger = log4jLogger.LogManager.getLogger(__name__)
 
     def get_train_test_data(self, train_test_ratio, start_date, end_date):
+        self.logger.info('#################################################################')
+        self.logger.info('Get train and testing data')
+        self.logger.info('Training / Testing ratio is {}'.format(train_test_ratio))
+        self.logger.info('Start date is {}, end date is {}'.format(start_date, end_date))
+        self.logger.info('#################################################################')
 
         # collect data, will do some preliminary process to stock process
         data_collection = DataCollect(stock_symbol=self.stock_symbol)
@@ -72,20 +80,29 @@ class InferenceSystem(Constants):
         raw_data = data_collection.get_raw_data(start_date=start_date, end_date=end_date, using_ratio=True,
                                                 using_adj=self.adjusted_close, label_info=self.STOCK_CLOSE,
                                                 required_info=required_info)
+        # debug
+        # raw_data_file = open("test", 'w')
+        # import pickle
+        # pickle.dump(raw_data, raw_data_file)
+        # raw_data_file.close()
+        # raise ValueError("Warn SB")
 
-        # print raw_data
-        # return
         # Split train and test
-        data_parser = DataParser()
-        n_components = 'mle'
+        n_components = None
+        data_parser = DataParser(n_components=n_components)
         self.train_data, self.test_data, self.test_data_features = data_parser.split_train_test_data(
-            train_ratio=train_test_ratio, raw_data=raw_data, n_components=n_components)
+            train_ratio=train_test_ratio, raw_data=raw_data)
         self.total_data_num = len(raw_data)
         self.date_list = data_collection.get_date_list()
+        self.logger.info('#################################################################')
+        self.logger.info('Get train and testing data finished')
+        self.logger.info('Predict adjusted price is {}'.format("Yes" if self.adjusted_close else "No"))
+        self.logger.info('#################################################################')
 
     def predict_historical_data(self, train_test_ratio, start_date, end_date, save_data=True,
                                 training_method=None):
         """ Get raw data -> process data -> pca -> normalization -> train -> test """
+        self.logger.info('Start to predict stock symbol {}'.format(self.stock_symbol))
 
         if training_method is None:
             training_method = self.ARTIFICIAL_NEURAL_NETWORK
@@ -97,13 +114,19 @@ class InferenceSystem(Constants):
         testing_data = self.sc.parallelize(self.test_data)
         testing_data_features = self.sc.parallelize(self.test_data_features)
 
+        self.logger.info('#################################################################')
+        self.logger.info('Start to training data, the training method is {}'.format(training_method))
+        self.logger.info('#################################################################')
+
         if training_method == self.ARTIFICIAL_NEURAL_NETWORK:
             # training
             input_num = len(self.train_data[0].features)
             layers = [input_num, input_num / 3 * 2, input_num / 3, 1]
-            layer_file = open("{}/layers.txt".format(folder), 'w')
-            layer_file.write(str(layers))
-            layer_file.close()
+            self.logger.info('Input layer is {}'.format(layers))
+            if save_data:
+                layer_file = open("{}/layers.txt".format(folder), 'w')
+                layer_file.write(str(layers))
+                layer_file.close()
             neural_network = NeuralNetworkSpark(layers=layers, bias=0)
             model = neural_network.train(training_data, method=neural_network.BP, seed=1234, learn_rate=0.0001,
                                          iteration=iterations)
@@ -116,9 +139,14 @@ class InferenceSystem(Constants):
             model = LinearRegressionWithSGD.train(training_data, iterations=10000, step=0.001)
 
         else:
+            self.logger.error("Unknown training method {}".format(training_method))
             raise ValueError("Unknown training method {}".format(training_method))
 
-        # for testing only
+        self.model = model
+        if train_test_ratio > 0.99:
+            return model
+
+        self.logger.info("Start to use the model to predict price")
         if training_method != self.RANDOM_FOREST:
             # predicting
             predict = testing_data.map(lambda p: (p.label, model.predict(p.features))) \
@@ -131,6 +159,7 @@ class InferenceSystem(Constants):
 
         train_data_num = len(self.train_data)
         test_date_list = self.date_list[train_data_num:]
+
         if save_data:
             predict_list = predict.collect()
             predict_file = open("{}/{}.csv".format(folder, self.stock_symbol), "w")
@@ -144,6 +173,9 @@ class InferenceSystem(Constants):
 
         return predict
 
+    def get_future_stock_price(self, training_method=None, history_date=None):
+        pass
+
 
 if __name__ == "__main__":
     import os
@@ -151,22 +183,18 @@ if __name__ == "__main__":
     if not os.path.isdir(folder):
         os.mkdir(folder)
 
-    f = open('{}/stock_test.csv'.format(folder), 'a')
-    # f.write('stock,MSE,MAPE,MAD\n')
-    # stock_list = ['0001.HK', '0002.HK', '0003.HK', '0004.HK', '0005.HK', '0006.HK', '0007.HK', '0008.HK', '0009.HK',
-    #               '0010.HK', '0011.HK', '0012.HK', '0013.HK', '0014.HK', '0015.HK', '0016.HK', '0017.HK', '0018.HK',
-    #               '0019.HK', '0020.HK', '0021.HK', '0022.HK', '0023.HK', '0024.HK', '0025.HK', '0026.HK', '0027.HK',
-    #               '0028.HK', '0029.HK', '0030.HK', '0031.HK', '0032.HK', '0700.HK', '0034.HK', '0035.HK', '0036.HK',
-    #               '0068.HK', '0038.HK', '0039.HK', '0040.HK', '0041.HK', '0042.HK', '0043.HK', '0044.HK', '0045.HK',
-    #               '0046.HK', '0088.HK', '0050.HK', '0051.HK', '0052.HK', '0053.HK', '0054.HK', '0168.HK', '0056.HK',
-    #               '0057.HK', '0058.HK', '0059.HK', '0060.HK', '0888.HK', '0062.HK', '0063.HK', '0064.HK', '0065.HK',
-    #               '0066.HK', '1123.HK']
-    stock_list = ['0068.HK', '0038.HK', '0039.HK', '0040.HK', '0041.HK', '0042.HK', '0043.HK', '0044.HK', '0045.HK',
+    f = open('{}/stock_test.csv'.format(folder), 'w')
+    f.write('stock,MSE,MAPE,MAD\n')
+    stock_list = ['0001.HK', '0002.HK', '0003.HK', '0004.HK', '0005.HK', '0006.HK', '0007.HK', '0008.HK', '0009.HK',
+                  '0010.HK', '0011.HK', '0012.HK', '0013.HK', '0014.HK', '0015.HK', '0016.HK', '0017.HK', '0018.HK',
+                  '0019.HK', '0020.HK', '0021.HK', '0022.HK', '0023.HK', '0024.HK', '0025.HK', '0026.HK', '0027.HK',
+                  '0028.HK', '0029.HK', '0030.HK', '0031.HK', '0032.HK', '0700.HK', '0034.HK', '0035.HK', '0036.HK',
+                  '0068.HK', '0038.HK', '0039.HK', '0040.HK', '0041.HK', '0042.HK', '0043.HK', '0044.HK', '0045.HK',
                   '0046.HK', '0088.HK', '0050.HK', '0051.HK', '0052.HK', '0053.HK', '0054.HK', '0168.HK', '0056.HK',
                   '0057.HK', '0058.HK', '0059.HK', '0060.HK', '0888.HK', '0062.HK', '0063.HK', '0064.HK', '0065.HK',
                   '0066.HK', '1123.HK']
 
-    for stock in stock_list:
+    for stock in stock_list[:5]:
         test = InferenceSystem(stock, False)
         predict_result = test.predict_historical_data(0.8, "2006-04-14", "2016-04-15", save_data=True,
                                                       training_method=test.RANDOM_FOREST)

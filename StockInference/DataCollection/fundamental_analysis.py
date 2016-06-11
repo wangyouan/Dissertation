@@ -140,6 +140,9 @@ class FundamentalAnalysis(BaseClass):
             data_dict[date.strftime("%Y-%m-%d")] = rate
         return data_dict
 
+    def get_interest_rate(self, required_info):
+        pass
+
 
 if __name__ == "__main__":
     test = FundamentalAnalysis()

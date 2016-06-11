@@ -8,19 +8,31 @@
 
 import numpy as np
 from sklearn.decomposition import PCA
-from sklearn.preprocessing import StandardScaler
+from sklearn.preprocessing import StandardScaler, MinMaxScaler
 from pyspark.mllib.regression import LabeledPoint
 
 from StockInference.constant import Constants
 from StockInference.util.data_parse import min_max_normalize
 
 
-class DataParser(Constants):
-    def __init__(self):
-        self.data_transformer = None
-        self.standard_scale = None
+class Fun(object):
+    def fit_transform(self, data):
+        return data
 
-    def split_train_test_data(self, train_ratio, raw_data, n_components='mle'):
+    def transform(self, data):
+        return data
+
+
+class DataParser(Constants):
+    def __init__(self, n_components=None):
+        pca_transformer = PCA(n_components=n_components)
+        standard_scale = StandardScaler(with_std=True)
+        min_max_scale = MinMaxScaler(feature_range=(-1, 1))
+        self.first_transformer = pca_transformer
+        self.second_transformer = standard_scale
+        self.third_transformer = min_max_scale
+
+    def split_train_test_data(self, train_ratio, raw_data):
         """
             Base on the train ratio, will split raw data into 3 parts, one is train (normalized_label with transformed
             feature), another is test (non-normalized_label with transformed feature) the third one is the
@@ -38,20 +50,23 @@ class DataParser(Constants):
         )
         train_transformed = self.fit_transform(normalized_label)
 
-        test_transformed = self.transform(test_raw_data)
+        if test_raw_data:
+            test_transformed = self.transform(test_raw_data)
+        else:
+            test_transformed = []
         return train_transformed, test_transformed, test_raw_features
 
     def transform(self, raw_data):
         raw_features = [np.array(p.features) for p in raw_data]
-        after_pca = self.data_transformer.transform(raw_features)
-        after_normalize = self.standard_scale.transform(after_pca)
-        return [LabeledPoint(label=i.label, features=j) for i, j in zip(raw_data, after_normalize)]
+        first = self.first_transformer.transform(raw_features)
+        second = self.second_transformer.transform(first)
+        final = self.third_transformer.transform(second)
+        return [LabeledPoint(label=i.label, features=j) for i, j in zip(raw_data, final)]
 
-    def fit_transform(self, raw_data, n_components=None):
-        self.data_transformer = PCA(n_components=n_components)
-        self.standard_scale = StandardScaler()
+    def fit_transform(self, raw_data):
         raw_features = [np.array(p.features) for p in raw_data]
-        after_pca = self.data_transformer.fit_transform(raw_features)
-        after_stand = self.standard_scale.fit_transform(after_pca)
+        first = self.first_transformer.fit_transform(raw_features)
+        second = self.second_transformer.fit_transform(first)
+        final = self.third_transformer.fit_transform(second)
 
-        return [LabeledPoint(label=i.label, features=j) for i, j in zip(raw_data, after_stand)]
+        return [LabeledPoint(label=i.label, features=j) for i, j in zip(raw_data, final)]

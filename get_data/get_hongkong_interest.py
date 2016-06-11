@@ -28,7 +28,7 @@ def get_interest_rate():
         start_datetime += custom_day
 
     import pickle
-    f = open("interest_rate", 'w')
+    f = open("interest_rate.dat", 'w')
     pickle.dump(rate_dict, f)
     f.close()
 
