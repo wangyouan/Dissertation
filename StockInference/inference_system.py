@@ -19,7 +19,7 @@ from StockInference.util.date_parser import get_ahead_date
 
 
 iterations = 15
-folder = "../output/ann_{}_layer_not_adj_{}".format(4, iterations)
+folder = "output/ann_{}_layer_not_adj_{}".format(4, iterations)
 
 
 class InferenceSystem(Constants):
@@ -33,7 +33,7 @@ class InferenceSystem(Constants):
         self.test_data_features = None
         self.total_data_num = 0
         self.date_list = None
-        self.adjusted_close = False
+        self.adjusted_close = adjusted
 
     def get_train_test_data(self, train_test_ratio, start_date, end_date):
 
