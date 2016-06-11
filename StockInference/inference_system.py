@@ -19,7 +19,7 @@ from StockInference.util.date_parser import get_ahead_date
 
 
 iterations = 15
-folder = "ann_{}_layer_not_adj_{}".format(4, iterations)
+folder = "../output/ann_{}_layer_not_adj_{}".format(4, iterations)
 
 
 class InferenceSystem(Constants):
@@ -95,7 +95,7 @@ class InferenceSystem(Constants):
             # training
             input_num = len(self.train_data[0].features)
             layers = [input_num, input_num / 3 * 2, input_num / 3, 1]
-            layer_file = open("../output/{}/layers.txt".format(folder), 'w')
+            layer_file = open("{}/layers.txt".format(folder), 'w')
             layer_file.write(str(layers))
             layer_file.close()
             neural_network = NeuralNetworkSpark(layers=layers, bias=0)
@@ -127,7 +127,7 @@ class InferenceSystem(Constants):
         test_date_list = self.date_list[train_data_num:]
         if save_data:
             predict_list = predict.collect()
-            predict_file = open("../output/{}/{}.csv".format(folder, self.stock_symbol), "w")
+            predict_file = open("{}/{}.csv".format(folder, self.stock_symbol), "w")
             predict_file.write("date,origin,predict\n")
             test_date_list = test_date_list[1:]
             test_date_list.append(get_ahead_date(test_date_list[-1], -1))
@@ -142,10 +142,10 @@ class InferenceSystem(Constants):
 if __name__ == "__main__":
     import os
 
-    if not os.path.isdir('../output/{}'.format(folder)):
-        os.mkdir('../output/{}'.format(folder))
+    if not os.path.isdir(folder):
+        os.mkdir(folder)
 
-    f = open('../output/{}/stock_test.csv'.format(folder), 'w')
+    f = open('{}/stock_test.csv'.format(folder), 'w')
     f.write('stock,MSE,MAPE,MAD\n')
     stock_list = ['0001.HK', '0002.HK', '0003.HK', '0004.HK', '0005.HK', '0006.HK', '0007.HK', '0008.HK', '0009.HK',
                   '0010.HK', '0011.HK', '0012.HK', '0013.HK', '0014.HK', '0015.HK', '0016.HK', '0017.HK', '0018.HK',
