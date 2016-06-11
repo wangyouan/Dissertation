@@ -141,11 +141,14 @@ class FundamentalAnalysis(BaseClass):
         return data_dict
 
     def get_interest_rate(self, required_info):
-        pass
+        import pkg_resources
+        my_data = pkg_resources.resource_exists('StockInference', 'interest_data.dat')
+        print my_data
 
 
 if __name__ == "__main__":
     test = FundamentalAnalysis()
     test.set_start_date("2012-03-04")
     test.set_end_date("2013-03-04")
-    print test.fundamental_analysis([{test.GOLDEN_PRICE: True}], fa_type=test.FA_RAW_DATA)
+    test.get_interest_rate(None)
+    # print test.fundamental_analysis([{test.GOLDEN_PRICE: True}], fa_type=test.FA_RAW_DATA)
