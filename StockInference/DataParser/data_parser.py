@@ -36,9 +36,9 @@ def get_transformer(transformer_type):
 
 class DataParser(Constants):
     def __init__(self, n_components=None):
-        self.first_transformer = get_transformer(n_components)
-        self.second_transformer = get_transformer(1)
-        self.third_transformer = get_transformer(3)
+        self.first_transformer = get_transformer(1)
+        self.second_transformer = get_transformer(n_components)
+        self.third_transformer = get_transformer(1)
 
     def split_train_test_data(self, train_ratio, raw_data):
         """

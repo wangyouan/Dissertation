@@ -89,14 +89,14 @@ class InferenceSystem(Constants):
         # import pickle
         # pickle.dump(raw_data, raw_data_file)
         # raw_data_file.close()
-        f = open('text.csv', 'w')
-        f.write(
-            'open,high,low,close,macd1,macd2,sma_3,sma_13,sma_21,ema_5,ema_13,ema_21,roc_13,roc_21,rsi_9,rsi_14,rsi_21,us10y,us30y,fxi,hsi,usdhkd,eurhkd,oneyear,halfyear,overnight,golden_price\n')
-        for data in raw_data:
-            f.write(','.join(map(str, data.features)))
-            f.write('\n')
-        f.close()
-        raise ValueError("Warn SB")
+        # f = open('text.csv', 'w')
+        # f.write(
+        #     'open,high,low,close,macd1,macd2,sma_3,sma_13,sma_21,ema_5,ema_13,ema_21,roc_13,roc_21,rsi_9,rsi_14,rsi_21,us10y,us30y,fxi,hsi,usdhkd,eurhkd,oneyear,halfyear,overnight,golden_price\n')
+        # for data in raw_data:
+        #     f.write(','.join(map(str, data.features)))
+        #     f.write('\n')
+        # f.close()
+        # raise ValueError("Warn SB")
 
         # Split train and test
         n_components = None
