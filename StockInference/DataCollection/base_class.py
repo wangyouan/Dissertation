@@ -58,6 +58,11 @@ class BaseClass(Constants):
             self._end_date = date
         self._true_end_date = get_ahead_date(self._end_date, 1)
 
+    def get_date_list(self):
+        if not self._date_list:
+            self.generate_date_list()
+        return self._date_list[:]
+
     def generate_date_list(self, start_date=None, end_date=None):
         if start_date is None:
             start_date = self._start_date.split('-')
@@ -95,9 +100,6 @@ class BaseClass(Constants):
         pca_transformer = PCA(n_components=n_components)
         pca_transformer.fit(data)
         return pca_transformer
-
-    def get_date_list(self):
-        return self._date_list[:]
 
 
 if __name__ == "__main__":

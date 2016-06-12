@@ -11,10 +11,11 @@ import pickle
 
 import numpy as np
 import quandl
+from pandas.tseries.offsets import CustomBusinessDay
 
 from StockInference.DataCollection.base_class import BaseClass
 from StockInference.util.get_history_stock_price import get_all_data_about_stock
-from StockInference.util.date_parser import get_ahead_date
+from StockInference.util.date_parser import get_ahead_date, get_united_states_market_info
 from StockInference.util.get_hk_interest_rate import get_hk_interest_rate
 
 data_file_name = "interest_rate.dat"
@@ -22,14 +23,13 @@ data_file_name = "interest_rate.dat"
 
 def load_interest_rate():
     path = os.path.join(os.path.dirname(__file__), data_file_name)
-    print path
     if os.path.isfile(path):
         f = open(path)
         raw_data = pickle.load(f)
         f.close()
         return raw_data
     else:
-        raise Exception("cannot find data file location")
+        print ("cannot find data file location")
         return {}
 
 
@@ -63,12 +63,17 @@ class FundamentalAnalysis(BaseClass):
         quandl.ApiConfig.api_key = "RYdPmBZoFyLXxg1RQ3fY"
 
     def _get_bond_price(self, symbol, location=None):
-        bond_info = get_all_data_about_stock(symbol=symbol, start_date=get_ahead_date(self.get_start_date(), 5),
+        bond_info = get_all_data_about_stock(symbol=symbol, start_date=get_ahead_date(self.get_start_date(), 20),
                                              end_date=self.get_true_end_date(), remove_zero_volume=False)
         bond_price_map = {}
         for i in bond_info:
             bond_price_map[i[0]] = float(i[4])
-        return bond_price_map
+        if location == self.HONG_KONG:
+            return bond_price_map
+        elif location == self.UNITED_STATES:
+            price_info = get_united_states_market_info(bond_price_map, self.get_date_list(),
+                                                       get_ahead_date(self.get_start_date(), 10))
+            return price_info
 
     def fa_pca_data_reduction(self, data):
         if self.fa_pca_transformer is None:
@@ -99,9 +104,8 @@ class FundamentalAnalysis(BaseClass):
             return self.raw_fundamental_analysis(required_info=required_info, ratio=False)
 
     def raw_fundamental_analysis(self, required_info, ratio=False):
-        if not self._date_list:
-            self.generate_date_list()
-        calculated_info = [[i] for i in self._date_list]
+        date_list = self.get_date_list()
+        calculated_info = [[i] for i in date_list]
         for info in required_info:
             if isinstance(info, str):
                 if info in self._bond_label_dict_hk:
@@ -139,7 +143,9 @@ class FundamentalAnalysis(BaseClass):
             rate_info = self.get_quandl_data('ECB/EURHKD')
 
         elif from_cur == self.USD and to_cur == self.HKD:
-            rate_info = self.get_quandl_data('FRED/DEXHKUS')
+            rate_info = self.get_quandl_data('FRED/DEXHKUS', start_date=get_ahead_date(self.get_start_date(), 20))
+            rate_info = get_united_states_market_info(rate_info, self.get_date_list(),
+                                                      get_ahead_date(self.get_start_date(), 10))
 
         elif from_cur == self.AUD and to_cur == self.HKD:
             rate_info = self.get_quandl_data('RBA/FXRHKD')
@@ -164,11 +170,10 @@ class FundamentalAnalysis(BaseClass):
     def get_interest_rate(self, required_info):
 
         # load interest rate file form data file
-        if self._date_list is None:
-            self.generate_date_list()
+        date_list = self.get_date_list()
         raw_data = load_interest_rate()
         data_list = {}
-        for date in self._date_list:
+        for date in date_list:
             if date in raw_data and required_info in raw_data[date] and raw_data[date][required_info] is not None:
                 data_list[date] = float(raw_data[date][required_info])
             else:

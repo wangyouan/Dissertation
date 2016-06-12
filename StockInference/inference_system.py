@@ -21,7 +21,7 @@ from StockInference.util.date_parser import get_ahead_date
 
 iterations = 20
 # folder = "output/random_forest_not_adj".format(4, iterations)
-folder = "output/ann_{}_layer_not_adj_{}_pca_mle".format(4, iterations)
+folder = "output/ann_{}_layer_not_adj_{}_pca_none".format(4, iterations)
 
 if sys.platform == 'darwin':
     folder = "../{}".format(folder)
@@ -41,7 +41,7 @@ class InferenceSystem(Constants):
         self.adjusted_close = adjusted
         self.model = None
         log4jLogger = self.sc._jvm.org.apache.log4j
-        self.logger = log4jLogger.LogManager.getLogger(__name__)
+        self.logger = log4jLogger.LogManager.getLogger(self.__class__.__name__)
 
     def get_train_test_data(self, train_test_ratio, start_date, end_date):
         self.logger.info('#################################################################')
@@ -89,10 +89,17 @@ class InferenceSystem(Constants):
         # import pickle
         # pickle.dump(raw_data, raw_data_file)
         # raw_data_file.close()
-        # raise ValueError("Warn SB")
+        f = open('text.csv', 'w')
+        f.write(
+            'open,high,low,close,macd1,macd2,sma_3,sma_13,sma_21,ema_5,ema_13,ema_21,roc_13,roc_21,rsi_9,rsi_14,rsi_21,us10y,us30y,fxi,hsi,usdhkd,eurhkd,oneyear,halfyear,overnight,golden_price\n')
+        for data in raw_data:
+            f.write(','.join(map(str, data.features)))
+            f.write('\n')
+        f.close()
+        raise ValueError("Warn SB")
 
         # Split train and test
-        n_components = 'mle'
+        n_components = None
         data_parser = DataParser(n_components=n_components)
         self.train_data, self.test_data, self.test_data_features = data_parser.split_train_test_data(
             train_ratio=train_test_ratio, raw_data=raw_data)
