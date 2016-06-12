@@ -6,6 +6,7 @@
 # Author: Mark Wang
 # Date: 1/6/2016
 
+import datetime
 
 import pandas as pd
 from sklearn.decomposition import PCA
@@ -25,11 +26,21 @@ class BaseClass(Constants):
         self._stock_symbol = None
         self._adj_close = False
 
-    def get_start_date(self):
-        return self._start_date
+    def get_start_date(self, date_type='str'):
+        if date_type == 'str':
+            return self._start_date
+        else:
+            date_list = self._start_date.split('-')
+            date_list = map(int, date_list)
+            return datetime.datetime(date_list[0], date_list[1], date_list[2])
 
-    def get_end_date(self):
-        return self._end_date
+    def get_end_date(self, date_type='str'):
+        if date_type == 'str':
+            return self._end_date
+        else:
+            date_list = self._end_date.split('-')
+            date_list = map(int, date_list)
+            return datetime.datetime(date_list[0], date_list[1], date_list[2])
 
     def get_true_end_date(self):
         return self._true_end_date

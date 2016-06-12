@@ -91,5 +91,8 @@ class Constants(object):
     ONE_MONTH = "1 Month"
     TWO_MONTHS = "2 Months"
     THREE_MONTHS = "3 Months"
-    HALF_YEAR = "4 Months"
+    HALF_YEAR = "6 Months"
     ONE_YEAR = "12 Months"
+
+    UNITED_STATES = "United States"
+    HONG_KONG="Hong Kong"

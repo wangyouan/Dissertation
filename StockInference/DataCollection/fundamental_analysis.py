@@ -17,7 +17,6 @@ from StockInference.util.get_history_stock_price import get_all_data_about_stock
 from StockInference.util.date_parser import get_ahead_date
 from StockInference.util.get_hk_interest_rate import get_hk_interest_rate
 
-
 data_file_name = "interest_rate.dat"
 
 
@@ -46,44 +45,29 @@ def save_interest_rate(raw_data):
 class FundamentalAnalysis(BaseClass):
     def __init__(self):
         BaseClass.__init__(self)
-        self._bond_label_dict = {
-            self.US10Y_BOND: "^TNX",
-            self.US30Y_BOND: "^TYX",
-            self.HSI: "^HSI",
-            self.FXI: "FXI",
+        self._bond_label_dict_hk = {
             self.IC: "2801.HK",
             self.IA: "2829.HK",
             self.IA300: "2846.HK",
             self.IMSCI: "3010.HK",
+        }
+        self._bond_label_dict_us = {
+            self.US10Y_BOND: "^TNX",
+            self.US30Y_BOND: "^TYX",
+            self.HSI: "^HSI",
+            self.FXI: "FXI",
         }
         self.fa_pca_transformer = None
         self.fa_min_list = []
         self.fa_max_list = []
         quandl.ApiConfig.api_key = "RYdPmBZoFyLXxg1RQ3fY"
 
-    def _get_bond_price(self, symbol, ratio):
+    def _get_bond_price(self, symbol, location=None):
         bond_info = get_all_data_about_stock(symbol=symbol, start_date=get_ahead_date(self.get_start_date(), 5),
-                                             end_date=self.get_true_end_date())
+                                             end_date=self.get_true_end_date(), remove_zero_volume=False)
         bond_price_map = {}
-        if not ratio:
-            for i in bond_info:
-                bond_price_map[i[0]] = float(i[4])
-
-        else:
-
-            bond_price_index = {}
-            for i in range(len(bond_info)):
-                bond_price_index[bond_info[i][0]] = i
-
-            for date in self._date_list:
-                if date not in bond_price_index:
-                    bond_price_map[date] = 0
-                else:
-                    today_index = bond_price_index[date]
-                    today_price = float(bond_info[today_index][4])
-                    last_day_price = float(bond_info[today_index - 1][4])
-                    bond_price_map[date] = (today_price - last_day_price) / last_day_price
-
+        for i in bond_info:
+            bond_price_map[i[0]] = float(i[4])
         return bond_price_map
 
     def fa_pca_data_reduction(self, data):
@@ -120,9 +104,12 @@ class FundamentalAnalysis(BaseClass):
         calculated_info = [[i] for i in self._date_list]
         for info in required_info:
             if isinstance(info, str):
-                if info in self._bond_label_dict:
-                    bond_price = self._get_bond_price(self._bond_label_dict[info], ratio=ratio)
+                if info in self._bond_label_dict_hk:
+                    bond_price = self._get_bond_price(self._bond_label_dict_hk[info])
 
+                    calculated_info = self._merge_info(calculated_info=calculated_info, info_dict=bond_price)
+                elif info in self._bond_label_dict_us:
+                    bond_price = self._get_bond_price(self._bond_label_dict_us[info], location=self.UNITED_STATES)
                     calculated_info = self._merge_info(calculated_info=calculated_info, info_dict=bond_price)
                 elif info in [self.ONE_MONTH, self.OVER_NIGHT, self.ONE_WEEK, self.ONE_YEAR, self.HALF_YEAR,
                               self.THREE_MONTHS, self.TWO_MONTHS]:
@@ -131,7 +118,8 @@ class FundamentalAnalysis(BaseClass):
             elif isinstance(info, dict):
                 if self.FROM in info:
                     currency_exchange_rate = self._get_currency_exchange_rate(info[self.FROM], info[self.TO])
-                    calculated_info = self._merge_info(calculated_info=calculated_info, info_dict=currency_exchange_rate)
+                    calculated_info = self._merge_info(calculated_info=calculated_info,
+                                                       info_dict=currency_exchange_rate)
                 elif self.GOLDEN_PRICE in info:
                     golden_price = self._get_golden_price_in_cny(ratio=info.get(self.GOLDEN_PRICE, False))
                     calculated_info = self._merge_info(calculated_info=calculated_info, info_dict=golden_price)
@@ -148,13 +136,13 @@ class FundamentalAnalysis(BaseClass):
     def _get_currency_exchange_rate(self, from_cur, to_cur):
         rate_info = None
         if from_cur == self.EUR and to_cur == self.HKD:
-            rate_info = self.get_quandl_data('ECB/EURHKD', transform='rdiff')
+            rate_info = self.get_quandl_data('ECB/EURHKD')
 
         elif from_cur == self.USD and to_cur == self.HKD:
-            rate_info = self.get_quandl_data('FRED/DEXHKUS', transform='rdiff')
+            rate_info = self.get_quandl_data('FRED/DEXHKUS')
 
         elif from_cur == self.AUD and to_cur == self.HKD:
-            rate_info = self.get_quandl_data('RBA/FXRHKD', transform='rdiff')
+            rate_info = self.get_quandl_data('RBA/FXRHKD')
 
         return rate_info
 
@@ -205,7 +193,8 @@ if __name__ == "__main__":
     test = FundamentalAnalysis()
     test.set_start_date("2006-04-14")
     test.set_end_date("2006-05-31")
-    a = test.get_interest_rate(test.ONE_YEAR)
+    a = test.fundamental_analysis([test.US10Y_BOND], test.FA_RAW_DATA)
     import pprint
+
     pprint.pprint(a, width=150)
     # print test.fundamental_analysis([{test.GOLDEN_PRICE: True}], fa_type=test.FA_RAW_DATA)
