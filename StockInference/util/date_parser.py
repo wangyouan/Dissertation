@@ -20,3 +20,13 @@ def get_ahead_date(date_to_change, ahead_days):
     date_object = datetime.datetime(year=int(date_list[0]), month=int(date_list[1]), day=int(date_list[2]))
     date_object -= ahead_days * custom_business_day
     return date_object.strftime("%Y-%m-%d")
+
+
+def string_to_datetime(input_date):
+    if isinstance(input_date, str):
+        date_list = input_date.split('-')
+        date_list = map(int, date_list)
+        new_date = datetime.datetime(date_list[0], date_list[1], date_list[2])
+        return new_date
+    else:
+        return input_date

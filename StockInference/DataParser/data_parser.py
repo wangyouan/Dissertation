@@ -30,7 +30,7 @@ class DataParser(Constants):
         min_max_scale = MinMaxScaler(feature_range=(-1, 1))
         self.first_transformer = StandardScaler()
         self.second_transformer = pca_transformer
-        self.third_transformer = standard_scale
+        self.third_transformer = MinMaxScaler(feature_range=(-1, 1))
 
     def split_train_test_data(self, train_ratio, raw_data):
         """

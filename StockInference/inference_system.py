@@ -22,7 +22,7 @@ from StockInference.util.date_parser import get_ahead_date
 
 iterations = 20
 # folder = "output/random_forest_not_adj".format(4, iterations)
-folder = "output/ann_{}_layer_not_adj_{}_pca_none".format(4, iterations)
+folder = "output/ann_{}_layer_not_adj_{}_pca_mle".format(4, iterations)
 
 if sys.platform == 'darwin':
     folder = "../{}".format(folder)
@@ -88,7 +88,7 @@ class InferenceSystem(Constants):
         # raise ValueError("Warn SB")
 
         # Split train and test
-        n_components = None
+        n_components = 'mle'
         data_parser = DataParser(n_components=n_components)
         self.train_data, self.test_data, self.test_data_features = data_parser.split_train_test_data(
             train_ratio=train_test_ratio, raw_data=raw_data)
