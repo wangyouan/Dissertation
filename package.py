@@ -17,7 +17,7 @@ setup(
     description=("A stock prediction system based on Spark"),
     keywords="Spark, Neural network",
     include_package_data=True,
-    data_files=[("rate_data", ["StockInference/rate_data/interest_rate.dat"])],
+    data_files=[("StockInference/DataCollection", ["StockInference/DataCollection/interest_rate.dat"])],
     install_requires=[
         'setuptools',
         'scikit-learn',

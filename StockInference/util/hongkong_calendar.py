@@ -50,3 +50,9 @@ class HongKongCalendar(AbstractHolidayCalendar):
             holiday_name = holiday('td')[1].text
             self.rules.append(Holiday(name=holiday_name, year=year, day=int(detail_date[0]),
                                       month=self.month_dict[detail_date[1]]))
+
+
+if __name__ == "__main__":
+    cal = HongKongCalendar(2006, 2007)
+    a = cal.holidays()
+    print

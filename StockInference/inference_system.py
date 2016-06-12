@@ -53,31 +53,33 @@ class InferenceSystem(Constants):
 
         # collect data, will do some preliminary process to stock process
         data_collection = DataCollect(stock_symbol=self.stock_symbol)
-        required_info = {
-            self.STOCK_PRICE: {self.DATA_PERIOD: 5},
-            self.STOCK_INDICATOR: [
-                (self.MACD, {self.MACD_FAST_PERIOD: 12, self.MACD_SLOW_PERIOD: 26, self.MACD_TIME_PERIOD: 9}),
-                (self.MACD, {self.MACD_FAST_PERIOD: 7, self.MACD_SLOW_PERIOD: 14, self.MACD_TIME_PERIOD: 9}),
-                (self.SMA, 3),
-                (self.SMA, 13),
-                (self.SMA, 21),
-                (self.EMA, 5),
-                (self.EMA, 13),
-                (self.EMA, 21),
-                (self.ROC, 13),
-                (self.ROC, 21),
-                (self.RSI, 9),
-                (self.RSI, 14),
-                (self.RSI, 21),
-            ],
-            self.FUNDAMENTAL_ANALYSIS: [self.US10Y_BOND, self.US30Y_BOND, self.FXI,
-                                        # self.IC, self.IA, # comment this  two because this two bond is a little newer
-                                        self.HSI, {self.FROM: self.USD, self.TO: self.HKD},
-                                        {self.FROM: self.EUR, self.TO: self.HKD},
-                                        {self.FROM: self.AUD, self.TO: self.HKD},
-                                        {self.GOLDEN_PRICE: False}]
-        }
-        raw_data = data_collection.get_raw_data(start_date=start_date, end_date=end_date, using_ratio=True,
+        # required_info = {
+        #     self.STOCK_PRICE: {self.DATA_PERIOD: 5},
+        #     self.STOCK_INDICATOR: [
+        #         (self.MACD, {self.MACD_FAST_PERIOD: 12, self.MACD_SLOW_PERIOD: 26, self.MACD_TIME_PERIOD: 9}),
+        #         (self.MACD, {self.MACD_FAST_PERIOD: 7, self.MACD_SLOW_PERIOD: 14, self.MACD_TIME_PERIOD: 9}),
+        #         (self.SMA, 3),
+        #         (self.SMA, 13),
+        #         (self.SMA, 21),
+        #         (self.EMA, 5),
+        #         (self.EMA, 13),
+        #         (self.EMA, 21),
+        #         (self.ROC, 13),
+        #         (self.ROC, 21),
+        #         (self.RSI, 9),
+        #         (self.RSI, 14),
+        #         (self.RSI, 21),
+        #     ],
+        #     self.FUNDAMENTAL_ANALYSIS: [self.US10Y_BOND, self.US30Y_BOND, self.FXI,
+        #                                 # self.IC, self.IA, # comment this  two because this two bond is a little newer
+        #                                 self.HSI, {self.FROM: self.USD, self.TO: self.HKD},
+        #                                 {self.FROM: self.EUR, self.TO: self.HKD},
+        #                                 # {self.FROM: self.AUD, self.TO: self.HKD},
+        #                                 self.ONE_YEAR, self.HALF_YEAR, self.OVER_NIGHT,
+        #                                 {self.GOLDEN_PRICE: False}]
+        # }
+        required_info = {self.FUNDAMENTAL_ANALYSIS: [self.ONE_YEAR]}
+        raw_data = data_collection.get_raw_data(start_date=start_date, end_date=end_date, using_ratio=False,
                                                 using_adj=self.adjusted_close, label_info=self.STOCK_CLOSE,
                                                 required_info=required_info)
         # debug

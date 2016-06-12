@@ -15,22 +15,30 @@ from StockInference.constant import Constants
 from StockInference.util.data_parse import min_max_normalize
 
 
-class Fun(object):
-    def fit_transform(self, data):
-        return data
+class Fun():
+    def fit_transform(self, raw_data):
+        return raw_data
 
-    def transform(self, data):
-        return data
+    def transform(self, raw_data):
+        return raw_data
+
+
+def get_transformer(transformer_type):
+    if transformer_type == 1:
+        return MinMaxScaler(feature_range=(-1, 1))
+    elif transformer_type == 2:
+        return StandardScaler()
+    elif transformer_type == 3:
+        return Fun()
+    else:
+        return PCA(transformer_type)
 
 
 class DataParser(Constants):
     def __init__(self, n_components=None):
-        pca_transformer = PCA(n_components=n_components)
-        standard_scale = StandardScaler()
-        min_max_scale = MinMaxScaler(feature_range=(-1, 1))
-        self.first_transformer = StandardScaler()
-        self.second_transformer = pca_transformer
-        self.third_transformer = MinMaxScaler(feature_range=(-1, 1))
+        self.first_transformer = get_transformer(1)
+        self.second_transformer = get_transformer(n_components)
+        self.third_transformer = get_transformer(1)
 
     def split_train_test_data(self, train_ratio, raw_data):
         """

@@ -35,14 +35,13 @@ class DataCollect(StockPriceHandler, StockIndicatorHandler, FundamentalAnalysis)
         :param normalized_method: using which method to do normalization a function takes in 3 parameters and return one
         :return: an RDD data structure based on the required info
         """
-        if not self._stock_price or self._start_date != start_date or self._end_date != end_date:
+        if not self._stock_price or self.get_start_date() != start_date or self.get_end_date() != end_date:
             self._removed_date = set()
-            self._start_date = start_date
-            self._end_date = end_date
+            self.set_end_date(end_date)
+            self.set_start_date(start_date)
             self._stock_price = get_all_data_about_stock(symbol=self._stock_symbol, start_date=start_date,
                                                          end_date=end_date)
             self._date_list = [i[0] for i in self._stock_price[:-1]]
-            self._true_end_date = self._date_list[-1]
 
         if normalized_method is None or normalized_method == self.MIN_MAX:
             normalized_method = min_max_normalize
@@ -76,14 +75,13 @@ class DataCollect(StockPriceHandler, StockIndicatorHandler, FundamentalAnalysis)
     def get_raw_data(self, start_date, end_date, label_info, required_info, using_ratio=False, using_adj=False):
         self._adj_close = using_adj
 
-        if not self._stock_price or self._start_date != start_date or self._end_date != end_date:
+        if not self._stock_price or self.get_start_date() != start_date or self.get_end_date() != end_date:
             self._removed_date = set()
-            self._start_date = start_date
-            self._end_date = end_date
-            self._stock_price = get_all_data_about_stock(symbol=self._stock_symbol, start_date=start_date,
-                                                         end_date=end_date)
+            self.set_start_date(start_date)
+            self.set_end_date(end_date)
+            self._stock_price = get_all_data_about_stock(symbol=self._stock_symbol, start_date=self.get_start_date(),
+                                                         end_date=self.get_end_date())
             self._date_list = [i[0] for i in self._stock_price[:-1]]
-            self._true_end_date = self._date_list[-1]
 
         if label_info == self.STOCK_CLOSE:
             if self._adj_close:
@@ -95,8 +93,10 @@ class DataCollect(StockPriceHandler, StockIndicatorHandler, FundamentalAnalysis)
                 label_list = [i[1] / i[4] * i[6] for i in self._stock_price[1:]]
             else:
                 label_list = [i[1] for i in self._stock_price[1:]]
-
-        collected_data = self.handle_stock_price(required_info[self.STOCK_PRICE][self.DATA_PERIOD])
+        if self.STOCK_PRICE in required_info:
+            collected_data = self.handle_stock_price(required_info[self.STOCK_PRICE][self.DATA_PERIOD])
+        else:
+            collected_data = [i[1:] for i in self._stock_price[:-1]]
 
         if self.STOCK_INDICATOR in required_info:
             indicator_info = self.handle_indicator(required_info[self.STOCK_INDICATOR])

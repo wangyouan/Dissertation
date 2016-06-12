@@ -6,12 +6,12 @@
 # Author: Mark Wang
 # Date: 1/6/2016
 
-import datetime
 
 import pandas as pd
 from sklearn.decomposition import PCA
 
 from StockInference.constant import Constants
+from StockInference.util.date_parser import custom_business_day, get_ahead_date, is_holiday
 
 
 class BaseClass(Constants):
@@ -31,12 +31,21 @@ class BaseClass(Constants):
     def get_end_date(self):
         return self._end_date
 
+    def get_true_end_date(self):
+        return self._true_end_date
+
     def set_start_date(self, date):
-        self._start_date = date
+        if is_holiday(date):
+            self._start_date = get_ahead_date(date, -1)
+        else:
+            self._start_date = date
 
     def set_end_date(self, date):
-        self._end_date = date
-        self._true_end_date = date
+        if is_holiday(date):
+            self._end_date = get_ahead_date(date, 1)
+        else:
+            self._end_date = date
+        self._true_end_date = get_ahead_date(self._end_date, 1)
 
     def generate_date_list(self, start_date=None, end_date=None):
         if start_date is None:
@@ -56,7 +65,7 @@ class BaseClass(Constants):
         self._date_list = []
         while start_date <= end_date:
             self._date_list.append(start_date.strftime("%Y-%m-%d"))
-            start_date += self.custom_business_day
+            start_date += custom_business_day
 
     def _merge_info(self, calculated_info, info_dict):
 

@@ -72,7 +72,7 @@ class StockIndicatorHandler(BaseClass):
         return macd[-self._data_num:]
 
     def _get_stock_price_data(self, ahead_days):
-        new_start_date = get_ahead_date(self._start_date, ahead_days * 2)
+        new_start_date = get_ahead_date(self.get_start_date(), ahead_days * 2)
         ahead_data = get_all_data_about_stock(self._stock_symbol, start_date=new_start_date,
                                               end_date=self.get_start_date())[:-1]
         ahead_data.extend(self._stock_price)
