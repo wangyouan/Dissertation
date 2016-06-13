@@ -16,11 +16,9 @@ from StockInference.util.get_history_stock_price import get_all_data_about_stock
 from StockInference.util.date_parser import get_ahead_date, get_united_states_market_info
 from StockInference.util.get_hk_interest_rate import get_hk_interest_rate
 
-data_file_name = "interest_rate.dat"
-
 
 def load_interest_rate(file_path):
-    if os.path.isfile(file_path):
+    if file_path is not None and os.path.isfile(file_path):
         f = open(file_path)
         raw_data = pickle.load(f)
         f.close()
@@ -31,6 +29,8 @@ def load_interest_rate(file_path):
 
 
 def save_interest_rate(file_path, raw_data):
+    if file_path is None:
+        return
     try:
         f = open(file_path, 'w')
         pickle.dump(raw_data, f)
@@ -42,17 +42,17 @@ def save_interest_rate(file_path, raw_data):
 class FundamentalAnalysis(BaseClass):
     def __init__(self, logger=None):
         BaseClass.__init__(self, logger)
+        self._bond_label_dict_us = {
+            self.US10Y_BOND: "^TNX",
+            self.US30Y_BOND: "^TYX",
+            self.FXI: "FXI",
+        }
         self._bond_label_dict_hk = {
+            self.HSI: "^HSI",
             self.IC: "2801.HK",
             self.IA: "2829.HK",
             self.IA300: "2846.HK",
             self.IMSCI: "3010.HK",
-        }
-        self._bond_label_dict_us = {
-            self.US10Y_BOND: "^TNX",
-            self.US30Y_BOND: "^TYX",
-            self.HSI: "^HSI",
-            self.FXI: "FXI",
         }
         self.fa_pca_transformer = None
         self.fa_min_list = []

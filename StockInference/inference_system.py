@@ -38,6 +38,7 @@ class InferenceSystem(Constants):
         self.test_data = None
         self.test_data_features = None
         self.total_data_num = 0
+        self.data_parser = None
         self.date_list = []
         log4jLogger = self.sc._jvm.org.apache.log4j
         self.logger = log4jLogger.LogManager.getLogger(self.__class__.__name__)
@@ -86,7 +87,7 @@ class InferenceSystem(Constants):
         if features is None:
             features = required_info
 
-        # required_info = {self.FUNDAMENTAL_ANALYSIS: [self.ONE_YEAR]}
+        # features = {self.FUNDAMENTAL_ANALYSIS: [self.ONE_YEAR]}
         self.logger.info("No previous data, will collected them from Internet")
         raw_data = data_collection.get_raw_data(label_info=features[self.PRICE_TYPE], required_info=features)
 
@@ -107,8 +108,8 @@ class InferenceSystem(Constants):
 
         # Split train and test
         n_components = None
-        data_parser = DataParser(n_components=n_components)
-        self.train_data, self.test_data, self.test_data_features = data_parser.split_train_test_data(
+        self.data_parser = DataParser(n_components=n_components)
+        self.train_data, self.test_data, self.test_data_features = self.data_parser.split_train_test_data(
             train_ratio=train_test_ratio, raw_data=raw_data)
         self.total_data_num = len(raw_data)
         self.date_list = data_collection.get_date_list()

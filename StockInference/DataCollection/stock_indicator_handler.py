@@ -66,26 +66,33 @@ class StockIndicatorHandler(BaseClass):
         return indicator_data.tolist()
 
     def get_ROC(self, period):
+        self.logger.debug("Get ROC of period {}".format(period))
         data = self._get_stock_price_data(period)
         return abstract.ROC(data, timeperiod=period)[-self._data_num:]
 
     def get_RSI(self, period):
+        self.logger.debug("Get RSI of period {}".format(period))
         data = self._get_stock_price_data(period)
         return abstract.RSI(data, timeperiod=period)[-self._data_num:]
 
     def get_EMA(self, period, price=None):
+        self.logger.debug("Get EMA of period {}".format(period))
         data = self._get_stock_price_data(period)
         if price is None:
             price = self.STOCK_CLOSE
         return abstract.EMA(data, timeperiod=period, price=price)[-self._data_num:]
 
     def get_SMA(self, period, price=None):
+        self.logger.debug("Get SMA of period {}".format(period))
         data = self._get_stock_price_data(period)
         if price is None:
             price = self.STOCK_CLOSE
         return abstract.SMA(data, timeperiod=period, price=price)[-self._data_num:]
 
     def get_MACD(self, slow_period, fast_period, signal_period):
+        self.logger.debug(
+            "Get MACD with slow period {}, fast period {}, signal period {}".format(slow_period, fast_period,
+                                                                                    signal_period))
         additional_date = slow_period + signal_period + fast_period
         data = self._get_stock_price_data(additional_date * 2)
         macd, macd_signal, macd_hist = abstract.MACD(data, fast_period, slow_period, signal_period)

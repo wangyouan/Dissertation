@@ -12,6 +12,52 @@ import time
 
 from StockInference.inference_system import InferenceSystem
 from StockInference.util.data_parse import get_MAD, get_MAPE, get_MSE
+from StockInference.constant import Constants
+
+const = Constants()
+
+required_info = {
+    const.PRICE_TYPE: const.STOCK_CLOSE,
+    const.STOCK_PRICE: {const.DATA_PERIOD: 5},
+    const.STOCK_INDICATOR: [
+        (const.MACD, {
+            const.MACD_FAST_PERIOD: 12,
+            const.MACD_SLOW_PERIOD: 26,
+            const.MACD_TIME_PERIOD: 9
+        }),
+        (const.MACD, {
+            const.MACD_FAST_PERIOD: 7,
+            const.MACD_SLOW_PERIOD: 14,
+            const.MACD_TIME_PERIOD: 9
+        }),
+        (const.SMA, 3),
+        (const.SMA, 13),
+        (const.SMA, 21),
+        (const.EMA, 5),
+        (const.EMA, 13),
+        (const.EMA, 21),
+        (const.ROC, 13),
+        (const.ROC, 21),
+        (const.RSI, 9),
+        (const.RSI, 14),
+        (const.RSI, 21),
+    ],
+    const.FUNDAMENTAL_ANALYSIS: [
+        const.US10Y_BOND,
+        const.US30Y_BOND,
+        const.FXI,
+        # const.IC,
+        # const.IA, # comment this  two because this two bond is a little newer
+        const.HSI,
+        {const.FROM: const.USD, const.TO: const.HKD},
+        {const.FROM: const.EUR, const.TO: const.HKD},
+        # {const.FROM: const.AUD, const.TO: const.HKD},
+        const.ONE_YEAR,
+        const.HALF_YEAR,
+        const.OVER_NIGHT,
+        const.GOLDEN_PRICE,
+    ]
+}
 
 output_path = 'output'
 data_path = 'data'
@@ -31,8 +77,7 @@ stock_list = ['0001.HK', '0002.HK', '0003.HK', '0004.HK', '0005.HK', '0006.HK', 
               '0057.HK', '0058.HK', '0059.HK', '0060.HK', '0888.HK', '0062.HK', '0063.HK', '0064.HK', '0065.HK',
               '0066.HK', '1123.HK']
 
-for method in [InferenceSystem.ARTIFICIAL_NEURAL_NETWORK, InferenceSystem.RANDOM_FOREST,
-               InferenceSystem.LINEAR_REGRESSION][:1]:
+for method in [const.ARTIFICIAL_NEURAL_NETWORK, const.RANDOM_FOREST, const.LINEAR_REGRESSION][:1]:
 
     new_file_path = os.path.join(output_path, method)
     if not os.path.isdir(new_file_path):
@@ -41,6 +86,7 @@ for method in [InferenceSystem.ARTIFICIAL_NEURAL_NETWORK, InferenceSystem.RANDOM
     f = open(os.path.join(new_file_path, "stock_info.csv"), 'w')
     f.write('stock,MSE,MAPE,MAD\n')
     for stock in stock_list:
+
         # for stock in ["0033.HK"]:
         specific_file_path = os.path.join(new_file_path, stock[:4])
         test = InferenceSystem(stock)
@@ -48,7 +94,7 @@ for method in [InferenceSystem.ARTIFICIAL_NEURAL_NETWORK, InferenceSystem.RANDOM
                                                       training_method=method,
                                                       data_folder_path=data_path,
                                                       output_file_path=specific_file_path,
-                                                      load_model=False)
+                                                      load_model=False, features=required_info)
         mse = get_MSE(predict_result)
         mape = get_MAPE(predict_result)
         mad = get_MAD(predict_result)

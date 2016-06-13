@@ -31,6 +31,7 @@ class BaseClass(Constants):
         self._data_file_path = None
         self._interest_rate_path = None
         self._data_num = None
+        self.one_day_info = None
         if logger is None:
             self.logger = logging.getLogger(self.__class__.__name__)
         else:

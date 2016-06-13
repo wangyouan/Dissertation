@@ -20,15 +20,41 @@ class DataCollect(StockPriceHandler, StockIndicatorHandler, FundamentalAnalysis)
         StockIndicatorHandler.__init__(self, logger)
         StockPriceHandler.__init__(self, logger)
         FundamentalAnalysis.__init__(self, logger)
+        self.one_day_info = (start_date == end_date)
         self._stock_symbol = stock_symbol
         self.set_start_date(start_date)
         self.set_end_date(end_date)
         self.set_data_file_path(data_file_path)
 
+    def get_one_day_info(self, required_info):
+        self._stock_price = get_all_data_about_stock(symbol=self._stock_symbol, start_date=self.get_start_date(),
+                                                     end_date=self.get_start_date(), remove_zero_volume=False)
+        self.set_date_list([self.get_start_date()])
+
+        if self.STOCK_PRICE in required_info:
+            calculated_data = self.handle_stock_price(required_info[self.STOCK_PRICE][self.DATA_PERIOD])
+        else:
+            calculated_data = [[]]
+
+        if self.STOCK_INDICATOR in required_info:
+            self.logger.info("Start to get technique indicators")
+            indicator_info = self.handle_indicator(required_info[self.STOCK_INDICATOR])
+            calculated_data = [i + j for i, j in zip(calculated_data, indicator_info)]
+
+        if self.FUNDAMENTAL_ANALYSIS in required_info:
+            self.logger.info("Start to get some fundamental information")
+            fundamental_info = self.fundamental_analysis(required_info[self.FUNDAMENTAL_ANALYSIS])
+            calculated_data = [i + j for i, j in zip(calculated_data, fundamental_info)]
+
+        return calculated_data
+
     def get_raw_data(self, label_info, required_info):
 
         self.logger.info("Start to collect data")
         self.set_price_type(label_info)
+
+        if self.one_day_info:
+            return self.get_one_day_info(required_info)
 
         stock_price = self.load_data_from_file("stock_price_history")
         if stock_price is None:
@@ -79,4 +105,13 @@ class DataCollect(StockPriceHandler, StockIndicatorHandler, FundamentalAnalysis)
 
 
 if __name__ == "__main__":
-    test = DataCollect('0001.HK', "2012-02-01", "2014-02-01")
+    import sys
+    import logging
+    logging.basicConfig(stream=sys.stdout, level=logging.DEBUG)
+    test = DataCollect('0001.HK', "2016-06-02", "2016-06-03", data_file_path='.')
+    print test.get_start_date()
+    print test.get_end_date()
+    test.set_interest_rate_path('../../interest_rate/interest_rate.dat')
+    from src.features import features
+    raw_data = test.get_raw_data(test.STOCK_CLOSE, features)
+    print raw_data

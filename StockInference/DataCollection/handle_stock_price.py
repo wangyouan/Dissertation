@@ -35,7 +35,10 @@ class StockPriceHandler(BaseClass):
             stock_info = self.get_ahead_stock_price(data_period - 1)
 
         data_num = len(stock_info)
-        window_data = [stock_info[i:(i + data_period)] for i in range(data_num - data_period)]
+        if self.one_day_info:
+            window_data = [stock_info[i:(i + data_period)] for i in range(data_num - data_period + 1)]
+        else:
+            window_data = [stock_info[i:(i + data_period)] for i in range(data_num - data_period)]
         max_price = []
         min_price = []
         close_avg_price = []
@@ -48,7 +51,7 @@ class StockPriceHandler(BaseClass):
         features = map(list, zip(open_avg_price, max_price, min_price, close_avg_price))
         self.save_data_to_file("price_features.dat", features)
         return features
-        #
+
         # def normalized_label(self, normalized_method, label_list, price_list):
         #     new_label_list = []
         #     for i, label in enumerate(label_list):
