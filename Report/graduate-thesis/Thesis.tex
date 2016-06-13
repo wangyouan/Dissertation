@@ -133,31 +133,10 @@ The acknowledgements and the people to thank go here, don't forget to include yo
 \listofsymbols{ll}  % Include a list of Abbreviations (a table of two columns)
 {
 % \textbf{Acronym} & \textbf{W}hat (it) \textbf{S}tands \textbf{F}or \\
-\textbf{LAH} & \textbf{L}ist \textbf{A}bbreviations \textbf{H}ere \\
+\textbf{ANN} & \textbf{A}rtificial \textbf{N}eural \textbf{N}etwork \\
 
 }
 
-%% ----------------------------------------------------------------
-\clearpage  % Start a new page
-\lhead{\emph{Physical Constants}}  % Set the left side page header to "Physical Constants"
-\listofconstants{lrcl}  % Include a list of Physical Constants (a four column table)
-{
-% Constant Name & Symbol & = & Constant Value (with units) \\
-Speed of Light & $c$ & $=$ & $2.997\ 924\ 58\times10^{8}\ \mbox{ms}^{-\mbox{s}}$ (exact)\\
-
-}
-
-%% ----------------------------------------------------------------
-\clearpage  %Start a new page
-\lhead{\emph{Symbols}}  % Set the left side page header to "Symbols"
-\listofnomenclature{lll}  % Include a list of Symbols (a three column table)
-{
-% symbol & name & unit \\
-$a$ & distance & m \\
-$P$ & power & W (Js$^{-1}$) \\
-& & \\ % Gap to separate the Roman symbols from the Greek
-$\omega$ & angular frequency & rads$^{-1}$ \\
-}
 %% ----------------------------------------------------------------
 % End of the pre-able, contents and lists of things
 % Begin the Dedication page
@@ -177,19 +156,25 @@ $\omega$ & angular frequency & rads$^{-1}$ \\
 % Include the chapters of the thesis, as separate files
 % Just uncomment the lines as you write the chapters
 
-\input{Chapters/Chapter1} % Introduction
+\input{Chapters/Introduction} % Introduction
 
-%\input{Chapters/Chapter2} % Background Theory 
+\input{Chapters/Review} % Background Theory
 
-%\input{Chapters/Chapter3} % Experimental Setup
+\input{Chapters/MarketUnderstanding} % Market Understanding
 
-%\input{Chapters/Chapter4} % Experiment 1
+\input{Chapters/DistributedComputing} % Introduction to Cloud Computing
 
-%\input{Chapters/Chapter5} % Experiment 2
+\input{Chapters/DataMining} % Introduction to Data mining method used in this thesis
 
-%\input{Chapters/Chapter6} % Results and Discussion
+\input{Chapters/Model} % Software model
 
-%\input{Chapters/Chapter7} % Conclusion
+\input{Chapters/DataProcessing} % How to processing the data
+
+\input{Chapters/ModelTraining} % How to training the model
+
+\input{Chapters/Result} % Results and Discussion
+
+\input{Chapters/Conclusion} % Conclusion
 
 %% ----------------------------------------------------------------
 % Now begin the Appendices, including them as separate files
@@ -198,9 +183,11 @@ $\omega$ & angular frequency & rads$^{-1}$ \\
 
 \appendix % Cue to tell LaTeX that the following 'chapters' are Appendices
 
-\input{Appendices/AppendixA}	% Appendix Title
+\input{Appendices/AppendixA}	% Introduction to Technical Indicators used in this thesis
 
-%\input{Appendices/AppendixB} % Appendix Title
+\input{Appendices/PerformanceMeasure}    % Description of Performance Measure
+
+\input{Appendices/AllResults} % All testing results
 
 %\input{Appendices/AppendixC} % Appendix Title
 

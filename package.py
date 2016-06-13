@@ -16,12 +16,15 @@ setup(
     author_email="markwang@connect.hku.hk",
     description=("A stock prediction system based on Spark"),
     keywords="Spark, Neural network",
-    include_package_data=True,
     install_requires=[
         'setuptools',
         'scikit-learn',
         'numpy',
         'pandas',
         'quandl'
+    ],
+    classifiers=[
+        "License :: OSI Approved :: MIT License",
+        "Programming Language :: Python :: 2.7"
     ],
 )

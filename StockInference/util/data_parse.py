@@ -6,6 +6,8 @@
 # Author: Mark Wang
 # Date: 3/6/2016
 
+import pickle
+
 
 def min_max_de_normalize(label, features):
     max_price = features[1]

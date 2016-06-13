@@ -220,13 +220,17 @@ class NeuralNetworkModel(Constants):
     def save_model(self, path):
         f = open(path, 'w')
         import pickle
-        pickle.dump(self.weights, f)
+        pickle.dump(self, f)
         f.close()
 
     def load_model(self, path):
         f = open(path)
         import pickle
-        self.weights = pickle.load(f)
+        model = pickle.load(f)
+        self.weights = model.weights
+        self.bias = model.bias
+        self.act_func = model.act_func
+        self.act_func_prime = model.act_function_prime
         f.close()
 
     def get_loss(self, features, target, method=None):
