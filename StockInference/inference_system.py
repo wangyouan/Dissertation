@@ -22,6 +22,11 @@ from StockInference.DataParser.data_parser import DataParser
 from StockInference.util.date_parser import get_ahead_date
 from StockInference.util.file_operation import load_data_from_file, save_data_to_file
 
+interest_rate_path = "interest_rate"
+
+if sys.platform == 'darwin':
+    interest_rate_path = os.path.join('..', interest_rate_path)
+
 
 class InferenceSystem(Constants):
     def __init__(self, stock_symbol):
@@ -77,6 +82,7 @@ class InferenceSystem(Constants):
         }
         data_collection = DataCollect(stock_symbol=self.stock_symbol, start_date=start_date, end_date=end_date,
                                       data_file_path=data_file_path, logger=self.sc._jvm.org.apache.log4j.LogManager)
+        data_collection.set_interest_rate_path(interest_rate_path)
         if features is None:
             features = required_info
 

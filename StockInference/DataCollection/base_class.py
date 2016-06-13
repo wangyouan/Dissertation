@@ -28,6 +28,7 @@ class BaseClass(Constants):
         self._stock_symbol = None
         self._price_type = self.STOCK_CLOSE
         self._data_file_path = None
+        self._interest_rate_path = None
         if logger is None:
             self.logger = logging.getLogger(self.__class__.__name__)
         else:
@@ -168,6 +169,14 @@ class BaseClass(Constants):
 
     def get_price_type(self):
         return self._price_type
+
+    def set_interest_rate_path(self, path):
+        if not path.endswith('interest_rate.dat'):
+            path = os.path.join(path, "interest_rate.dat")
+        self._interest_rate_path = path
+
+    def get_interest_rate_path(self):
+        return self._interest_rate_path
 
 
 if __name__ == "__main__":

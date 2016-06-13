@@ -21,10 +21,9 @@ from StockInference.util.get_hk_interest_rate import get_hk_interest_rate
 data_file_name = "interest_rate.dat"
 
 
-def load_interest_rate():
-    path = os.path.join(os.path.dirname(__file__), data_file_name)
-    if os.path.isfile(path):
-        f = open(path)
+def load_interest_rate(file_path):
+    if os.path.isfile(file_path):
+        f = open(file_path)
         raw_data = pickle.load(f)
         f.close()
         return raw_data
@@ -33,9 +32,9 @@ def load_interest_rate():
         return {}
 
 
-def save_interest_rate(raw_data):
+def save_interest_rate(file_path, raw_data):
     try:
-        f = open(os.path.join(os.path.dirname(__file__), data_file_name), 'w')
+        f = open(file_path, 'w')
         pickle.dump(raw_data, f)
         f.close()
     except Exception, e:
@@ -165,7 +164,7 @@ class FundamentalAnalysis(BaseClass):
 
         # load interest rate file form data file
         date_list = self.get_date_list()
-        raw_data = load_interest_rate()
+        raw_data = load_interest_rate(self.get_interest_rate_path())
         data_list = {}
         for date in date_list:
             if date in raw_data and required_info in raw_data[date] and raw_data[date][required_info] is not None:
@@ -184,7 +183,7 @@ class FundamentalAnalysis(BaseClass):
                     else:
                         raw_data[date][required_info] = new_info[required_info]
 
-        save_interest_rate(raw_data)
+        save_interest_rate(file_path=self.get_interest_rate_path(), raw_data=raw_data)
         self.save_data_to_file(file_name, data_list)
         return data_list
 
