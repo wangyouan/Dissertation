@@ -201,29 +201,12 @@ class InferenceSystem(Constants):
                 model.save_model(model_path)
         elif training_method == self.RANDOM_FOREST:
 
-            if output_file_path is not None:
-                model_path = os.path.join(output_file_path, 'rt_model.dat')
-            else:
-                model_path = None
-            if model_path and os.path.isfile(model_path) and load_model:
-                model = load_data_from_file(model_path)
-            else:
-                model = RandomForest.trainRegressor(training_data, categoricalFeaturesInfo={}, numTrees=4,
-                                                    featureSubsetStrategy="auto", impurity='variance', maxDepth=5,
-                                                    maxBins=32, seed=1234)
-                save_data_to_file(model_path, model)
+            model = RandomForest.trainRegressor(training_data, categoricalFeaturesInfo={}, numTrees=4,
+                                                featureSubsetStrategy="auto", impurity='variance', maxDepth=5,
+                                                maxBins=32, seed=1234)
+
         elif training_method == self.LINEAR_REGRESSION:
-
-            if output_file_path is not None:
-                model_path = os.path.join(output_file_path, 'lr_model.dat')
-            else:
-                model_path = None
-
-            if model_path and os.path.isfile(model_path) and load_model:
-                model = load_data_from_file(model_path)
-            else:
-                model = LinearRegressionWithSGD.train(training_data, iterations=10000, step=0.001)
-                save_data_to_file(model_path, model)
+            model = LinearRegressionWithSGD.train(training_data, iterations=10000, step=0.001)
 
         else:
             self.logger.error("Unknown training method {}".format(training_method))
