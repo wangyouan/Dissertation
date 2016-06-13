@@ -278,8 +278,8 @@ if __name__ == "__main__":
 
         f = open(os.path.join(new_file_path, "stock_info.csv"), 'w')
         f.write('stock,MSE,MAPE,MAD\n')
-        # for stock in stock_list:
-        for stock in ["0033.HK"]:
+        for stock in stock_list:
+        # for stock in ["0033.HK"]:
             specific_file_path = os.path.join(new_file_path, stock[:4])
             test = InferenceSystem(stock)
             predict_result = test.predict_historical_data(0.8, "2006-04-14", "2016-04-15",
