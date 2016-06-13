@@ -8,7 +8,7 @@
 
 import time
 from urllib import urlencode
-from urllib2 import Request, urlopen
+from urllib2 import Request, urlopen, URLError, HTTPError
 
 
 def get_all_data_about_stock(symbol, start_date=None, end_date=None, remove_zero_volume=True):
@@ -18,6 +18,7 @@ def get_all_data_about_stock(symbol, start_date=None, end_date=None, remove_zero
     :param symbol: stock symbol used in yahoo finance
     :param start_date: start date of the given stock data 2012-03-15
     :param end_date: end data
+    :param remove_zero_volume: if True, will remove all data with zero volume
     :return: a list of stock price as [date, open, high, low, close]
     """
     data_list = [('s', symbol)]
@@ -54,6 +55,10 @@ def get_all_data_about_stock(symbol, start_date=None, end_date=None, remove_zero
                 else:
                     stock_list.append(info)
             return stock_list
+        except HTTPError, e:
+            print e
+            print "No data could be found"
+            return []
         except Exception, e:
             print e
             current_try += 1

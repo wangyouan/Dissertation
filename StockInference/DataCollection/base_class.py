@@ -56,14 +56,14 @@ class BaseClass(Constants):
         return self._true_end_date
 
     def set_start_date(self, date):
-        self.logger.debug("Set start date to {}".format(date))
+        self.logger.info("Set start date to {}".format(date))
         if is_holiday(date):
             self._start_date = get_ahead_date(date, -1)
         else:
             self._start_date = date
 
     def set_end_date(self, date):
-        self.logger.debug("Set end date to {}".format(date))
+        self.logger.info("Set end date to {}".format(date))
         if is_holiday(date):
             self._end_date = get_ahead_date(date, 1)
         else:
@@ -198,6 +198,7 @@ class BaseClass(Constants):
             try_times += 1
 
         if try_times == 5 and len(append_stock_price) < date_period:
+            self.logger.warn("Need to change the start date as not enough data")
             original_data = self._stock_price[:]
             remaining_data = self._stock_price[date_period:]
             self._stock_price = remaining_data

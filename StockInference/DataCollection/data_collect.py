@@ -58,20 +58,20 @@ class DataCollect(StockPriceHandler, StockIndicatorHandler, FundamentalAnalysis)
         if self.STOCK_INDICATOR in required_info:
             self.logger.info("Start to get technique indicators")
             indicator_info = self.handle_indicator(required_info[self.STOCK_INDICATOR])
-            if self._data_num < len(collected_data):
-                indicator_info = indicator_info[:-self._data_num]
-                collected_data = collected_data[:-self._data_num]
+            if len(indicator_info) < len(collected_data):
+                collected_data = collected_data[-len(indicator_info):]
             collected_data = [i + j for i, j in zip(collected_data, indicator_info)]
 
         if self.FUNDAMENTAL_ANALYSIS in required_info:
             self.logger.info("Start to get some fundamental information")
             fundamental_info = self.fundamental_analysis(required_info[self.FUNDAMENTAL_ANALYSIS])
             if self._data_num < len(collected_data):
-                fundamental_info = fundamental_info[:-self._data_num]
-                collected_data = collected_data[:-self._data_num]
+                fundamental_info = fundamental_info[-self._data_num:]
+                collected_data = collected_data[-self._data_num:]
             collected_data = [i + j for i, j in zip(collected_data, fundamental_info)]
 
         label_pointed_list = []
+        label_list = label_list[-len(collected_data):]
         for i, j in zip(collected_data, label_list):
             label_pointed_list.append(LabeledPoint(features=i, label=j))
 
