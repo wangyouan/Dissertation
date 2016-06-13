@@ -16,8 +16,6 @@ setup(
     author_email="markwang@connect.hku.hk",
     description=("A stock prediction system based on Spark"),
     keywords="Spark, Neural network",
-    include_package_data=True,
-    data_files=[("StockInference/DataCollection", ["StockInference/DataCollection/interest_rate.dat"])],
     install_requires=[
         'setuptools',
         'scikit-learn',

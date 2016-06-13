@@ -9,9 +9,7 @@
 import os
 import pickle
 
-import numpy as np
 import quandl
-from pandas.tseries.offsets import CustomBusinessDay
 
 from StockInference.DataCollection.base_class import BaseClass
 from StockInference.util.get_history_stock_price import get_all_data_about_stock
