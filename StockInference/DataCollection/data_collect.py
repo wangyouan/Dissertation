@@ -108,7 +108,7 @@ if __name__ == "__main__":
     import sys
     import logging
     logging.basicConfig(stream=sys.stdout, level=logging.DEBUG)
-    test = DataCollect('0001.HK', "2016-06-02", "2016-06-03", data_file_path='.')
+    test = DataCollect('0001.HK', "2016-06-02", "2016-06-02", data_file_path='.')
     print test.get_start_date()
     print test.get_end_date()
     test.set_interest_rate_path('../../interest_rate/interest_rate.dat')

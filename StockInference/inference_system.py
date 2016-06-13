@@ -9,10 +9,12 @@
 import os
 import sys
 import time
+import datetime
 
 from pyspark import SparkContext, SparkConf
 from pyspark.mllib.tree import RandomForest
 from pyspark.mllib.regression import LinearRegressionWithSGD
+from pandas.tseries.offsets import CustomBusinessDay
 
 from StockInference.constant import Constants
 from StockInference.DataCollection.data_collect import DataCollect
@@ -21,6 +23,7 @@ from StockInference.util.data_parse import min_max_de_normalize, get_MSE, get_MA
 from StockInference.DataParser.data_parser import DataParser
 from StockInference.util.date_parser import get_ahead_date
 from StockInference.util.file_operation import load_data_from_file, save_data_to_file
+from StockInference.util.hongkong_calendar import HongKongCalendar
 
 interest_rate_path = "interest_rate"
 
@@ -96,7 +99,7 @@ class InferenceSystem(Constants):
         # import pickle
         # pickle.dump(raw_data, raw_data_file)
         # raw_data_file.close()
-
+        #
         # f = open('text.csv', 'w')
         # f.write(
         #     'date,open,high,low,close,macd1,macd2,sma_3,sma_13,sma_21,ema_5,ema_13,ema_21,roc_13,roc_21,rsi_9,rsi_14,rsi_21,us10y,us30y,fxi,hsi,usdhkd,eurhkd,oneyear,halfyear,overnight,golden_price\n')
@@ -107,10 +110,15 @@ class InferenceSystem(Constants):
         # raise ValueError("Warn SB")
 
         # Split train and test
-        n_components = None
-        self.data_parser = DataParser(n_components=n_components)
-        self.train_data, self.test_data, self.test_data_features = self.data_parser.split_train_test_data(
-            train_ratio=train_test_ratio, raw_data=raw_data)
+        if self.data_parser is None:
+            n_components = None
+            self.data_parser = DataParser(n_components=n_components)
+
+            self.train_data, self.test_data, self.test_data_features = self.data_parser.split_train_test_data(
+                train_ratio=train_test_ratio, raw_data=raw_data, fit_transform=True)
+        else:
+            self.train_data, self.test_data, self.test_data_features = self.data_parser.split_train_test_data(
+                train_ratio=train_test_ratio, raw_data=raw_data, fit_transform=False)
         self.total_data_num = len(raw_data)
         self.date_list = data_collection.get_date_list()
         self.logger.info('#################################################################')
@@ -134,9 +142,14 @@ class InferenceSystem(Constants):
         if data_folder_path is not None and not os.path.isdir(data_folder_path):
             os.makedirs(data_folder_path)
 
+        if load_model and output_file_path is not None:
+            self.data_parser = load_data_from_file(os.path.join(output_file_path, "data_parser.dat"))
         if self.train_data is None or self.test_data is None or self.test_data_features is None:
             self.get_train_test_data(train_test_ratio, start_date=start_date, end_date=end_date, features=features,
                                      data_file_path=data_folder_path)
+
+        if output_file_path is not None:
+            save_data_to_file(os.path.join(output_file_path, "data_parser.dat"), self.data_parser)
 
         training_data = self.sc.parallelize(self.train_data)
         testing_data = self.sc.parallelize(self.test_data)
@@ -246,8 +259,48 @@ class InferenceSystem(Constants):
 
         return predict
 
-    def get_future_stock_price(self, training_method=None, history_date=None):
-        pass
+    def get_future_stock_price(self, training_method=None, start_history=None, model_path=None, features=None,
+                               output_file_path=None, data_file_path=None):
+        today = datetime.datetime.today()
+        cday = CustomBusinessDay(calendar=HongKongCalendar(today.year - 1, today.year))
+        if today.hour > 18:
+            if today.weekday() < 5:
+                end_day = today
+            else:
+                end_day = today - cday
+            predict_date = today + cday
+        else:
+            end_day = today - cday
+            if today.weekday() < 5:
+                predict_date = today
+            else:
+                predict_date = today + cday
+
+        predict_date = predict_date.strftime("%Y-%m-%d")
+        end_date = end_day.strftime("%Y-%m-%d")
+        if model_path is not None:
+            model = load_data_from_file(model_path)
+        else:
+
+            if start_history is None:
+                start_date = datetime.datetime(end_day.year - 2, end_day.month, end_day.day)
+                start_date += cday
+            else:
+                start_date = start_history
+
+            if not isinstance(start_date, str):
+                start_date = start_date.strftime("%Y-%m-%d")
+
+            model = self.predict_historical_data(1, start_date, end_date, output_file_path=output_file_path,
+                                                 training_method=training_method, data_folder_path=data_file_path,
+                                                 features=features, load_model=False)
+        data_collection = DataCollect(self.stock_symbol, end_date, end_date, data_file_path=data_file_path,
+                                      logger=self.sc._jvm.org.apache.log4j.LogManager)
+        data = data_collection.get_raw_data(features[self.PRICE_TYPE], required_info=features)
+        predict_features = self.data_parser.transform(data)[0]
+        predict_price = model.predict(predict_features)
+
+        return predict_date, min_max_de_normalize(predict_price, features=data[0])
 
 
 if __name__ == "__main__":
@@ -280,7 +333,7 @@ if __name__ == "__main__":
         f = open(os.path.join(new_file_path, "stock_info.csv"), 'w')
         f.write('stock,MSE,MAPE,MAD\n')
         for stock in stock_list:
-        # for stock in ["0033.HK"]:
+            # for stock in ["0033.HK"]:
             specific_file_path = os.path.join(new_file_path, stock[:4])
             test = InferenceSystem(stock)
             predict_result = test.predict_historical_data(0.8, "2006-04-14", "2016-04-15",
