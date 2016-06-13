@@ -33,12 +33,12 @@ class DataCollect(StockPriceHandler, StockIndicatorHandler, FundamentalAnalysis)
         stock_price = self.load_data_from_file("stock_price_history")
         if stock_price is None:
             self._stock_price = get_all_data_about_stock(symbol=self._stock_symbol, start_date=self.get_start_date(),
-                                                             end_date=self.get_end_date(), remove_zero_volume=True)
-            self._date_list = [i[0] for i in self._stock_price[:-1]]
+                                                         end_date=self.get_end_date(), remove_zero_volume=True)
+            self.set_date_list([i[0] for i in self._stock_price[:-1]])
             self.save_data_to_file("stock_price_history", self._stock_price)
         else:
             self._stock_price = stock_price
-            self._date_list = [i[0] for i in self._stock_price[:-1]]
+            self.set_date_list([i[0] for i in self._stock_price[:-1]])
 
         if self.get_price_type() == self.STOCK_CLOSE:
             label_list = [i[4] for i in self._stock_price[1:]]
@@ -58,11 +58,17 @@ class DataCollect(StockPriceHandler, StockIndicatorHandler, FundamentalAnalysis)
         if self.STOCK_INDICATOR in required_info:
             self.logger.info("Start to get technique indicators")
             indicator_info = self.handle_indicator(required_info[self.STOCK_INDICATOR])
+            if self._data_num < len(collected_data):
+                indicator_info = indicator_info[:-self._data_num]
+                collected_data = collected_data[:-self._data_num]
             collected_data = [i + j for i, j in zip(collected_data, indicator_info)]
 
         if self.FUNDAMENTAL_ANALYSIS in required_info:
             self.logger.info("Start to get some fundamental information")
             fundamental_info = self.fundamental_analysis(required_info[self.FUNDAMENTAL_ANALYSIS])
+            if self._data_num < len(collected_data):
+                fundamental_info = fundamental_info[:-self._data_num]
+                collected_data = collected_data[:-self._data_num]
             collected_data = [i + j for i, j in zip(collected_data, fundamental_info)]
 
         label_pointed_list = []

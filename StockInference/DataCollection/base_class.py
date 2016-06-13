@@ -16,6 +16,7 @@ import pandas as pd
 
 from StockInference.constant import Constants
 from StockInference.util.date_parser import custom_business_day, get_ahead_date, is_holiday
+from StockInference.util.get_history_stock_price import get_all_data_about_stock
 
 
 class BaseClass(Constants):
@@ -29,6 +30,7 @@ class BaseClass(Constants):
         self._price_type = self.STOCK_CLOSE
         self._data_file_path = None
         self._interest_rate_path = None
+        self._data_num = None
         if logger is None:
             self.logger = logging.getLogger(self.__class__.__name__)
         else:
@@ -177,6 +179,45 @@ class BaseClass(Constants):
 
     def get_interest_rate_path(self):
         return self._interest_rate_path
+
+    def get_ahead_stock_price(self, date_period):
+        stock_info = [i[1:] for i in self._stock_price]
+        ahead_date = date_period * 2
+        append_start_date = get_ahead_date(self.get_start_date(), ahead_days=ahead_date)
+        append_end_date = get_ahead_date(self.get_start_date(), 1)
+        self.logger.info("Append_start_date is {}".format(append_start_date))
+        append_stock_price = get_all_data_about_stock(self._stock_symbol, append_start_date, append_end_date,
+                                                      remove_zero_volume=True)
+        try_times = 0
+        while len(append_stock_price) < date_period and try_times < 5:
+            ahead_date *= 2
+            append_start_date = get_ahead_date(self.get_start_date(), ahead_days=ahead_date)
+            self.logger.info("Append_start_date is {}".format(append_start_date))
+            append_stock_price = get_all_data_about_stock(self._stock_symbol, append_start_date, append_end_date,
+                                                          remove_zero_volume=True)
+            try_times += 1
+
+        if try_times == 5 and len(append_stock_price) < date_period:
+            original_data = self._stock_price[:]
+            remaining_data = self._stock_price[date_period:]
+            self._stock_price = remaining_data
+            self.set_date_list([i[0] for i in self._stock_price])
+            stock_info = [i[1:] for i in original_data]
+        else:
+            append_stock_price = append_stock_price[(-date_period):]
+            append_stock_info = [i[1:] for i in append_stock_price]
+            append_stock_info.extend(stock_info)
+            stock_info = append_stock_info
+
+        if self._price_type == self.STOCK_ADJUSTED_CLOSED:
+            stock_info = map(lambda p: [p[0] * p[5] / p[3], p[1] * p[5] / p[3], p[2] * p[5] / p[3], p[5]], stock_info)
+        return stock_info
+
+    def set_date_list(self, date_list):
+        self._date_list = date_list
+        self._data_num = len(date_list)
+        self.set_start_date(self._date_list[0])
+        self.set_end_date(self._date_list[-1])
 
 
 if __name__ == "__main__":

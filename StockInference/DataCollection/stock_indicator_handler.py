@@ -17,10 +17,8 @@ from StockInference.util.date_parser import get_ahead_date
 class StockIndicatorHandler(BaseClass):
     def __init__(self, logger=None):
         BaseClass.__init__(self, logger=None)
-        self._data_num = None
 
     def handle_indicator(self, required_info):
-        self._data_num = len(self._stock_price)
         indicator_data = np.array([])
         get_data = None
         for info, info_parameter in required_info:
@@ -88,30 +86,26 @@ class StockIndicatorHandler(BaseClass):
         return abstract.SMA(data, timeperiod=period, price=price)[-self._data_num:]
 
     def get_MACD(self, slow_period, fast_period, signal_period):
-        additional_date = slow_period + signal_period
-        data = self._get_stock_price_data(additional_date)
+        additional_date = slow_period + signal_period + fast_period
+        data = self._get_stock_price_data(additional_date * 2)
         macd, macd_signal, macd_hist = abstract.MACD(data, fast_period, slow_period, signal_period)
         return macd[-self._data_num:]
 
     def _get_stock_price_data(self, ahead_days):
-        new_start_date = get_ahead_date(self.get_start_date(), ahead_days * 2)
-        ahead_data = get_all_data_about_stock(self._stock_symbol, start_date=new_start_date,
-                                              end_date=self.get_start_date())[:-1]
-        ahead_data.extend(self._stock_price)
-        remove_date = [i[1:] for i in ahead_data]
+        remove_date = self.get_ahead_stock_price(ahead_days)
         return self._transform_data_to_talib_input(remove_date)
 
     def _transform_data_to_talib_input(self, data):
         np_array = np.array(data).astype(np.float)
-        if self._price_type == self.STOCK_ADJUSTED_CLOSED:
-            multiplier = np_array[:, 5] / np_array[:, 3]
-        else:
-            multiplier = np.ones(np_array.shape[0])
+        # if self._price_type == self.STOCK_ADJUSTED_CLOSED:
+        #     multiplier = np_array[:, 5] / np_array[:, 3]
+        # else:
+        #     multiplier = np.ones(np_array.shape[0])
         inputs = {
-            self.STOCK_OPEN: np_array[:, 0] * multiplier,
-            self.STOCK_HIGH: np_array[:, 1] * multiplier,
-            self.STOCK_LOW: np_array[:, 2] * multiplier,
-            self.STOCK_CLOSE: np_array[:, 3] * multiplier,
-            self.STOCK_VOLUME: np_array[:, 4] * multiplier
+            self.STOCK_OPEN: np_array[:, 0],
+            self.STOCK_HIGH: np_array[:, 1],
+            self.STOCK_LOW: np_array[:, 2],
+            self.STOCK_CLOSE: np_array[:, 3],
+            self.STOCK_VOLUME: np_array[:, 4]
         }
         return inputs

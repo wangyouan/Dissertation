@@ -91,19 +91,19 @@ class InferenceSystem(Constants):
         raw_data = data_collection.get_raw_data(label_info=features[self.PRICE_TYPE], required_info=features)
 
         # debug
-        # raw_data_file = open(os.path.join(folder, "{}.dat"), 'w')
+        # raw_data_file = open(os.path.join('../output', "raw.dat"), 'w')
         # import pickle
         # pickle.dump(raw_data, raw_data_file)
         # raw_data_file.close()
 
-        # f = open('text.csv', 'w')
-        # f.write(
-        #     'open,high,low,close,macd1,macd2,sma_3,sma_13,sma_21,ema_5,ema_13,ema_21,roc_13,roc_21,rsi_9,rsi_14,rsi_21,us10y,us30y,fxi,hsi,usdhkd,eurhkd,oneyear,halfyear,overnight,golden_price\n')
-        # for data in raw_data:
-        #     f.write(','.join(map(str, data.features)))
-        #     f.write('\n')
-        # f.close()
-        # raise ValueError("Warn SB")
+        f = open('text.csv', 'w')
+        f.write(
+            'date,open,high,low,close,macd1,macd2,sma_3,sma_13,sma_21,ema_5,ema_13,ema_21,roc_13,roc_21,rsi_9,rsi_14,rsi_21,us10y,us30y,fxi,hsi,usdhkd,eurhkd,oneyear,halfyear,overnight,golden_price\n')
+        date_list = data_collection.get_date_list()
+        for i in range(len(raw_data)):
+            f.write("{},{}\n".format(date_list[i], ','.join(map(str, raw_data[i].features))))
+        f.close()
+        raise ValueError("Warn SB")
 
         # Split train and test
         n_components = None
@@ -270,7 +270,7 @@ if __name__ == "__main__":
                   '0066.HK', '1123.HK']
 
     for method in [InferenceSystem.ARTIFICIAL_NEURAL_NETWORK, InferenceSystem.RANDOM_FOREST,
-                   InferenceSystem.LINEAR_REGRESSION]:
+                   InferenceSystem.LINEAR_REGRESSION][:1]:
 
         new_file_path = os.path.join(output_path, method)
         if not os.path.isdir(new_file_path):
@@ -278,7 +278,8 @@ if __name__ == "__main__":
 
         f = open(os.path.join(new_file_path, "stock_info.csv"), 'w')
         f.write('stock,MSE,MAPE,MAD\n')
-        for stock in stock_list:
+        # for stock in stock_list:
+        for stock in ["0007.HK"]:
             specific_file_path = os.path.join(new_file_path, stock[:4])
             test = InferenceSystem(stock)
             predict_result = test.predict_historical_data(0.8, "2006-04-14", "2016-04-15",
