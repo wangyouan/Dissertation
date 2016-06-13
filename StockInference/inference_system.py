@@ -8,6 +8,7 @@
 
 import os
 import sys
+import time
 
 from pyspark import SparkContext, SparkConf
 from pyspark.mllib.tree import RandomForest
@@ -284,5 +285,6 @@ if __name__ == "__main__":
             mad = get_MAD(predict_result)
             f.write('{},{},{},{}\n'.format(stock, mse, mape, mad))
             test.sc.stop()
+            time.sleep(30)
 
         f.close()
