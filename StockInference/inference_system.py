@@ -6,6 +6,7 @@
 # Author: Mark Wang
 # Date: 1/6/2016
 
+import os
 import sys
 
 from pyspark import SparkContext, SparkConf
@@ -18,17 +19,11 @@ from StockInference.Regression.distributed_neural_network import NeuralNetworkSp
 from StockInference.util.data_parse import min_max_de_normalize, get_MSE, get_MAD, get_MAPE
 from StockInference.DataParser.data_parser import DataParser
 from StockInference.util.date_parser import get_ahead_date
-
-iterations = 20
-# folder = "output/random_forest_not_adj".format(4, iterations)
-folder = "output/ann_{}_layer_not_adj_{}_pca_none".format(4, iterations)
-
-if sys.platform == 'darwin':
-    folder = "../{}".format(folder)
+from StockInference.util.file_operation import load_data_from_file, save_data_to_file
 
 
 class InferenceSystem(Constants):
-    def __init__(self, stock_symbol, adjusted=False):
+    def __init__(self, stock_symbol):
         self.stock_symbol = stock_symbol
         conf = SparkConf()
         conf.setAppName("StockInference")
@@ -37,13 +32,12 @@ class InferenceSystem(Constants):
         self.test_data = None
         self.test_data_features = None
         self.total_data_num = 0
-        self.date_list = None
-        self.adjusted_close = adjusted
-        self.model = None
+        self.date_list = []
         log4jLogger = self.sc._jvm.org.apache.log4j
         self.logger = log4jLogger.LogManager.getLogger(self.__class__.__name__)
 
-    def get_train_test_data(self, train_test_ratio, start_date, end_date, features=None):
+    def get_train_test_data(self, train_test_ratio, start_date, end_date, features=None, data_file_path=None):
+
         self.logger.info('#################################################################')
         self.logger.info('Get train and testing data')
         self.logger.info('Training / Testing ratio is {}'.format(train_test_ratio))
@@ -51,8 +45,8 @@ class InferenceSystem(Constants):
         self.logger.info('#################################################################')
 
         # collect data, will do some preliminary process to stock process
-        data_collection = DataCollect(stock_symbol=self.stock_symbol)
         required_info = {
+            self.PRICE_TYPE: self.STOCK_CLOSE,
             self.STOCK_PRICE: {self.DATA_PERIOD: 5},
             self.STOCK_INDICATOR: [
                 (self.MACD, {self.MACD_FAST_PERIOD: 12, self.MACD_SLOW_PERIOD: 26, self.MACD_TIME_PERIOD: 9}),
@@ -77,20 +71,24 @@ class InferenceSystem(Constants):
                 {self.FROM: self.EUR, self.TO: self.HKD},
                 # {self.FROM: self.AUD, self.TO: self.HKD},
                 self.ONE_YEAR, self.HALF_YEAR, self.OVER_NIGHT,
-                {self.GOLDEN_PRICE: False}
+                self.GOLDEN_PRICE,
             ]
         }
+        data_collection = DataCollect(stock_symbol=self.stock_symbol, start_date=start_date, end_date=end_date,
+                                      data_file_path=data_file_path, logger=self.sc._jvm.org.apache.log4j.LogManager)
         if features is None:
             features = required_info
+
         # required_info = {self.FUNDAMENTAL_ANALYSIS: [self.ONE_YEAR]}
-        raw_data = data_collection.get_raw_data(start_date=start_date, end_date=end_date, using_ratio=False,
-                                                using_adj=self.adjusted_close, label_info=self.STOCK_CLOSE,
-                                                required_info=features)
+        self.logger.info("No previous data, will collected them from Internet")
+        raw_data = data_collection.get_raw_data(label_info=features[self.PRICE_TYPE], required_info=features)
+
         # debug
-        # raw_data_file = open("test", 'w')
+        # raw_data_file = open(os.path.join(folder, "{}.dat"), 'w')
         # import pickle
         # pickle.dump(raw_data, raw_data_file)
         # raw_data_file.close()
+
         # f = open('text.csv', 'w')
         # f.write(
         #     'open,high,low,close,macd1,macd2,sma_3,sma_13,sma_21,ema_5,ema_13,ema_21,roc_13,roc_21,rsi_9,rsi_14,rsi_21,us10y,us30y,fxi,hsi,usdhkd,eurhkd,oneyear,halfyear,overnight,golden_price\n')
@@ -109,19 +107,28 @@ class InferenceSystem(Constants):
         self.date_list = data_collection.get_date_list()
         self.logger.info('#################################################################')
         self.logger.info('Get train and testing data finished')
-        self.logger.info('Predict adjusted price is {}'.format("Yes" if self.adjusted_close else "No"))
         self.logger.info('#################################################################')
 
-    def predict_historical_data(self, train_test_ratio, start_date, end_date, save_data=True,
-                                training_method=None):
+    def predict_historical_data(self, train_test_ratio, start_date, end_date, data_folder_path=None,
+                                training_method=None, features=None, output_file_path=None, load_model=False):
+
         """ Get raw data -> process data -> pca -> normalization -> train -> test """
         self.logger.info('Start to predict stock symbol {}'.format(self.stock_symbol))
 
         if training_method is None:
             training_method = self.ARTIFICIAL_NEURAL_NETWORK
 
+        self.logger.info("The training method is {}".format(training_method))
+
+        if output_file_path is not None and not os.path.isdir(output_file_path):
+            os.makedirs(output_file_path)
+
+        if data_folder_path is not None and not os.path.isdir(data_folder_path):
+            os.makedirs(data_folder_path)
+
         if self.train_data is None or self.test_data is None or self.test_data_features is None:
-            self.get_train_test_data(train_test_ratio, start_date=start_date, end_date=end_date)
+            self.get_train_test_data(train_test_ratio, start_date=start_date, end_date=end_date, features=features,
+                                     data_file_path=data_folder_path)
 
         training_data = self.sc.parallelize(self.train_data)
         testing_data = self.sc.parallelize(self.test_data)
@@ -132,30 +139,75 @@ class InferenceSystem(Constants):
         self.logger.info('#################################################################')
 
         if training_method == self.ARTIFICIAL_NEURAL_NETWORK:
-            # training
             input_num = len(self.train_data[0].features)
-            layers = [input_num, input_num / 3 * 2, input_num / 3, 1]
-            self.logger.info('Input layer is {}'.format(layers))
-            if save_data:
-                layer_file = open("{}/layers.txt".format(folder), 'w')
-                layer_file.write(str(layers))
-                layer_file.close()
+
+            if output_file_path is not None:
+                model_path = os.path.join(output_file_path, 'ann_model.dat')
+            else:
+                model_path = None
+
+            if output_file_path is not None and load_model:
+                self.logger.info("load model from {}".format(output_file_path))
+                layer_path = os.path.join(output_file_path, 'layers.dat')
+                if os.path.isfile(layer_path):
+                    layers = load_data_from_file(layer_path)
+                    if layers[0] != input_num:
+                        layers = [input_num, input_num / 3 * 2, input_num / 3, 1]
+                else:
+                    layers = [input_num, input_num / 3 * 2, input_num / 3, 1]
+
+                if os.path.isfile(model_path):
+                    model = load_data_from_file(model_path)
+                else:
+                    model = None
+
+            else:
+
+                # training
+                layers = [input_num, input_num / 3 * 2, input_num / 3, 1]
+                self.logger.info('Input layer is {}'.format(layers))
+                model = None
+                if output_file_path:
+                    layer_file = open(os.path.join(output_file_path, "layers.txt"), 'w')
+                    layer_file.write(str(layers))
+                    layer_file.close()
+                    save_data_to_file(os.path.join(output_file_path, 'layers.dat'), layers)
+
             neural_network = NeuralNetworkSpark(layers=layers, bias=0)
             model = neural_network.train(training_data, method=neural_network.BP, seed=1234, learn_rate=0.0001,
-                                         iteration=iterations)
+                                         iteration=20, model=model)
+            if output_file_path:
+                model.save_model(model_path)
         elif training_method == self.RANDOM_FOREST:
-            model = RandomForest.trainRegressor(training_data, categoricalFeaturesInfo={}, numTrees=4,
-                                                featureSubsetStrategy="auto", impurity='variance', maxDepth=5,
-                                                maxBins=32, seed=1234)
 
+            if output_file_path is not None:
+                model_path = os.path.join(output_file_path, 'rt_model.dat')
+            else:
+                model_path = None
+            if model_path and os.path.isfile(model_path) and load_model:
+                model = load_data_from_file(model_path)
+            else:
+                model = RandomForest.trainRegressor(training_data, categoricalFeaturesInfo={}, numTrees=4,
+                                                    featureSubsetStrategy="auto", impurity='variance', maxDepth=5,
+                                                    maxBins=32, seed=1234)
+                save_data_to_file(model_path, model)
         elif training_method == self.LINEAR_REGRESSION:
-            model = LinearRegressionWithSGD.train(training_data, iterations=10000, step=0.001)
+
+            if output_file_path is not None:
+                model_path = os.path.join(output_file_path, 'lr_model.dat')
+            else:
+                model_path = None
+
+            if model_path and os.path.isfile(model_path) and load_model:
+                model = load_data_from_file(model_path)
+            else:
+                model = LinearRegressionWithSGD.train(training_data, iterations=10000, step=0.001)
+                save_data_to_file(model_path, model)
 
         else:
             self.logger.error("Unknown training method {}".format(training_method))
             raise ValueError("Unknown training method {}".format(training_method))
 
-        self.model = model
         if train_test_ratio > 0.99:
             return model
 
@@ -173,9 +225,9 @@ class InferenceSystem(Constants):
         train_data_num = len(self.train_data)
         test_date_list = self.date_list[train_data_num:]
 
-        if save_data:
+        if output_file_path:
             predict_list = predict.collect()
-            predict_file = open("{}/{}.csv".format(folder, self.stock_symbol), "w")
+            predict_file = open(os.path.join(output_file_path, "predict_result.csv"), "w")
             predict_file.write("date,origin,predict\n")
             test_date_list = test_date_list[1:]
             test_date_list.append(get_ahead_date(test_date_list[-1], -1))
@@ -191,13 +243,16 @@ class InferenceSystem(Constants):
 
 
 if __name__ == "__main__":
-    import os
 
-    if not os.path.isdir(folder):
-        os.mkdir(folder)
+    output_path = 'output'
+    data_path = 'data'
 
-    f = open('{}/stock_test.csv'.format(folder), 'w')
-    f.write('stock,MSE,MAPE,MAD\n')
+    if sys.platform == 'darwin':
+        output_path = '../{}'.format(output_path)
+        data_path = '../{}'.format(data_path)
+
+    if not os.path.isdir(data_path):
+        os.makedirs(data_path)
     stock_list = ['0001.HK', '0002.HK', '0003.HK', '0004.HK', '0005.HK', '0006.HK', '0007.HK', '0008.HK', '0009.HK',
                   '0010.HK', '0011.HK', '0012.HK', '0013.HK', '0014.HK', '0015.HK', '0016.HK', '0017.HK', '0018.HK',
                   '0019.HK', '0020.HK', '0021.HK', '0022.HK', '0023.HK', '0024.HK', '0025.HK', '0026.HK', '0027.HK',
@@ -207,14 +262,27 @@ if __name__ == "__main__":
                   '0057.HK', '0058.HK', '0059.HK', '0060.HK', '0888.HK', '0062.HK', '0063.HK', '0064.HK', '0065.HK',
                   '0066.HK', '1123.HK']
 
-    for stock in stock_list[:5]:
-        test = InferenceSystem(stock, False)
-        predict_result = test.predict_historical_data(0.8, "2006-04-14", "2016-04-15", save_data=True,
-                                                      training_method=test.ARTIFICIAL_NEURAL_NETWORK)
-        mse = get_MSE(predict_result)
-        mape = get_MAPE(predict_result)
-        mad = get_MAD(predict_result)
-        f.write('{},{},{},{}\n'.format(stock, mse, mape, mad))
-        test.sc.stop()
+    for method in [InferenceSystem.ARTIFICIAL_NEURAL_NETWORK, InferenceSystem.RANDOM_FOREST,
+                   InferenceSystem.LINEAR_REGRESSION]:
 
-    f.close()
+        new_file_path = os.path.join(output_path, method)
+        if not os.path.isdir(new_file_path):
+            os.makedirs(new_file_path)
+
+        f = open(os.path.join(new_file_path, "stock_info.csv"), 'w')
+        f.write('stock,MSE,MAPE,MAD\n')
+        for stock in stock_list:
+            specific_file_path = os.path.join(new_file_path, stock[:4])
+            test = InferenceSystem(stock)
+            predict_result = test.predict_historical_data(0.8, "2006-04-14", "2016-04-15",
+                                                          training_method=method,
+                                                          data_folder_path=data_path,
+                                                          output_file_path=specific_file_path,
+                                                          load_model=False)
+            mse = get_MSE(predict_result)
+            mape = get_MAPE(predict_result)
+            mad = get_MAD(predict_result)
+            f.write('{},{},{},{}\n'.format(stock, mse, mape, mad))
+            test.sc.stop()
+
+        f.close()

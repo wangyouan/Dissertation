@@ -43,8 +43,8 @@ def save_interest_rate(raw_data):
 
 
 class FundamentalAnalysis(BaseClass):
-    def __init__(self):
-        BaseClass.__init__(self)
+    def __init__(self, logger=None):
+        BaseClass.__init__(self, logger)
         self._bond_label_dict_hk = {
             self.IC: "2801.HK",
             self.IA: "2829.HK",
@@ -63,47 +63,26 @@ class FundamentalAnalysis(BaseClass):
         quandl.ApiConfig.api_key = "RYdPmBZoFyLXxg1RQ3fY"
 
     def _get_bond_price(self, symbol, location=None):
-        bond_info = get_all_data_about_stock(symbol=symbol, start_date=get_ahead_date(self.get_start_date(), 20),
-                                             end_date=self.get_true_end_date(), remove_zero_volume=False)
-        bond_price_map = {}
-        for i in bond_info:
-            bond_price_map[i[0]] = float(i[4])
-        if location == self.HONG_KONG:
-            return bond_price_map
-        elif location == self.UNITED_STATES:
-            price_info = get_united_states_market_info(bond_price_map, self.get_date_list(),
-                                                       get_ahead_date(self.get_start_date(), 10))
-            return price_info
+        file_name = "bond_{}".format(symbol)
 
-    def fa_pca_data_reduction(self, data):
-        if self.fa_pca_transformer is None:
-            self.fa_pca_transformer = self.get_pca_transformer(data, 'mle')
-        Y = self.fa_pca_transformer.transform(data)
-        return Y
+        bond_price_map = self.load_data_from_file(file_name)
+        if bond_price_map is None:
+            bond_info = get_all_data_about_stock(symbol=symbol, start_date=get_ahead_date(self.get_start_date(), 20),
+                                                 end_date=self.get_true_end_date(), remove_zero_volume=False)
+            bond_price_map = {}
+            for i in bond_info:
+                bond_price_map[i[0]] = float(i[4])
+            if location == self.UNITED_STATES:
+                bond_price_map = get_united_states_market_info(bond_price_map, self.get_date_list(),
+                                                               get_ahead_date(self.get_start_date(), 10))
 
-    def fa_data_normalization(self, data):
-        pca_data = self.fa_pca_data_reduction(data)
-        if not self.fa_min_list or not self.fa_max_list:
-            n_y = len(pca_data[0])
-            self.fa_max_list = np.zeros(n_y)
-            self.fa_min_list = np.zeros(n_y)
-            for i in range(n_y):
-                self.fa_min_list[i] = np.min(pca_data[:, i])
-                self.fa_max_list[i] = np.max(pca_data[:, i])
-        diff = self.fa_max_list - self.fa_min_list
-        nor_data = map(lambda p: ((p - self.fa_min_list) / diff).tolist(), pca_data)
+        self.save_data_to_file(file_name, bond_price_map)
+        return bond_price_map
 
-        return nor_data
+    def fundamental_analysis(self, required_info):
+        return self.raw_fundamental_analysis(required_info=required_info)
 
-    def fundamental_analysis(self, required_info, fa_type=None):
-        if fa_type is None or fa_type == self.FA_NORMALIZATION:
-            return self.fa_data_normalization(self.raw_fundamental_analysis(required_info, ratio=False))
-        elif fa_type == self.FA_RATIO:
-            return self.raw_fundamental_analysis(required_info=required_info, ratio=True)
-        elif fa_type == self.FA_RAW_DATA:
-            return self.raw_fundamental_analysis(required_info=required_info, ratio=False)
-
-    def raw_fundamental_analysis(self, required_info, ratio=False):
+    def raw_fundamental_analysis(self, required_info):
         date_list = self.get_date_list()
         calculated_info = [[i] for i in date_list]
         for info in required_info:
@@ -119,36 +98,46 @@ class FundamentalAnalysis(BaseClass):
                               self.THREE_MONTHS, self.TWO_MONTHS]:
                     calculated_info = self._merge_info(calculated_info=calculated_info,
                                                        info_dict=self.get_interest_rate(info))
+                elif info == self.GOLDEN_PRICE:
+                    golden_price = self._get_golden_price_in_cny()
+                    calculated_info = self._merge_info(calculated_info=calculated_info, info_dict=golden_price)
+
             elif isinstance(info, dict):
                 if self.FROM in info:
                     currency_exchange_rate = self._get_currency_exchange_rate(info[self.FROM], info[self.TO])
                     calculated_info = self._merge_info(calculated_info=calculated_info,
                                                        info_dict=currency_exchange_rate)
-                elif self.GOLDEN_PRICE in info:
-                    golden_price = self._get_golden_price_in_cny(ratio=info.get(self.GOLDEN_PRICE, False))
-                    calculated_info = self._merge_info(calculated_info=calculated_info, info_dict=golden_price)
 
         return [i[1:] for i in calculated_info]
 
-    def _get_golden_price_in_cny(self, ratio=False):
-        if not ratio:
-            return self.get_quandl_data("WGC/GOLD_DAILY_CNY")
+    def _get_golden_price_in_cny(self):
+        file_name = "golden"
+        data = self.load_data_from_file(file_name)
+        if data is not None:
+            return data
         else:
-            data = self.get_quandl_data("WGC/GOLD_DAILY_CNY", transform='rdiff')
+            data = self.get_quandl_data("WGC/GOLD_DAILY_CNY")
+            self.save_data_to_file(file_name, data)
             return data
 
     def _get_currency_exchange_rate(self, from_cur, to_cur):
-        rate_info = None
-        if from_cur == self.EUR and to_cur == self.HKD:
+        file_name = "from_{}_to_{}".format(from_cur, to_cur)
+        rate_info = self.load_data_from_file(file_name)
+        if rate_info is not None:
+            pass
+        elif from_cur == self.EUR and to_cur == self.HKD:
             rate_info = self.get_quandl_data('ECB/EURHKD')
+            self.save_data_to_file(file_name=file_name, data=rate_info)
 
         elif from_cur == self.USD and to_cur == self.HKD:
             rate_info = self.get_quandl_data('FRED/DEXHKUS', start_date=get_ahead_date(self.get_start_date(), 20))
             rate_info = get_united_states_market_info(rate_info, self.get_date_list(),
                                                       get_ahead_date(self.get_start_date(), 10))
+            self.save_data_to_file(file_name=file_name, data=rate_info)
 
         elif from_cur == self.AUD and to_cur == self.HKD:
             rate_info = self.get_quandl_data('RBA/FXRHKD')
+            self.save_data_to_file(file_name=file_name, data=rate_info)
 
         return rate_info
 
@@ -168,6 +157,11 @@ class FundamentalAnalysis(BaseClass):
         return data_dict
 
     def get_interest_rate(self, required_info):
+
+        file_name = "interest_{}".format(required_info)
+        data = self.load_data_from_file(file_name)
+        if data is not None:
+            return data
 
         # load interest rate file form data file
         date_list = self.get_date_list()
@@ -191,6 +185,7 @@ class FundamentalAnalysis(BaseClass):
                         raw_data[date][required_info] = new_info[required_info]
 
         save_interest_rate(raw_data)
+        self.save_data_to_file(file_name, data_list)
         return data_list
 
 
@@ -198,7 +193,7 @@ if __name__ == "__main__":
     test = FundamentalAnalysis()
     test.set_start_date("2006-04-14")
     test.set_end_date("2006-05-31")
-    a = test.fundamental_analysis([test.US10Y_BOND], test.FA_RAW_DATA)
+    a = test.fundamental_analysis([test.US10Y_BOND])
     import pprint
 
     pprint.pprint(a, width=150)
