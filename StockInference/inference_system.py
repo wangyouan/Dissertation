@@ -43,7 +43,7 @@ class InferenceSystem(Constants):
         log4jLogger = self.sc._jvm.org.apache.log4j
         self.logger = log4jLogger.LogManager.getLogger(self.__class__.__name__)
 
-    def get_train_test_data(self, train_test_ratio, start_date, end_date):
+    def get_train_test_data(self, train_test_ratio, start_date, end_date, features=None):
         self.logger.info('#################################################################')
         self.logger.info('Get train and testing data')
         self.logger.info('Training / Testing ratio is {}'.format(train_test_ratio))
@@ -80,10 +80,12 @@ class InferenceSystem(Constants):
                 {self.GOLDEN_PRICE: False}
             ]
         }
+        if features is None:
+            features = required_info
         # required_info = {self.FUNDAMENTAL_ANALYSIS: [self.ONE_YEAR]}
         raw_data = data_collection.get_raw_data(start_date=start_date, end_date=end_date, using_ratio=False,
                                                 using_adj=self.adjusted_close, label_info=self.STOCK_CLOSE,
-                                                required_info=required_info)
+                                                required_info=features)
         # debug
         # raw_data_file = open("test", 'w')
         # import pickle
