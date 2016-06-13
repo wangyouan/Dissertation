@@ -296,6 +296,7 @@ class InferenceSystem(Constants):
                                                  features=features, load_model=False)
         data_collection = DataCollect(self.stock_symbol, end_date, end_date, data_file_path=data_file_path,
                                       logger=self.sc._jvm.org.apache.log4j.LogManager)
+        data_collection.set_interest_rate_path(interest_rate_path)
         data = data_collection.get_raw_data(features[self.PRICE_TYPE], required_info=features)
         predict_features = self.data_parser.transform(data)[0]
         predict_price = model.predict(predict_features)
