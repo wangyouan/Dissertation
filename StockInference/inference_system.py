@@ -207,7 +207,7 @@ class InferenceSystem(Constants):
         elif training_method == self.RANDOM_FOREST:
 
             model = RandomForest.trainRegressor(training_data, categoricalFeaturesInfo={}, numTrees=40,
-                                                featureSubsetStrategy="auto", impurity='variance', maxDepth=5,
+                                                featureSubsetStrategy="auto", impurity='variance', maxDepth=20,
                                                 maxBins=32, seed=1234)
 
         elif training_method == self.LINEAR_REGRESSION:
