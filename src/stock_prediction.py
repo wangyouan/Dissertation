@@ -84,7 +84,7 @@ for method in [const.ARTIFICIAL_NEURAL_NETWORK, const.RANDOM_FOREST, const.LINEA
         os.makedirs(new_file_path)
 
     f = open(os.path.join(new_file_path, "stock_info.csv"), 'w')
-    f.write('stock,MSE,MAPE,MAD,RMSE,TIE,CDC\n')
+    f.write('stock,MSE,MAPE,MAD,RMSE,CDC\n')
     for stock in stock_list:
 
         # for stock in ["0033.HK"]:
