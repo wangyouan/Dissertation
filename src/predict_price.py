@@ -23,6 +23,7 @@ elif len(sys.argv) == 1:
 else:
     symbol = sys.argv[0]
     start_history = sys.argv[1]
+
 data_path = 'data'
 features = {
     const.PRICE_TYPE: const.STOCK_CLOSE,
