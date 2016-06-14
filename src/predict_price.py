@@ -14,15 +14,15 @@ from StockInference.constant import Constants
 
 const = Constants()
 
-if len(sys.argv) == 0:
+if len(sys.argv) <= 1:
     symbol = "0001.HK"
     start_history = None
-elif len(sys.argv) == 1:
-    symbol = sys.argv[0]
+elif len(sys.argv) == 2:
+    symbol = sys.argv[1]
     start_history = None
 else:
-    symbol = sys.argv[0]
-    start_history = sys.argv[1]
+    symbol = sys.argv[1]
+    start_history = sys.argv[2]
 
 data_path = 'data'
 features = {
@@ -76,4 +76,6 @@ date, price = test.get_future_stock_price(training_method=const.ARTIFICIAL_NEURA
                                           data_file_path=data_path,
                                           features=features, start_history=start_history)
 test.sc.stop()
+import time
+time.sleep(5)
 print "The price of", symbol, "in", date, 'is', price

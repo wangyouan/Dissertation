@@ -1,8 +1,8 @@
 #!/usr/bin/env bash
 
-NUM1=0
+echo $#
 
-if [ $# -eq $NUM1 ]
+if [ $# -eq 0 ]
 then
     spark-submit --master "spark://Master:7077" \
         --py-files dist/StockInference-0.2-py2.7.egg \

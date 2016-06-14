@@ -279,7 +279,8 @@ class InferenceSystem(Constants):
             if not isinstance(start_date, str):
                 start_date = start_date.strftime("%Y-%m-%d")
 
-            model = self.predict_historical_data(1, start_date, end_date, output_file_path=output_file_path,
+            model = self.predict_historical_data(1, start_date=start_date, end_date=end_date,
+                                                 output_file_path=output_file_path,
                                                  training_method=training_method, data_folder_path=data_file_path,
                                                  features=features, load_model=False)
         data_collection = DataCollect(self.stock_symbol, end_date, end_date, data_file_path=data_file_path,
