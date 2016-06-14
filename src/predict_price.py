@@ -14,8 +14,16 @@ from StockInference.constant import Constants
 
 const = Constants()
 
+if len(sys.argv) == 0:
+    symbol = "0001.HK"
+    start_history = None
+elif len(sys.argv) == 1:
+    symbol = sys.argv[0]
+    start_history = None
+else:
+    symbol = sys.argv[0]
+    start_history = sys.argv[1]
 data_path = 'data'
-symbol = "0001.HK"
 features = {
     const.PRICE_TYPE: const.STOCK_CLOSE,
     const.STOCK_PRICE: {const.DATA_PERIOD: 5},
@@ -65,6 +73,6 @@ if sys.platform == 'darwin':
 test = InferenceSystem(stock_symbol=symbol)
 date, price = test.get_future_stock_price(training_method=const.ARTIFICIAL_NEURAL_NETWORK,
                                           data_file_path=data_path,
-                                          features=features)
+                                          features=features, start_history=start_history)
 test.sc.stop()
 print "The price of", symbol, "in", date, 'is', price

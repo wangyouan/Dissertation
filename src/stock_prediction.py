@@ -102,7 +102,7 @@ for method in [const.ARTIFICIAL_NEURAL_NETWORK, const.RANDOM_FOREST, const.LINEA
         rmse = get_RMSE(predict_result)
         tie = get_theils_inequality_coefficient(predict_result)
         cdc = get_CDC(predict_result)
-        f.write('{},{},{},{}\n'.format(stock, mse, mape, mad, rmse, tie, cdc))
-        test.sc.stop()
+        f.write('{},{},{},{},{},{},{}\n'.format(stock, mse, mape, mad, rmse, tie, cdc))
+        time.sleep(10)
 
     f.close()
