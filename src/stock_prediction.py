@@ -54,7 +54,7 @@ required_info = {
         # {const.FROM: const.AUD, const.TO: const.HKD},
         const.ONE_YEAR,
         const.HALF_YEAR,
-        const.OVER_NIGHT,
+        # const.OVER_NIGHT,
         const.GOLDEN_PRICE,
     ]
 }
@@ -94,7 +94,7 @@ for method in [const.ARTIFICIAL_NEURAL_NETWORK, const.RANDOM_FOREST, const.LINEA
                                                       training_method=method,
                                                       data_folder_path=data_path,
                                                       output_file_path=specific_file_path,
-                                                      load_model=True, features=required_info)
+                                                      load_model=False, features=required_info)
         predict_result.cache()
         mse = get_MSE(predict_result)
         mape = get_MAPE(predict_result)
