@@ -1,17 +1,17 @@
-\chapter{Introduction}
+\chapter{Introduction} 
 
-Lorem ipsum dolor sit amet, consectetur adipiscing elit. Vivamus at pulvinar nisi. Phasellus hendrerit, diam placerat interdum iaculis, mauris justo cursus risus, in viverra purus eros at ligula. Ut metus justo, consequat a tristique posuere, laoreet nec nibh. Etiam et scelerisque mauris. Phasellus vel massa magna. Ut non neque id tortor pharetra bibendum vitae sit amet nisi. Duis nec quam quam, sed euismod justo. Pellentesque eu tellus vitae ante tempus malesuada. Nunc accumsan, quam in congue consequat, lectus lectus dapibus erat, id aliquet urna neque at massa. Nulla facilisi. Morbi ullamcorper eleifend posuere. Donec libero leo, faucibus nec bibendum at, mattis et urna. Proin consectetur, nunc ut imperdiet lobortis, magna neque tincidunt lectus, id iaculis nisi justo id nibh. Pellentesque vel sem in erat vulputate faucibus molestie ut lorem.
+\section{Problem Statement}
 
-\section{A Section}
+It is human beings' common goal to make life easier and more comfortable. Wealth can bring help to achieve this goal, and investment on stock can help people to gain wealth quickly. As a result, many research works have been done on market analysis.\par 
 
-Quisque tristique urna in lorem laoreet at laoreet quam congue. Donec dolor turpis, blandit non imperdiet aliquet, blandit et felis. In lorem nisi, pretium sit amet vestibulum sed, tempus et sem. Proin non ante turpis. Nulla imperdiet fringilla convallis. Vivamus vel bibendum nisl. Pellentesque justo lectus, molestie vel luctus sed, lobortis in libero. Nulla facilisi. Aliquam erat volutpat. Suspendisse vitae nunc nunc. Sed aliquet est suscipit sapien rhoncus non adipiscing nibh consequat. Aliquam metus urna, faucibus eu vulputate non, luctus eu justo.
+However, as a very complex (non-linear) and volatile system with many factors (such as companies' performance, domestic economies, festivals, seasons, etc.)\cite{chen1986economic}, stock market is difficult to be precisely predicted. Which makes investors and researchers headache, those factors usually have relationship with each other, and they will keep changing all the time. Hence, investors and fund manager must maintain real-time monitoring of market behavior and take right factors into consideration, so as to make the right trading decision.\par
 
-\subsection{A Subsection}
+Is stock price movement really predictable? How to measure the predict performance of given method? As those indicators of market keep changing every time, how can we keep tracking of them timely for many stocks? As calculating so many parameters is really demanding, but those high performance server is very expensive, can we utilize distributed computing to calculate those? With the development of machine learning, computer now can learn some human knowledge (like Alpha Go versus Lee Sedol), can them learn to predict stock price?
 
-Donec urna leo, vulputate vitae porta eu, vehicula blandit libero. Phasellus eget massa et leo condimentum mollis. Nullam molestie, justo at pellentesque vulputate, sapien velit ornare diam, nec gravida lacus augue non diam. Integer mattis lacus id libero ultrices sit amet mollis neque molestie. Integer ut leo eget mi volutpat congue. Vivamus sodales, turpis id venenatis placerat, tellus purus adipiscing magna, eu aliquam nibh dolor id nibh. Pellentesque habitant morbi tristique senectus et netus et malesuada fames ac turpis egestas. Sed cursus convallis quam nec vehicula. Sed vulputate neque eget odio fringilla ac sodales urna feugiat.
+\subsection{Objectives}
 
-\section{Another Section}
+This study is to answer the above problems. A distributed stock prediction system which consists of data tracking, model training and price prediction will be built. The 
 
-Phasellus nisi quam, volutpat non ullamcorper eget, congue fringilla leo. Cras et erat et nibh placerat commodo id ornare est. Nulla facilisi. Aenean pulvinar scelerisque eros eget interdum. Nunc pulvinar magna ut felis varius in hendrerit dolor accumsan. Nunc pellentesque magna quis magna bibendum non laoreet erat tincidunt. Nulla facilisi.
+\section{Background}
 
-Duis eget massa sem, gravida interdum ipsum. Nulla nunc nisl, hendrerit sit amet commodo vel, varius id tellus. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nunc ac dolor est. Suspendisse ultrices tincidunt metus eget accumsan. Nullam facilisis, justo vitae convallis sollicitudin, eros augue malesuada metus, nec sagittis diam nibh ut sapien. Duis blandit lectus vitae lorem aliquam nec euismod nisi volutpat. Vestibulum ornare dictum tortor, at faucibus justo tempor non. Nulla facilisi. Cras non massa nunc, eget euismod purus. Nunc metus ipsum, euismod a consectetur vel, hendrerit nec nunc.
+Recently, with the development of machine learning and cloud computing technologies, people find a new way to analyze many factors of stock price at a time without too much manual cost. There are many works towards prediction have been attempted, includes neural network\cite{kimoto1990stock,naeini2010stock}, multi-class support vector machine\cite{kercheval2015modelling}, linear and polynomial regression\cite{nunnostock,alexanderstock}, random forest\cite{alexanderstock,lauretto2013evaluation}. However, none of those models have become widely accepted.

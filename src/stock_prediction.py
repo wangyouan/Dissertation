@@ -85,12 +85,12 @@ for method in [const.ARTIFICIAL_NEURAL_NETWORK, const.RANDOM_FOREST, const.LINEA
 
     f = open(os.path.join(new_file_path, "stock_info.csv"), 'w')
     f.write('stock,MSE,MAPE,MAD,RMSE,CDC\n')
-    for stock in stock_list:
+    for stock in stock_list[:5]:
 
         # for stock in ["0033.HK"]:
         specific_file_path = os.path.join(new_file_path, stock[:4])
         test = InferenceSystem(stock)
-        predict_result = test.predict_historical_data(0.8, "2006-04-14", "2016-04-15",
+        predict_result = test.predict_historical_data(0.8, "2004-04-14", "2014-04-15",
                                                       training_method=method,
                                                       data_folder_path=data_path,
                                                       output_file_path=specific_file_path,

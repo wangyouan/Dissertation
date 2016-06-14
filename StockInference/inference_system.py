@@ -206,7 +206,7 @@ class InferenceSystem(Constants):
                     model.save_model(model_path)
         elif training_method == self.RANDOM_FOREST:
 
-            model = RandomForest.trainRegressor(training_data, categoricalFeaturesInfo={}, numTrees=4,
+            model = RandomForest.trainRegressor(training_data, categoricalFeaturesInfo={}, numTrees=40,
                                                 featureSubsetStrategy="auto", impurity='variance', maxDepth=5,
                                                 maxBins=32, seed=1234)
 

@@ -7,50 +7,50 @@
 \contentsline {chapter}{List of Figures}{vii}{dummy.5}
 \contentsline {chapter}{List of Tables}{viii}{dummy.7}
 \contentsline {chapter}{Abbreviations}{ix}{dummy.9}
-\contentsline {chapter}{Symbols}{x}{dummy.12}
 \vspace {2em}
-\contentsline {chapter}{\numberline {1}Introduction}{1}{chapter.15}
-\contentsline {section}{\numberline {1.1}A Section}{1}{section.16}
-\contentsline {subsection}{\numberline {1.1.1}A Subsection}{1}{subsection.17}
-\contentsline {section}{\numberline {1.2}Another Section}{2}{section.18}
-\contentsline {chapter}{\numberline {2}Review}{3}{chapter.19}
-\contentsline {section}{\numberline {2.1}A Section}{3}{section.20}
-\contentsline {subsection}{\numberline {2.1.1}A Subsection}{3}{subsection.21}
-\contentsline {section}{\numberline {2.2}Another Section}{4}{section.22}
-\contentsline {chapter}{\numberline {3}Market Understanding}{5}{chapter.23}
-\contentsline {section}{\numberline {3.1}A Section}{5}{section.24}
-\contentsline {subsection}{\numberline {3.1.1}A Subsection}{5}{subsection.25}
-\contentsline {section}{\numberline {3.2}Another Section}{6}{section.26}
-\contentsline {chapter}{\numberline {4}Distributed Computing Basics}{7}{chapter.27}
-\contentsline {section}{\numberline {4.1}A Section}{7}{section.28}
-\contentsline {subsection}{\numberline {4.1.1}A Subsection}{7}{subsection.29}
-\contentsline {section}{\numberline {4.2}Another Section}{8}{section.30}
-\contentsline {chapter}{\numberline {5}Data Mining Methods}{9}{chapter.31}
-\contentsline {section}{\numberline {5.1}A Section}{9}{section.32}
-\contentsline {subsection}{\numberline {5.1.1}A Subsection}{9}{subsection.33}
-\contentsline {section}{\numberline {5.2}Another Section}{10}{section.34}
-\contentsline {chapter}{\numberline {6}Model Design}{11}{chapter.35}
-\contentsline {section}{\numberline {6.1}A Section}{11}{section.36}
-\contentsline {subsection}{\numberline {6.1.1}A Subsection}{11}{subsection.37}
-\contentsline {section}{\numberline {6.2}Another Section}{12}{section.38}
-\contentsline {chapter}{\numberline {7}Data Preproesssing}{13}{chapter.39}
-\contentsline {section}{\numberline {7.1}A Section}{13}{section.40}
-\contentsline {subsection}{\numberline {7.1.1}A Subsection}{13}{subsection.41}
-\contentsline {section}{\numberline {7.2}Another Section}{14}{section.42}
-\contentsline {chapter}{\numberline {8}Training Model}{15}{chapter.43}
-\contentsline {section}{\numberline {8.1}A Section}{15}{section.44}
-\contentsline {subsection}{\numberline {8.1.1}A Subsection}{15}{subsection.45}
-\contentsline {section}{\numberline {8.2}Another Section}{16}{section.46}
-\contentsline {chapter}{\numberline {9}Results}{17}{chapter.47}
-\contentsline {section}{\numberline {9.1}A Section}{17}{section.48}
-\contentsline {subsection}{\numberline {9.1.1}A Subsection}{17}{subsection.49}
-\contentsline {section}{\numberline {9.2}Another Section}{18}{section.50}
-\contentsline {chapter}{\numberline {10}Conclusion}{19}{chapter.51}
-\contentsline {section}{\numberline {10.1}A Section}{19}{section.52}
-\contentsline {subsection}{\numberline {10.1.1}A Subsection}{19}{subsection.53}
-\contentsline {section}{\numberline {10.2}Another Section}{20}{section.54}
+\contentsline {chapter}{\numberline {1}Introduction}{1}{chapter.12}
+\contentsline {section}{\numberline {1.1}Problem Statement}{1}{section.13}
+\contentsline {subsection}{\numberline {1.1.1}Objectives}{1}{subsection.14}
+\contentsline {section}{\numberline {1.2}Background}{2}{section.15}
+\contentsline {chapter}{\numberline {2}Review}{3}{chapter.16}
+\contentsline {section}{\numberline {2.1}A Section}{3}{section.17}
+\contentsline {subsection}{\numberline {2.1.1}A Subsection}{3}{subsection.18}
+\contentsline {section}{\numberline {2.2}Another Section}{4}{section.19}
+\contentsline {chapter}{\numberline {3}Market Understanding}{5}{chapter.20}
+\contentsline {section}{\numberline {3.1}A Section}{5}{section.21}
+\contentsline {subsection}{\numberline {3.1.1}A Subsection}{5}{subsection.22}
+\contentsline {section}{\numberline {3.2}Another Section}{6}{section.23}
+\contentsline {chapter}{\numberline {4}Distributed Computing Basics}{7}{chapter.24}
+\contentsline {section}{\numberline {4.1}A Section}{7}{section.25}
+\contentsline {subsection}{\numberline {4.1.1}A Subsection}{7}{subsection.26}
+\contentsline {section}{\numberline {4.2}Another Section}{8}{section.27}
+\contentsline {chapter}{\numberline {5}Data Mining Methods}{9}{chapter.28}
+\contentsline {section}{\numberline {5.1}A Section}{9}{section.29}
+\contentsline {subsection}{\numberline {5.1.1}A Subsection}{9}{subsection.30}
+\contentsline {section}{\numberline {5.2}Another Section}{10}{section.31}
+\contentsline {chapter}{\numberline {6}Model Design}{11}{chapter.32}
+\contentsline {section}{\numberline {6.1}A Section}{11}{section.33}
+\contentsline {subsection}{\numberline {6.1.1}A Subsection}{11}{subsection.34}
+\contentsline {section}{\numberline {6.2}Another Section}{12}{section.35}
+\contentsline {chapter}{\numberline {7}Data Preproesssing}{13}{chapter.36}
+\contentsline {section}{\numberline {7.1}A Section}{13}{section.37}
+\contentsline {subsection}{\numberline {7.1.1}A Subsection}{13}{subsection.38}
+\contentsline {section}{\numberline {7.2}Another Section}{14}{section.39}
+\contentsline {chapter}{\numberline {8}Training Model}{15}{chapter.40}
+\contentsline {section}{\numberline {8.1}A Section}{15}{section.41}
+\contentsline {subsection}{\numberline {8.1.1}A Subsection}{15}{subsection.42}
+\contentsline {section}{\numberline {8.2}Another Section}{16}{section.43}
+\contentsline {chapter}{\numberline {9}Results}{17}{chapter.44}
+\contentsline {section}{\numberline {9.1}A Section}{17}{section.45}
+\contentsline {subsection}{\numberline {9.1.1}A Subsection}{17}{subsection.46}
+\contentsline {section}{\numberline {9.2}Another Section}{18}{section.47}
+\contentsline {chapter}{\numberline {10}Conclusion}{19}{chapter.48}
+\contentsline {section}{\numberline {10.1}A Section}{19}{section.49}
+\contentsline {subsection}{\numberline {10.1.1}A Subsection}{19}{subsection.50}
+\contentsline {section}{\numberline {10.2}Another Section}{20}{section.51}
 \vspace {2em}
-\contentsline {chapter}{\numberline {A}Technique Indicators}{21}{appendix.55}
-\contentsline {chapter}{\numberline {B}Description of Performance Measure}{23}{appendix.56}
-\contentsline {chapter}{\numberline {C}All Reslult}{25}{appendix.57}
+\contentsline {chapter}{\numberline {A}Technique Indicators}{21}{appendix.52}
+\contentsline {chapter}{\numberline {B}Description of Performance Measure}{23}{appendix.53}
+\contentsline {chapter}{\numberline {C}All Reslult}{25}{appendix.54}
 \vspace {2em}
+\contentsline {chapter}{Bibliography}{27}{dummy.55}
