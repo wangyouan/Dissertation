@@ -14,15 +14,36 @@ from StockInference.constant import Constants
 
 const = Constants()
 
+training_method_dict = {
+    'ann': const.ARTIFICIAL_NEURAL_NETWORK,
+    'rt': const.RANDOM_FOREST,
+    'lr': const.LINEAR_REGRESSION
+}
+
 if len(sys.argv) <= 1:
     symbol = "0001.HK"
     start_history = None
+    training_method = const.ARTIFICIAL_NEURAL_NETWORK
 elif len(sys.argv) == 2:
     symbol = sys.argv[1]
     start_history = None
+    training_method = const.ARTIFICIAL_NEURAL_NETWORK
+elif len(sys.argv) == 3:
+    symbol = sys.argv[1]
+    if sys.argv[2] in training_method_dict:
+        training_method = training_method_dict.get(sys.argv[2])
+        start_history = None
+    else:
+        start_history = sys.argv[2]
+        training_method = const.ARTIFICIAL_NEURAL_NETWORK
 else:
     symbol = sys.argv[1]
-    start_history = sys.argv[2]
+    if sys.argv[2] in training_method_dict:
+        training_method = training_method_dict.get(sys.argv[2])
+        start_history = sys.argv[3]
+    else:
+        start_history = sys.argv[2]
+        training_method = training_method_dict.get(sys.argv[3])
 
 data_path = 'data'
 features = {
@@ -72,7 +93,7 @@ if sys.platform == 'darwin':
     data_path = os.path.join('..', data_path)
 
 test = InferenceSystem(stock_symbol=symbol)
-date, price = test.get_future_stock_price(training_method=const.ARTIFICIAL_NEURAL_NETWORK,
+date, price = test.get_future_stock_price(training_method=training_method,
                                           data_file_path=data_path,
                                           features=features, start_history=start_history)
 test.sc.stop()
