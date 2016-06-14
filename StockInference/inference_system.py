@@ -194,11 +194,12 @@ class InferenceSystem(Constants):
                     layer_file.close()
                     save_data_to_file(os.path.join(output_file_path, 'layers.dat'), layers)
 
-            neural_network = NeuralNetworkSpark(layers=layers, bias=0)
-            model = neural_network.train(training_data, method=neural_network.BP, seed=1234, learn_rate=0.0001,
-                                         iteration=20, model=model)
-            if output_file_path:
-                model.save_model(model_path)
+            if model is None:
+                neural_network = NeuralNetworkSpark(layers=layers, bias=0)
+                model = neural_network.train(training_data, method=neural_network.BP, seed=1234, learn_rate=0.0001,
+                                             iteration=20, model=model)
+                if output_file_path:
+                    model.save_model(model_path)
         elif training_method == self.RANDOM_FOREST:
 
             model = RandomForest.trainRegressor(training_data, categoricalFeaturesInfo={}, numTrees=4,

@@ -63,5 +63,8 @@ if sys.platform == 'darwin':
     data_path = os.path.join('..', data_path)
 
 test = InferenceSystem(stock_symbol=symbol)
-date, price = test.get_future_stock_price(const.ARTIFICIAL_NEURAL_NETWORK, data_file_path=data_path, features=features)
+date, price = test.get_future_stock_price(training_method=const.ARTIFICIAL_NEURAL_NETWORK,
+                                          data_file_path=data_path,
+                                          features=features)
+test.sc.stop()
 print "The price of", symbol, "in", date, 'is', price
