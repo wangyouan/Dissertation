@@ -142,8 +142,6 @@ class InferenceSystem(Constants):
         if data_folder_path is not None and not os.path.isdir(data_folder_path):
             os.makedirs(data_folder_path)
 
-        if load_model and output_file_path is not None:
-            self.data_parser = load_data_from_file(os.path.join(output_file_path, "data_parser.dat"))
         if self.train_data is None or self.test_data is None or self.test_data_features is None:
             self.get_train_test_data(train_test_ratio, start_date=start_date, end_date=end_date, features=features,
                                      data_file_path=data_folder_path)
