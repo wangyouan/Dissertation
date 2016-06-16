@@ -19,7 +19,7 @@ from StockSimulator import load_spark_context
 
 def test_distributed_ann():
     data_file = os.path.join(os.path.abspath('data'), "0051.HK.csv")
-    sc = load_spark_context("NeuralNetwork")[0]
+    sc = load_spark_context("Regression")[0]
 
     # logger = sc._jvm.org.apache.log4j
     # logger.LogManager.getLogger("org").setLevel(logger.Level.ERROR)

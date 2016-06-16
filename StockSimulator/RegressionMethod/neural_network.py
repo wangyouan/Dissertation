@@ -175,7 +175,7 @@ if __name__ == "__main__":
 
     logging.basicConfig(stream=sys.stdout, level=logging.DEBUG)
     test_nn()
-    # test = NeuralNetwork([2, 3, 1], seed=1234, bias=0.5)
+    # test = Regression([2, 3, 1], seed=1234, bias=0.5)
     # y = np.array(
     #     [5.0, 0.0, 10.0, 1.9, 2.3, 19.0, 2.0, 3.0, 4.0, 3.9, -5.0, -10.0, -4.0, 4.0, -0.5, -1.0, 0.0, 0.8, 0.6, 4.0,
     #      7.0, 0.8, 1.0, 0])

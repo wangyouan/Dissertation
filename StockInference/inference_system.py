@@ -17,7 +17,7 @@ from pandas.tseries.offsets import CustomBusinessDay
 
 from StockInference.constant import Constants
 from StockInference.DataCollection.data_collect import DataCollect
-from StockInference.NeuralNetwork.distributed_neural_network import NeuralNetworkSpark, NeuralNetworkModel
+from StockInference.Regression.distributed_neural_network import NeuralNetworkSpark, NeuralNetworkModel
 from StockInference.util.data_parse import min_max_de_normalize, get_MSE, get_MAD, get_MAPE, get_CDC
 from StockInference.DataParser.data_parser import DataParser
 from StockInference.util.date_parser import get_ahead_date
