@@ -77,7 +77,7 @@ stock_list = ['0001.HK', '0002.HK', '0003.HK', '0004.HK', '0005.HK', '0006.HK', 
               '0057.HK', '0058.HK', '0059.HK', '0060.HK', '0888.HK', '0062.HK', '0063.HK', '0064.HK', '0065.HK',
               '0066.HK', '1123.HK']
 
-for method in [const.ARTIFICIAL_NEURAL_NETWORK, const.RANDOM_FOREST, const.LINEAR_REGRESSION][1:2]:
+for method in [const.ARTIFICIAL_NEURAL_NETWORK, const.RANDOM_FOREST_REGRESSION, const.LINEAR_REGRESSION][:1]:
 
     new_file_path = os.path.join(output_path, method)
     if not os.path.isdir(new_file_path):
@@ -85,24 +85,28 @@ for method in [const.ARTIFICIAL_NEURAL_NETWORK, const.RANDOM_FOREST, const.LINEA
 
     f = open(os.path.join(new_file_path, "stock_info.csv"), 'w')
     f.write('stock,MSE,MAPE,MAD,RMSE,CDC\n')
-    for stock in stock_list:
+    for stock in stock_list[:1]:
 
         # for stock in ["0033.HK"]:
         specific_file_path = os.path.join(new_file_path, stock[:4])
-        test = InferenceSystem(stock)
-        predict_result = test.predict_historical_data(0.8, "2006-04-14", "2016-04-15",
-                                                      training_method=method,
-                                                      data_folder_path=data_path,
-                                                      output_file_path=specific_file_path,
-                                                      load_model=False, features=required_info)
-        predict_result.cache()
-        mse = get_MSE(predict_result)
-        mape = get_MAPE(predict_result)
-        mad = get_MAD(predict_result)
-        rmse = get_RMSE(predict_result)
-        # tie = get_theils_inequality_coefficient(predict_result)
-        cdc = get_CDC(predict_result)
-        f.write('{},{},{},{},{},{}\n'.format(stock, mse, mape, mad, rmse, cdc))
+        test = InferenceSystem(stock, training_method=method, data_folder_path=data_path,
+                               output_file_path=specific_file_path)
+        try:
+            predict_result = test.predict_historical_data(0.8, "2006-04-14", "2016-04-15", iterations=10,
+                                                          load_model=False)
+            predict_result.cache()
+            mse = get_MSE(predict_result)
+            mape = get_MAPE(predict_result)
+            mad = get_MAD(predict_result)
+            rmse = get_RMSE(predict_result)
+            # tie = get_theils_inequality_coefficient(predict_result)
+            cdc = get_CDC(predict_result)
+            f.write('{},{},{},{},{},{}\n'.format(stock, mse, mape, mad, rmse, cdc))
+        except Exception, err:
+            print "Error happens"
+            print err
+            test.sc.stop()
+            break
 
     time.sleep(30)
     f.close()

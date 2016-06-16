@@ -82,7 +82,7 @@ class Constants(object):
     GOLDEN_PRICE = "gold price in CNY"
 
     ARTIFICIAL_NEURAL_NETWORK = "Artificial_Neural_Network"
-    RANDOM_FOREST = "Random_Forest"
+    RANDOM_FOREST_REGRESSION = "Random_Forest_Regression"
     LINEAR_REGRESSION = "Linear_Regression"
 
     PCA = "Principal Component Analysis"

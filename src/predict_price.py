@@ -16,7 +16,7 @@ const = Constants()
 
 training_method_dict = {
     'ann': const.ARTIFICIAL_NEURAL_NETWORK,
-    'rt': const.RANDOM_FOREST,
+    'rt': const.RANDOM_FOREST_REGRESSION,
     'lr': const.LINEAR_REGRESSION
 }
 

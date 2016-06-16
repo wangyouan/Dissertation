@@ -80,9 +80,10 @@ class NeuralNetworkSpark(Constants):
             self.logger.info("Start the {} iteration".format(k))
 
             process_data = [rdd_data]
-            for layer in model.weights:
+            weights_bc = self.spark_context.broadcast(model.weights)
+            for l in range(len(model.weights)):
                 activation = process_data[-1].map(
-                    lambda v: LabeledPoint(features=model.act_func(np_dot(v.features, layer)),
+                    lambda v: LabeledPoint(features=model.act_func(np_dot(v.features, weights_bc.value[l])),
                                            label=v.label)).cache()
                 process_data.append(activation)
 
