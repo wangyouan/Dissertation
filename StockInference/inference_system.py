@@ -147,10 +147,10 @@ class InferenceSystem(Constants):
 
         return train_features
 
-    def load_model(self):
+    def load_parameters(self):
         pass
 
-    def save_model(self):
+    def save_parameters(self):
         pass
 
     def model_training(self, training_data, model):
@@ -200,7 +200,7 @@ class InferenceSystem(Constants):
     def initialize_model(self):
         model = None
         if self.using_exist_model:
-            model = self.load_model()
+            model = self.load_parameters()
         elif self.training_method == self.ARTIFICIAL_NEURAL_NETWORK:
             model = NeuralNetworkModel(layers=[self.feature_num, self.feature_num / 3 * 2, self.feature_num / 3, 1])
 
@@ -269,7 +269,7 @@ class InferenceSystem(Constants):
         predict = self.model_prediction(model, testing_data=testing_data, testing_data_features=testing_data_features)
 
         if self.output_path:
-            self.save_model()
+            self.save_parameters()
             train_data_num = len(self.train_data)
             test_date_list = self.date_list[train_data_num:]
             predict_list = predict.collect()
@@ -284,7 +284,7 @@ class InferenceSystem(Constants):
 
         return predict
 
-    def get_future_stock_price(self, training_method=None, start_history=None, model_path=None, features=None,
+    def get_future_stock_price(self, training_method=None, start_history=None, features=None,
                                output_file_path=None, data_file_path=None):
         today = datetime.datetime.today()
         cday = CustomBusinessDay(calendar=HongKongCalendar(today.year - 1, today.year))
@@ -303,8 +303,8 @@ class InferenceSystem(Constants):
 
         predict_date = predict_date.strftime("%Y-%m-%d")
         end_date = end_day.strftime("%Y-%m-%d")
-        if model_path is not None:
-            model = load_data_from_file(model_path)
+        if self.model_path is not None and self.using_exist_model:
+            model, features, self.stock_symbol = self.load_parameters()
         else:
 
             if start_history is None:

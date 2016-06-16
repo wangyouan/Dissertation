@@ -39,7 +39,7 @@ def test_distributed_ann():
                          )
     predict_result = close_test_data.map(lambda p: (p.label, DataParser.de_normalize(model.predict(p.features),
                                                                                      p.features))).cache()
-    model.save_model("models/0051HK{}.model".format(time.time()))
+    model.save_parameters("models/0051HK{}.model".format(time.time()))
     mse = DataParser.get_MSE(predict_result)
     print mse
     sc.stop()
