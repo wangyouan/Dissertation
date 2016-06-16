@@ -53,7 +53,7 @@ class DataParser(Constants):
         test_raw_features = [i.features[:4] for i in test_raw_data]
 
         normalized_label = map(
-            lambda p: LabeledPoint(features=p.features, label=min_max_normalize(p.label, p.features[1], p.features[0])),
+            lambda p: LabeledPoint(features=p.features, label=min_max_normalize(p.label, p.features[1], p.features[2])),
             train_raw_data
         )
         if fit_transform:
