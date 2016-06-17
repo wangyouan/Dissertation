@@ -8,10 +8,11 @@
 
 import os
 import sys
+import shutil
 import datetime
 
 from pyspark import SparkContext, SparkConf
-from pyspark.mllib.tree import RandomForest
+from pyspark.mllib.tree import RandomForest, RandomForestModel
 from pyspark.mllib.regression import LinearRegressionWithSGD, LabeledPoint
 from pandas.tseries.offsets import CustomBusinessDay
 
@@ -146,7 +147,11 @@ class InferenceSystem(Constants):
             self.training_method = self.load_data_from_file(self.SAVE_TYPE_MODEL, 'train_method')
             self.data_features = self.load_data_from_file(self.SAVE_TYPE_MODEL, 'features')
             self.data_parser = self.load_data_from_file(self.SAVE_TYPE_MODEL, 'data_parser')
-            model = self.load_data_from_file(self.SAVE_TYPE_MODEL, 'model')
+            if self.training_method == self.RANDOM_FOREST_REGRESSION:
+                model = RandomForestModel.load(sc=self.sc, path='file:{}'.format(
+                    os.path.join(os.path.abspath(self.model_path), 'model')))
+            else:
+                model = self.load_data_from_file(self.SAVE_TYPE_MODEL, 'model')
             return model
         else:
             return None
@@ -155,7 +160,17 @@ class InferenceSystem(Constants):
         self.save_data_to_file(self.training_method, 'train_method', self.SAVE_TYPE_MODEL)
         self.save_data_to_file(self.data_features, 'features', self.SAVE_TYPE_MODEL)
         self.save_data_to_file(self.data_parser, 'data_parser', self.SAVE_TYPE_MODEL)
-        self.save_data_to_file(model, 'model', self.SAVE_TYPE_MODEL)
+        if self.training_method == self.RANDOM_FOREST_REGRESSION:
+            path = os.path.join(os.path.abspath(self.model_path), 'model')
+            if os.path.exists(path):
+                shutil.rmtree(path)
+
+            if not os.path.isdir(path):
+                os.makedirs(path)
+            path = 'file:{}'.format(path)
+            model.save(sc=self.sc, path=path)
+        else:
+            self.save_data_to_file(model, 'model', self.SAVE_TYPE_MODEL)
 
     def save_data_to_file(self, data, file_name, data_type):
         if not file_name.endswith('dat') and data_type != self.SAVE_TYPE_OUTPUT:
@@ -273,7 +288,7 @@ class InferenceSystem(Constants):
 
         return mse, mape, cdc, mad
 
-    def predict_historical_data(self, train_test_ratio, start_date, end_date, load_model=False, iterations=10):
+    def predict_historical_data(self, train_test_ratio, start_date, end_date, iterations=10):
 
         """ Get raw data -> process data -> pca -> normalization -> train -> test """
         self.logger.info('Start to predict stock symbol {}'.format(self.stock_symbol))
@@ -288,19 +303,16 @@ class InferenceSystem(Constants):
         train_features = self.get_train_test_data(train_test_ratio, start_date=start_date, end_date=end_date,
                                                   features=self.data_features, data_file_path=self.data_path)
 
-        # if self.output_path is not None:
-        #     save_data_to_file(os.path.join(self.output_path, "data_parser.dat"), self.data_parser)
-
         training_data = self.sc.parallelize(zip(self.train_data, train_features)).cache()
-        # train_features = self.sc.parallelize(train_features).zipWithIndex().cache()
 
         self.logger.info("Initialize Model")
         if not self.using_exist_model:
             model = self.initialize_model()
 
         if self.training_method == self.RANDOM_FOREST_REGRESSION and model is not None:
-            # If model load is Random Forest Regression, then not re-train is needed
-            pass
+
+            # If model load is Random Forest Regression, then no re-train is needed
+            self.logger.info('Model has already been loaded, no retrain needed')
         else:
 
             self.logger.info('Start to training model')

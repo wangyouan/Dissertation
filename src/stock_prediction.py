@@ -89,14 +89,12 @@ for method in [const.ARTIFICIAL_NEURAL_NETWORK, const.RANDOM_FOREST_REGRESSION, 
     f.write('stock,MSE,MAPE,MAD,RMSE,CDC\n')
     for stock in stock_list[:1]:
 
-        # for stock in ["0033.HK"]:
         specific_file_path = os.path.join(new_file_path, stock[:4])
         specific_model_path = os.path.join(model_path, method, stock[:4])
-        test = InferenceSystem(stock, training_method=method, data_folder_path=data_path,
+        test = InferenceSystem(stock, training_method=method, data_folder_path=data_path, using_exist_model=False,
                                output_file_path=specific_file_path, model_path=specific_model_path)
         try:
-            predict_result = test.predict_historical_data(0.8, "2006-04-14", "2016-04-15", iterations=10,
-                                                          load_model=True)
+            predict_result = test.predict_historical_data(0.8, "2006-04-14", "2016-04-15", iterations=10)
             predict_result.cache()
             mse = get_MSE(predict_result)
             mape = get_MAPE(predict_result)
@@ -111,5 +109,4 @@ for method in [const.ARTIFICIAL_NEURAL_NETWORK, const.RANDOM_FOREST_REGRESSION, 
             test.sc.stop()
             break
 
-    time.sleep(30)
     f.close()
