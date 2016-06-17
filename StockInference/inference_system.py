@@ -147,7 +147,7 @@ class InferenceSystem(Constants):
             self.training_method = self.load_data_from_file(self.SAVE_TYPE_MODEL, 'train_method')
             self.data_features = self.load_data_from_file(self.SAVE_TYPE_MODEL, 'features')
             self.data_parser = self.load_data_from_file(self.SAVE_TYPE_MODEL, 'data_parser')
-            if self.training_method == self.RANDOM_FOREST_REGRESSION:
+            if self.training_method == self.RANDOM_FOREST:
                 model = RandomForestModel.load(sc=self.sc, path='file:{}'.format(
                     os.path.join(os.path.abspath(self.model_path), 'model')))
             else:
@@ -160,7 +160,7 @@ class InferenceSystem(Constants):
         self.save_data_to_file(self.training_method, 'train_method', self.SAVE_TYPE_MODEL)
         self.save_data_to_file(self.data_features, 'features', self.SAVE_TYPE_MODEL)
         self.save_data_to_file(self.data_parser, 'data_parser', self.SAVE_TYPE_MODEL)
-        if self.training_method == self.RANDOM_FOREST_REGRESSION:
+        if self.training_method == self.RANDOM_FOREST:
             path = os.path.join(os.path.abspath(self.model_path), 'model')
             if os.path.exists(path):
                 shutil.rmtree(path)
@@ -233,7 +233,7 @@ class InferenceSystem(Constants):
             neural_network = NeuralNetworkSpark(layers=layers, bias=0)
             model = neural_network.train(training_data, method=neural_network.BP, seed=1234, learn_rate=0.0001,
                                          iteration=20, model=model)
-        elif self.training_method == self.RANDOM_FOREST_REGRESSION:
+        elif self.training_method == self.RANDOM_FOREST:
 
             model = RandomForest.trainRegressor(training_data, categoricalFeaturesInfo={}, numTrees=40,
                                                 featureSubsetStrategy="auto", impurity='variance', maxDepth=20,
@@ -250,7 +250,7 @@ class InferenceSystem(Constants):
 
     def model_prediction(self, model, testing_data, testing_data_features):
 
-        if self.training_method != self.RANDOM_FOREST_REGRESSION:
+        if self.training_method != self.RANDOM_FOREST:
 
             # predicting
             predict = testing_data.map(lambda p: (p.label, model.predict(p.features))) \
@@ -309,7 +309,7 @@ class InferenceSystem(Constants):
         if not self.using_exist_model:
             model = self.initialize_model()
 
-        if self.training_method == self.RANDOM_FOREST_REGRESSION and model is not None:
+        if self.training_method == self.RANDOM_FOREST and model is not None:
 
             # If model load is Random Forest Regression, then no re-train is needed
             self.logger.info('Model has already been loaded, no retrain needed')
@@ -329,7 +329,7 @@ class InferenceSystem(Constants):
                 self.logger.info("Current CDC is {:.4f}%".format(cdc))
 
                 # Just train random forest tree one time
-                if self.training_method == self.RANDOM_FOREST_REGRESSION:
+                if self.training_method == self.RANDOM_FOREST:
                     break
 
         # if train ratio is at that level, means that target want the model file, not the
@@ -347,8 +347,7 @@ class InferenceSystem(Constants):
 
         return predict
 
-    def get_future_stock_price(self, training_method=None, start_history=None, features=None,
-                               output_file_path=None, data_file_path=None):
+    def get_future_stock_price(self, start_history=None):
         today = datetime.datetime.today()
         cday = CustomBusinessDay(calendar=HongKongCalendar(today.year - 1, today.year))
         if today.hour > 18:
@@ -367,7 +366,7 @@ class InferenceSystem(Constants):
         predict_date = predict_date.strftime("%Y-%m-%d")
         end_date = end_day.strftime("%Y-%m-%d")
         if self.model_path is not None and self.using_exist_model:
-            model, features, self.stock_symbol = self.load_parameters()
+            model = self.load_parameters()
         else:
 
             if start_history is None:
@@ -379,11 +378,11 @@ class InferenceSystem(Constants):
             if not isinstance(start_date, str):
                 start_date = start_date.strftime("%Y-%m-%d")
 
-            model = self.predict_historical_data(1, start_date=start_date, end_date=end_date, load_model=False)
-        data_collection = DataCollect(self.stock_symbol, end_date, end_date, data_file_path=data_file_path,
+            model = self.predict_historical_data(1, start_date=start_date, end_date=end_date)
+        data_collection = DataCollect(self.stock_symbol, end_date, end_date, data_file_path=self.data_path,
                                       logger=self.sc._jvm.org.apache.log4j.LogManager)
         data_collection.set_interest_rate_path(interest_rate_path)
-        data = data_collection.get_raw_data(features[self.PRICE_TYPE], required_info=features)
+        data = data_collection.get_raw_data(self.data_features[self.PRICE_TYPE], required_info=self.data_features)
         predict_features = self.data_parser.transform(data)[0]
         predict_price = model.predict(predict_features)
 

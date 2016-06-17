@@ -16,7 +16,7 @@ const = Constants()
 
 training_method_dict = {
     'ann': const.ARTIFICIAL_NEURAL_NETWORK,
-    'rt': const.RANDOM_FOREST_REGRESSION,
+    'rt': const.RANDOM_FOREST,
     'lr': const.LINEAR_REGRESSION
 }
 
@@ -46,6 +46,7 @@ else:
         training_method = training_method_dict.get(sys.argv[3])
 
 data_path = 'data'
+model_path = 'models'
 features = {
     const.PRICE_TYPE: const.STOCK_CLOSE,
     const.STOCK_PRICE: {const.DATA_PERIOD: 5},
@@ -91,12 +92,13 @@ features = {
 
 if sys.platform == 'darwin':
     data_path = os.path.join('..', data_path)
+    model_path = os.path.join('..', model_path)
 
-test = InferenceSystem(stock_symbol=symbol)
-date, price = test.get_future_stock_price(training_method=training_method,
-                                          data_file_path=data_path,
-                                          features=features, start_history=start_history)
+test = InferenceSystem(stock_symbol=symbol, training_method=training_method, model_path=model_path,
+                       data_folder_path=data_path, features=features, using_exist_model=False)
+date, price = test.get_future_stock_price(start_history = start_history)
 test.sc.stop()
 import time
+
 time.sleep(5)
 print "The price of", symbol, "in", date, 'is', price
