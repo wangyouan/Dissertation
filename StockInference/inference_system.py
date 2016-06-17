@@ -36,7 +36,7 @@ class InferenceSystem(Constants):
                  model_path=None, using_exist_model=False):
         self.stock_symbol = stock_symbol
         conf = SparkConf()
-        conf.setAppName("StockInference_{}".format(stock_symbol))
+        conf.setAppName("{}_{}".format(self.__class__.__name__, stock_symbol))
         self.sc = SparkContext.getOrCreate(conf=conf)
         self.train_data = None
         self.test_data = None
@@ -57,7 +57,7 @@ class InferenceSystem(Constants):
         log4jLogger = self.sc._jvm.org.apache.log4j
         self.logger = log4jLogger.LogManager.getLogger(self.__class__.__name__)
 
-    def get_train_test_data(self, train_test_ratio, start_date, end_date, features=None, data_file_path=None):
+    def get_train_test_data(self, train_test_ratio, start_date, end_date):
 
         self.logger.info('Get train and testing data')
         self.logger.info('Training / Testing ratio is {}'.format(train_test_ratio))
@@ -94,14 +94,15 @@ class InferenceSystem(Constants):
             ]
         }
         data_collection = DataCollect(stock_symbol=self.stock_symbol, start_date=start_date, end_date=end_date,
-                                      data_file_path=data_file_path, logger=self.sc._jvm.org.apache.log4j.LogManager)
+                                      data_file_path=self.data_path, logger=self.sc._jvm.org.apache.log4j.LogManager)
         data_collection.set_interest_rate_path(interest_rate_path)
-        if features is None:
-            features = required_info
+        if self.data_features is None:
+            self.data_features = required_info
 
         # features = {self.FUNDAMENTAL_ANALYSIS: [self.ONE_YEAR]}
         self.logger.info("No previous data, will collected them from Internet")
-        raw_data = data_collection.get_raw_data(label_info=features[self.PRICE_TYPE], required_info=features)
+        raw_data = data_collection.get_raw_data(label_info=self.data_features[self.PRICE_TYPE],
+                                                required_info=self.data_features)
 
         # debug
         # raw_data_file = open(os.path.join('../output', "raw.dat"), 'w')
@@ -111,10 +112,10 @@ class InferenceSystem(Constants):
         #
         # f = open('text.csv', 'w')
         # f.write(
-        #     'date,open,high,low,close,macd1,macd2,sma_3,sma_13,sma_21,ema_5,ema_13,ema_21,roc_13,roc_21,rsi_9,rsi_14,rsi_21,us10y,us30y,fxi,hsi,usdhkd,eurhkd,oneyear,halfyear,overnight,golden_price\n')
+        #     'date,open,high,low,close,macd1,macd2,sma_3,sma_13,sma_21,ema_5,ema_13,ema_21,roc_13,roc_21,rsi_9,rsi_14,rsi_21,us10y,us30y,fxi,hsi,usdhkd,eurhkd,oneyear,halfyear,overnight,golden_price,tomm_close\n')
         # date_list = data_collection.get_date_list()
         # for i in range(len(raw_data)):
-        #     f.write("{},{}\n".format(date_list[i], ','.join(map(str, raw_data[i].features))))
+        #     f.write("{},{},{}\n".format(date_list[i], ','.join(map(str, raw_data[i].features)), raw_data[i].label))
         # f.close()
         # raise ValueError("Warn SB")
 
@@ -300,8 +301,7 @@ class InferenceSystem(Constants):
             model = None
 
         # Generate training data
-        train_features = self.get_train_test_data(train_test_ratio, start_date=start_date, end_date=end_date,
-                                                  features=self.data_features, data_file_path=self.data_path)
+        train_features = self.get_train_test_data(train_test_ratio, start_date=start_date, end_date=end_date)
 
         training_data = self.sc.parallelize(zip(self.train_data, train_features)).cache()
 

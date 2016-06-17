@@ -18,7 +18,7 @@ const = Constants()
 
 required_info = {
     const.PRICE_TYPE: const.STOCK_CLOSE,
-    const.STOCK_PRICE: {const.DATA_PERIOD: 5},
+    const.STOCK_PRICE: {const.DATA_PERIOD: 1},
     const.STOCK_INDICATOR: [
         (const.MACD, {
             const.MACD_FAST_PERIOD: 12,
@@ -79,7 +79,7 @@ stock_list = ['0001.HK', '0002.HK', '0003.HK', '0004.HK', '0005.HK', '0006.HK', 
               '0057.HK', '0058.HK', '0059.HK', '0060.HK', '0888.HK', '0062.HK', '0063.HK', '0064.HK', '0065.HK',
               '0066.HK', '1123.HK']
 
-for method in [const.ARTIFICIAL_NEURAL_NETWORK, const.RANDOM_FOREST, const.LINEAR_REGRESSION][2:]:
+for method in [const.ARTIFICIAL_NEURAL_NETWORK, const.RANDOM_FOREST, const.LINEAR_REGRESSION]:
 
     new_file_path = os.path.join(output_path, method)
     if not os.path.isdir(new_file_path):
@@ -87,7 +87,7 @@ for method in [const.ARTIFICIAL_NEURAL_NETWORK, const.RANDOM_FOREST, const.LINEA
 
     f = open(os.path.join(new_file_path, "stock_info.csv"), 'w')
     f.write('stock,MSE,MAPE,MAD,RMSE,CDC\n')
-    for stock in stock_list[:1]:
+    for stock in stock_list[:5]:
 
         specific_file_path = os.path.join(new_file_path, stock[:4])
         specific_model_path = os.path.join(model_path, method, stock[:4])

@@ -104,3 +104,7 @@ class Constants(object):
     SAVE_TYPE_MODEL = "model"
     SAVE_TYPE_INPUT = 'input'
     SAVE_TYPE_OUTPUT = 'output'
+
+    RATIO_AMOUNT = 'change ratio'
+    RAW_AMOUNT = 'raw amount'
+    ORIGINAL_PRICE = 'original price'
