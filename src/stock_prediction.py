@@ -61,10 +61,12 @@ required_info = {
 
 output_path = 'output'
 data_path = 'data'
+model_path = "models"
 
 if sys.platform == 'darwin':
     output_path = '../{}'.format(output_path)
     data_path = '../{}'.format(data_path)
+    model_path = '../{}'.format(model_path)
 
 if not os.path.isdir(data_path):
     os.makedirs(data_path)
@@ -89,11 +91,12 @@ for method in [const.ARTIFICIAL_NEURAL_NETWORK, const.RANDOM_FOREST_REGRESSION, 
 
         # for stock in ["0033.HK"]:
         specific_file_path = os.path.join(new_file_path, stock[:4])
+        specific_model_path = os.path.join(model_path, method, stock[:4])
         test = InferenceSystem(stock, training_method=method, data_folder_path=data_path,
-                               output_file_path=specific_file_path)
+                               output_file_path=specific_file_path, model_path=specific_model_path)
         try:
             predict_result = test.predict_historical_data(0.8, "2006-04-14", "2016-04-15", iterations=10,
-                                                          load_model=False)
+                                                          load_model=True)
             predict_result.cache()
             mse = get_MSE(predict_result)
             mape = get_MAPE(predict_result)

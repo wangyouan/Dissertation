@@ -46,7 +46,7 @@ class InferenceSystem(Constants):
         self.data_path = data_folder_path
         self.output_path = output_file_path
         self.data_features = features
-        self.model_path = None
+        self.model_path = model_path
         self.feature_num = None
         self.using_exist_model = using_exist_model
         if training_method is None:
@@ -55,12 +55,6 @@ class InferenceSystem(Constants):
             self.training_method = training_method
         log4jLogger = self.sc._jvm.org.apache.log4j
         self.logger = log4jLogger.LogManager.getLogger(self.__class__.__name__)
-
-        if output_file_path is not None and not os.path.isdir(output_file_path):
-            os.makedirs(output_file_path)
-
-        if data_folder_path is not None and not os.path.isdir(data_folder_path):
-            os.makedirs(data_folder_path)
 
     def get_train_test_data(self, train_test_ratio, start_date, end_date, features=None, data_file_path=None):
 
@@ -148,10 +142,73 @@ class InferenceSystem(Constants):
         return train_features
 
     def load_parameters(self):
-        pass
+        if self.using_exist_model and self.model_path:
+            self.training_method = self.load_data_from_file(self.SAVE_TYPE_MODEL, 'train_method')
+            self.data_features = self.load_data_from_file(self.SAVE_TYPE_MODEL, 'features')
+            self.data_parser = self.load_data_from_file(self.SAVE_TYPE_MODEL, 'data_parser')
+            model = self.load_data_from_file(self.SAVE_TYPE_MODEL, 'model')
+            return model
+        else:
+            return None
 
-    def save_parameters(self):
-        pass
+    def save_parameters(self, model):
+        self.save_data_to_file(self.training_method, 'train_method', self.SAVE_TYPE_MODEL)
+        self.save_data_to_file(self.data_features, 'features', self.SAVE_TYPE_MODEL)
+        self.save_data_to_file(self.data_parser, 'data_parser', self.SAVE_TYPE_MODEL)
+        self.save_data_to_file(model, 'model', self.SAVE_TYPE_MODEL)
+
+    def save_data_to_file(self, data, file_name, data_type):
+        if not file_name.endswith('dat') and data_type != self.SAVE_TYPE_OUTPUT:
+            file_name = '%s.dat' % file_name
+
+        if data_type == self.SAVE_TYPE_MODEL:
+            path = self.model_path
+        elif data_type == self.SAVE_TYPE_INPUT:
+            path = self.data_path
+        elif data_type == self.SAVE_TYPE_OUTPUT:
+            path = self.output_path
+
+        else:
+            self.logger.info("Unknown data type, cannot save")
+            path = None
+
+        if path is None:
+            self.logger.warn("Cannot save data without set target path")
+            return
+        elif not os.path.isdir(path):
+            os.makedirs(path)
+
+        if data_type == self.SAVE_TYPE_OUTPUT:
+            train_data_num = len(self.train_data)
+            test_date_list = self.date_list[train_data_num:]
+            output_file = open(os.path.join(path, file_name), "w")
+            output_file.write("date,origin,predict\n")
+            test_date_list = test_date_list[1:]
+            test_date_list.append(get_ahead_date(test_date_list[-1], -1))
+            for i in range(self.total_data_num - train_data_num):
+                output_file.write("%s,%2f,%2f\n" % (
+                    test_date_list[i], data[i][0], data[i][1]))
+            output_file.close()
+
+        else:
+            file_path = os.path.join(path, file_name)
+            save_data_to_file(file_path, data)
+
+    def load_data_from_file(self, data_type, file_name):
+        if not file_name.endswith('dat'):
+            file_name = '%s.dat' % file_name
+        if data_type == self.SAVE_TYPE_OUTPUT:
+            path = os.path.join(self.output_path, file_name)
+            if os.path.isfile(path):
+                return load_data_from_file(path)
+        elif data_type == self.SAVE_TYPE_INPUT:
+            path = os.path.join(self.data_path, file_name)
+            if os.path.isfile(path):
+                return load_data_from_file(path)
+        elif data_type == self.SAVE_TYPE_MODEL:
+            path = os.path.join(self.model_path, file_name)
+            if os.path.isfile(path):
+                return load_data_from_file(path)
 
     def model_training(self, training_data, model):
         if self.training_method == self.ARTIFICIAL_NEURAL_NETWORK:
@@ -198,11 +255,10 @@ class InferenceSystem(Constants):
         return train, test, test_features
 
     def initialize_model(self):
-        model = None
-        if self.using_exist_model:
-            model = self.load_parameters()
-        elif self.training_method == self.ARTIFICIAL_NEURAL_NETWORK:
+        if self.training_method == self.ARTIFICIAL_NEURAL_NETWORK:
             model = NeuralNetworkModel(layers=[self.feature_num, self.feature_num / 3 * 2, self.feature_num / 3, 1])
+        else:
+            model = None
 
         return model
 
@@ -223,18 +279,24 @@ class InferenceSystem(Constants):
         self.logger.info('Start to predict stock symbol {}'.format(self.stock_symbol))
         self.logger.info("The training method is {}".format(self.training_method))
 
+        if self.using_exist_model:
+            model = self.load_parameters()
+        else:
+            model = None
+
         # Generate training data
         train_features = self.get_train_test_data(train_test_ratio, start_date=start_date, end_date=end_date,
                                                   features=self.data_features, data_file_path=self.data_path)
 
-        if self.output_path is not None:
-            save_data_to_file(os.path.join(self.output_path, "data_parser.dat"), self.data_parser)
+        # if self.output_path is not None:
+        #     save_data_to_file(os.path.join(self.output_path, "data_parser.dat"), self.data_parser)
 
         training_data = self.sc.parallelize(zip(self.train_data, train_features)).cache()
         # train_features = self.sc.parallelize(train_features).zipWithIndex().cache()
 
         self.logger.info("Initialize Model")
-        model = self.initialize_model()
+        if not self.using_exist_model:
+            model = self.initialize_model()
 
         if self.training_method == self.RANDOM_FOREST_REGRESSION and model is not None:
             # If model load is Random Forest Regression, then not re-train is needed
@@ -268,19 +330,8 @@ class InferenceSystem(Constants):
         testing_data_features = self.sc.parallelize(self.test_data_features)
         predict = self.model_prediction(model, testing_data=testing_data, testing_data_features=testing_data_features)
 
-        if self.output_path:
-            self.save_parameters()
-            train_data_num = len(self.train_data)
-            test_date_list = self.date_list[train_data_num:]
-            predict_list = predict.collect()
-            predict_file = open(os.path.join(self.output_path, "predict_result.csv"), "w")
-            predict_file.write("date,origin,predict\n")
-            test_date_list = test_date_list[1:]
-            test_date_list.append(get_ahead_date(test_date_list[-1], -1))
-            for i in range(self.total_data_num - train_data_num):
-                predict_file.write("%s,%2f,%2f\n" % (
-                    test_date_list[i], predict_list[i][0], predict_list[i][1]))
-            predict_file.close()
+        self.save_data_to_file(predict.collect(), "predict_result.csv", self.SAVE_TYPE_OUTPUT)
+        self.save_parameters(model)
 
         return predict
 

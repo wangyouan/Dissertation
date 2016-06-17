@@ -99,3 +99,8 @@ class Constants(object):
 
     UNITED_STATES = "United States"
     HONG_KONG="Hong Kong"
+
+    # parameters used in data saving
+    SAVE_TYPE_MODEL = "model"
+    SAVE_TYPE_INPUT = 'input'
+    SAVE_TYPE_OUTPUT = 'output'
