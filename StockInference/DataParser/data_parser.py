@@ -107,7 +107,10 @@ class DataParser(Constants):
             train_amount = [LabeledPoint(label=i, features=j) for i, j in zip(train_amount_label, train_features)]
             test_trend = [LabeledPoint(label=i, features=j) for i, j in zip(test_trend_label, test_features)]
             test_amount = [LabeledPoint(label=i, features=j) for i, j in zip(test_amount_label, test_features)]
-            return [train_trend, train_amount], [test_trend, test_amount], tomorrow_today[train_num:]
+            return [train_trend, train_amount], [test_trend, test_amount], tomorrow_today
+
+    def inverse_transform_label(self, label_list):
+        return self.label_transformer.inverse_transform(label_list)
 
     def transform_label(self, label_list):
         if self.label_transformer is None:

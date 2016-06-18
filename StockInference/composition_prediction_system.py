@@ -9,9 +9,15 @@
 import os
 import sys
 
+import numpy as np
+from pyspark.mllib.regression import LinearRegressionWithSGD
+from pyspark.mllib.tree import RandomForest
+from pyspark.mllib.classification import LogisticRegressionWithLBFGS, SVMWithSGD, NaiveBayes
+
 from StockInference.inference_system import InferenceSystem
 from StockInference.DataCollection.data_collect import DataCollect
 from StockInference.DataParser.data_parser import DataParser
+from StockInference.Regression.distributed_neural_network import NeuralNetworkModel, NeuralNetworkSpark
 
 
 class MixInferenceSystem(InferenceSystem):
@@ -37,20 +43,95 @@ class MixInferenceSystem(InferenceSystem):
         else:
             self.amount_type = amount_type
 
+        del self.training_method
+
     def load_parameters(self):
         pass
 
     def save_parameters(self, model):
         pass
 
-    def train_model(self, model, trend_data, amount_data):
-        pass
+    def train_trend_model(self, model, data, i):
+        if self.trend_prediction_method == self.RANDOM_FOREST:
+            if i == 0 and model is None:
+                model = RandomForest.trainClassifier(data, numClasses=2, categoricalFeaturesInfo={}, numTrees=40,
+                                                     featureSubsetStrategy="auto", impurity='gini', maxDepth=20,
+                                                     maxBins=32)
+        elif self.trend_prediction_method == self.NAIVE_BAYES:
+            if i == 0 and model is None:
+                model = NaiveBayes.train(data)
 
-    def evaluate_model(self, model, testing_data):
+        elif self.trend_prediction_method == self.LOGISTIC_REGRESSION:
+            model = LogisticRegressionWithLBFGS.train(data, iterations=1000, numClasses=2,
+                                                      initialWeights=None if model is None else model.weights)
+
+        elif self.trend_prediction_method == self.SVM:
+            model = SVMWithSGD.train(data, iterations=10000, step=0.01,
+                                     initialWeights=None if model is None else model.weights)
+
+        return model
+
+    def train_amount_model(self, model, data, i):
+        if self.amount_prediction_method == self.ARTIFICIAL_NEURAL_NETWORK:
+            input_num = self.feature_num
+            layers = [input_num, input_num / 3 * 2, input_num / 3, 1]
+
+            neural_network = NeuralNetworkSpark(layers=layers, bias=0)
+            model = neural_network.train(data, method=neural_network.BP, seed=1234, learn_rate=0.0001,
+                                         iteration=10, model=model)
+        elif self.amount_prediction_method == self.RANDOM_FOREST:
+            if i == 0 and model is None:
+                model = RandomForest.trainRegressor(data, categoricalFeaturesInfo={}, numTrees=40,
+                                                    featureSubsetStrategy="auto", impurity='variance', maxDepth=20,
+                                                    maxBins=32)
+
+        elif self.amount_prediction_method == self.LINEAR_REGRESSION:
+            model = LinearRegressionWithSGD.train(data, iterations=10000, step=0.001,
+                                                  initialWeights=model.weights if model is not None else None)
+
+        else:
+            self.logger.error("Unknown training method {}".format(self.training_method))
+            raise ValueError("Unknown training method {}".format(self.training_method))
+        return model
+
+    def initialize_model(self):
+        if self.trend_prediction_method == self.ARTIFICIAL_NEURAL_NETWORK:
+            trend_model = NeuralNetworkModel(
+                layers=[self.feature_num, self.feature_num / 3 * 2, self.feature_num / 3, 1])
+        else:
+            trend_model = None
+
+        amount_model = None
+
+        return trend_model, amount_model
+
+    def evaluate_model(self, trend_model, amount_model, trend_data, amount_data, features):
         pass
 
     def get_predict_result(self, model, features):
         pass
+
+    def split_data(self, trend_train_bc, amount_train_bc, features):
+        training_data_num = len(trend_train_bc.value)
+        train_num = int(0.9 * training_data_num)
+        choice_index = np.random.choice(range(train_num), replace=False)
+        choice_index_bc = self.sc.broadcast(choice_index)
+        if self.trend_prediction_method in [self.RANDOM_FOREST, self.NAIVE_BAYES]:
+            trend_train_rdd = self.sc.parallelize([0]).flatMap(lambda x: choice_index_bc.value).map(
+                lambda x: trend_train_bc.value[x])
+        else:
+            trend_train_rdd = self.sc.parallelize([0]).flatMap(lambda x: trend_train_bc.value)
+
+        if self.amount_prediction_method != self.RANDOM_FOREST:
+            amount_train_rdd = self.sc.parallelize([0]).flatMap(lambda x: choice_index_bc.value).map(
+                lambda x: amount_train_bc.value[x])
+        else:
+            amount_train_rdd = self.sc.parallelize([0]).flatMap(lambda x: amount_train_bc.value)
+        trend_test_rdd = self.sc.parallelize([0]).flatMap(lambda x: trend_train_bc.value).zipWithIndex().filter(
+            lambda x: x[1] not in choice_index_bc.value)
+        amount_test_rdd = self.sc.parallelize([0]).flatMap(lambda x: amount_train_bc.value).zipWithIndex().filter(
+            lambda x: x[1] not in choice_index_bc.value)
+        return trend_train_rdd, trend_test_rdd, amount_train_rdd, amount_test_rdd
 
     def prepare_data(self, start_date, end_date):
 
@@ -116,6 +197,8 @@ class MixInferenceSystem(InferenceSystem):
         else:
             train, test, test_features = self.data_parser.split_train_test_data(train_test_ratio, input_data, False)
 
+        self.feature_num = len(train[0].features)
+
         return train[0], train[1], test[0], test[1], test_features
 
     def mix_inference_system(self, start_date, end_date, train_test_ratio=0.8, iterations=10):
@@ -130,8 +213,12 @@ class MixInferenceSystem(InferenceSystem):
 
         # Generate training data
         data_list = self.prepare_data(start_date=start_date, end_date=end_date)
-        trend_train, amount_train, trend_test, amount_test, test_features = self.processing_data(data_list,
-                                                                                                 train_test_ratio)
+        trend_train, amount_train, trend_test, amount_test, all_features = self.processing_data(data_list,
+                                                                                                train_test_ratio)
+
+        trend_train_bc = self.sc.broadcast(trend_train)
+        amount_train_bc = self.sc.broadcast(amount_train)
+        features_bc = self.sc.broadcast(all_features)
 
         self.logger.info("Initialize Model")
         if not self.using_exist_model:
@@ -140,19 +227,23 @@ class MixInferenceSystem(InferenceSystem):
         self.logger.info('Start to training model')
         for i in range(iterations):
             self.logger.info("Epoch {} starts".format(i))
-            train, test, test_features = self.randomly_split_data(training_data, ratio=0.8)
-            model = self.model_training(train, model)
+            trend_train_rdd, trend_test_rdd, amount_train_rdd, amount_test_rdd = self.split_data(
+                trend_train_bc=trend_train_bc, amount_train_bc=amount_train_bc, features=all_features)
+            trend_model = self.train_trend_model(data=trend_train_rdd, model=trend_model, i=i)
+            amount_model = self.train_amount_model(model=amount_model, data=amount_train_rdd, i=i)
+
             self.logger.info("Epoch {} finishes".format(i))
 
-            mse, mape, cdc, mad = self.evaluate_model_performance(model, test, test_features)
+            mse, mape, cdc, mad = self.evaluate_model(trend_model=trend_model, amount_model=amount_model,
+                                                      amount_data=amount_test_rdd, trend_data=trend_test_rdd,
+                                                      features=features_bc)
             self.logger.info("Current MSE is {:.4f}".format(mse))
             self.logger.info("Current MAD is {:.4f}".format(mad))
             self.logger.info("Current MAPE is {:.4f}%".format(mape))
             self.logger.info("Current CDC is {:.4f}%".format(cdc))
 
-            # Just train random forest tree one time
-            if self.training_method == self.RANDOM_FOREST:
-                break
+        trend_train_bc.unpersist()
+        amount_train_bc.unpersist()
 
         # if train ratio is at that level, means that target want the model file, not the
         if train_test_ratio > 0.99:
@@ -163,6 +254,7 @@ class MixInferenceSystem(InferenceSystem):
         testing_data = self.sc.parallelize(self.test_data)
         testing_data_features = self.sc.parallelize(self.test_data_features)
         predict = self.model_prediction(model, testing_data=testing_data, testing_data_features=testing_data_features)
+        features_bc.unpersist()
 
         self.save_data_to_file(predict.collect(), "predict_result.csv", self.SAVE_TYPE_OUTPUT)
         self.save_parameters(model)

@@ -84,6 +84,9 @@ class Constants(object):
     ARTIFICIAL_NEURAL_NETWORK = "Artificial_Neural_Network"
     RANDOM_FOREST = "Random_Forest"
     LINEAR_REGRESSION = "Linear_Regression"
+    NAIVE_BAYES = 'Naive_Bayes'
+    LOGISTIC_REGRESSION = 'Logistic_Regression'
+    SVM = 'SVM'
 
     PCA = "Principal Component Analysis"
     STANDARD_SCALE = "Standard Scaler"
