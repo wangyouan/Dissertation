@@ -45,6 +45,7 @@ def raw_difference(tomorrow, today):
 def direction(tomorrow, today):
     return int(tomorrow > today)
 
+
 class DataParser(Constants):
     def __init__(self, n_components=None, label_data_type=None):
         self.first_transformer = get_transformer(1)

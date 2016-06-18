@@ -15,9 +15,20 @@ from pyspark.mllib.tree import RandomForest
 from pyspark.mllib.classification import LogisticRegressionWithLBFGS, SVMWithSGD, NaiveBayes
 
 from StockInference.inference_system import InferenceSystem
+from StockInference.util.data_parse import *
+from StockInference.constant import Constants
 from StockInference.DataCollection.data_collect import DataCollect
 from StockInference.DataParser.data_parser import DataParser
 from StockInference.Regression.distributed_neural_network import NeuralNetworkModel, NeuralNetworkSpark
+
+
+def get_predict_result(trend_model, amount_model, today_price, features, amount_type):
+    amount_prediction = amount_model.predict(features)
+    trend_prediction = 1 if trend_model.predict(features) > 0.5 else -1
+    if amount_type == Constants.RAW_AMOUNT:
+        return today_price + amount_prediction * trend_prediction
+    else:
+        return today_price * (1 + amount_prediction * trend_prediction)
 
 
 class MixInferenceSystem(InferenceSystem):
@@ -48,7 +59,7 @@ class MixInferenceSystem(InferenceSystem):
     def load_parameters(self):
         pass
 
-    def save_parameters(self, model):
+    def save_model(self, trend_model, amount_model):
         pass
 
     def train_trend_model(self, model, data, i):
@@ -105,11 +116,23 @@ class MixInferenceSystem(InferenceSystem):
 
         return trend_model, amount_model
 
-    def evaluate_model(self, trend_model, amount_model, trend_data, amount_data, features):
-        pass
+    def evaluate_model(self, trend_model, amount_model, test_features, features_bc):
+        predict = self.model_predict(trend_model=trend_model, amount_model=amount_model, test_features=test_features,
+                                     all_features=features_bc)
+        predict.cache()
+        mse = get_MSE(predict)
+        cdc = get_CDC(predict)
+        mape = get_MAPE(predict)
+        mad = get_MAD(predict)
+        return mse, mape, cdc, mad
 
-    def get_predict_result(self, model, features):
-        pass
+    def model_predict(self, trend_model, amount_model, test_features, all_features):
+        amount_type = self.amount_type
+        predict = test_features.map(lambda t: (all_features.value[t[1]][0],
+                                               get_predict_result(trend_model, amount_model,
+                                                                  all_features.value[t[1]][1],
+                                                                  t[0].features, amount_type)))
+        return predict
 
     def split_data(self, trend_train_bc, amount_train_bc, features):
         training_data_num = len(trend_train_bc.value)
@@ -127,11 +150,9 @@ class MixInferenceSystem(InferenceSystem):
                 lambda x: amount_train_bc.value[x])
         else:
             amount_train_rdd = self.sc.parallelize([0]).flatMap(lambda x: amount_train_bc.value)
-        trend_test_rdd = self.sc.parallelize([0]).flatMap(lambda x: trend_train_bc.value).zipWithIndex().filter(
-            lambda x: x[1] not in choice_index_bc.value)
-        amount_test_rdd = self.sc.parallelize([0]).flatMap(lambda x: amount_train_bc.value).zipWithIndex().filter(
-            lambda x: x[1] not in choice_index_bc.value)
-        return trend_train_rdd, trend_test_rdd, amount_train_rdd, amount_test_rdd
+        test_features = self.sc.parallelize([0]).flatMap(lambda x: amount_train_bc.value).map(lambda p: p.features) \
+            .zipWithIndex().filter(lambda x: x[1] not in choice_index_bc.value)
+        return trend_train_rdd, amount_train_rdd, test_features
 
     def prepare_data(self, start_date, end_date):
 
@@ -199,7 +220,10 @@ class MixInferenceSystem(InferenceSystem):
 
         self.feature_num = len(train[0].features)
 
-        return train[0], train[1], test[0], test[1], test_features
+        train_num = int(self.total_data_num * train_test_ratio)
+        index = self.sc.parallelize(range(train_num, self.total_data_num))
+        test_features = self.sc.parallelize(test[0]).map(lambda p: p.features).zip(index)
+        return train[0], train[1], test_features, test_features
 
     def mix_inference_system(self, start_date, end_date, train_test_ratio=0.8, iterations=10):
         """ Get raw data -> process data -> pca -> normalization -> train -> test """
@@ -213,8 +237,8 @@ class MixInferenceSystem(InferenceSystem):
 
         # Generate training data
         data_list = self.prepare_data(start_date=start_date, end_date=end_date)
-        trend_train, amount_train, trend_test, amount_test, all_features = self.processing_data(data_list,
-                                                                                                train_test_ratio)
+        trend_train, amount_train, test_features, all_features = self.processing_data(data_list,
+                                                                                      train_test_ratio)
 
         trend_train_bc = self.sc.broadcast(trend_train)
         amount_train_bc = self.sc.broadcast(amount_train)
@@ -227,7 +251,7 @@ class MixInferenceSystem(InferenceSystem):
         self.logger.info('Start to training model')
         for i in range(iterations):
             self.logger.info("Epoch {} starts".format(i))
-            trend_train_rdd, trend_test_rdd, amount_train_rdd, amount_test_rdd = self.split_data(
+            trend_train_rdd, amount_train_rdd, test_features = self.split_data(
                 trend_train_bc=trend_train_bc, amount_train_bc=amount_train_bc, features=all_features)
             trend_model = self.train_trend_model(data=trend_train_rdd, model=trend_model, i=i)
             amount_model = self.train_amount_model(model=amount_model, data=amount_train_rdd, i=i)
@@ -235,8 +259,7 @@ class MixInferenceSystem(InferenceSystem):
             self.logger.info("Epoch {} finishes".format(i))
 
             mse, mape, cdc, mad = self.evaluate_model(trend_model=trend_model, amount_model=amount_model,
-                                                      amount_data=amount_test_rdd, trend_data=trend_test_rdd,
-                                                      features=features_bc)
+                                                      test_features=trend_test_rdd, features_bc=features_bc)
             self.logger.info("Current MSE is {:.4f}".format(mse))
             self.logger.info("Current MAD is {:.4f}".format(mad))
             self.logger.info("Current MAPE is {:.4f}%".format(mape))
@@ -251,12 +274,11 @@ class MixInferenceSystem(InferenceSystem):
 
         # Data prediction part
         self.logger.info("Start to use the model to predict price")
-        testing_data = self.sc.parallelize(self.test_data)
-        testing_data_features = self.sc.parallelize(self.test_data_features)
-        predict = self.model_prediction(model, testing_data=testing_data, testing_data_features=testing_data_features)
+        predict = self.model_predict(trend_model=trend_model, amount_model=amount_model, test_features=test_features,
+                                     all_features=features_bc)
         features_bc.unpersist()
 
         self.save_data_to_file(predict.collect(), "predict_result.csv", self.SAVE_TYPE_OUTPUT)
-        self.save_parameters(model)
+        self.save_model(trend_model, amount_model)
 
         return predict
