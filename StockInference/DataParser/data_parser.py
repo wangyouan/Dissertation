@@ -34,16 +34,16 @@ def get_transformer(transformer_type):
         return PCA(transformer_type)
 
 
-def ratio_function(tomorrow, today):
-    return abs(float(tomorrow - today)) / today
+def ratio_function(data):
+    return abs(float(data[0] - data[1])) / data[1]
 
 
-def raw_difference(tomorrow, today):
-    return abs(tomorrow - today)
+def raw_difference(data):
+    return abs(data[0] - data[1])
 
 
-def direction(tomorrow, today):
-    return int(tomorrow > today)
+def direction(data):
+    return int(data[0] > data[1])
 
 
 class DataParser(Constants):
@@ -99,11 +99,10 @@ class DataParser(Constants):
             else:
                 train_features = self.transform(train_features)
             test_features = self.transform(test_features)
-            if self.label_data_type == self.RAW_AMOUNT:
-                train_amount_label = np.array(train_amount_label).reshape((1, -1)).T
-                test_amount_label = np.array(test_amount_label).reshape((1, -1)).T
-                train_amount_label = self.transform_label(train_amount_label).reshape((train_num,))
-                test_amount_label = self.transform_label(test_amount_label).reshape((total_num - train_num,))
+            train_amount_label = np.array(train_amount_label).reshape((1, -1)).T
+            test_amount_label = np.array(test_amount_label).reshape((1, -1)).T
+            train_amount_label = self.transform_label(train_amount_label).reshape((train_num,))
+            test_amount_label = self.transform_label(test_amount_label).reshape((total_num - train_num,))
             train_trend = [LabeledPoint(label=i, features=j) for i, j in zip(train_trend_label, train_features)]
             train_amount = [LabeledPoint(label=i, features=j) for i, j in zip(train_amount_label, train_features)]
             test_trend = [LabeledPoint(label=i, features=j) for i, j in zip(test_trend_label, test_features)]
@@ -111,11 +110,18 @@ class DataParser(Constants):
             return [train_trend, train_amount], [test_trend, test_amount], tomorrow_today
 
     def inverse_transform_label(self, label_list):
-        return self.label_transformer.inverse_transform(label_list)
+        if hasattr(label_list, '__len__'):
+            a = np.array(label_list)
+            num = len(label_list)
+            a = a.reshape((1, -1)).T
+            return self.label_transformer.inverse_transform(a).reshape((num,))
+        else:
+            a = np.array([label_list]).reshape((1,-1))
+            return self.label_transformer.inverse_transform(a)[0][0]
 
     def transform_label(self, label_list):
         if self.label_transformer is None:
-            self.label_transformer = get_transformer(2)
+            self.label_transformer = MinMaxScaler()
             return self.label_transformer.fit_transform(label_list)
         else:
             return self.label_transformer.transform(label_list)
