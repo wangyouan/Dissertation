@@ -121,7 +121,7 @@ class DataParser(Constants):
 
     def transform_label(self, label_list):
         if self.label_transformer is None:
-            self.label_transformer = StandardScaler()
+            self.label_transformer = MinMaxScaler(feature_range=(-1, 1))
             return self.label_transformer.fit_transform(label_list)
         else:
             return self.label_transformer.transform(label_list)
