@@ -82,8 +82,8 @@ stock_list = ['0001.HK', '0002.HK', '0003.HK', '0004.HK', '0005.HK', '0006.HK', 
 amount_method_list = [const.RANDOM_FOREST, const.LINEAR_REGRESSION, const.ARTIFICIAL_NEURAL_NETWORK]
 trend_method_list = [const.SVM, const.LOGISTIC_REGRESSION, const.RANDOM_FOREST]
 
-for amount_method in amount_method_list[:1]:
-    for trend_method in trend_method_list[1:2]:
+for amount_method in amount_method_list:
+    for trend_method in trend_method_list:
         method = '{}_{}'.format(amount_method.split(('_'))[0], trend_method.split('_')[0])
         new_file_path = os.path.join(output_path, method)
         if not os.path.isdir(new_file_path):
