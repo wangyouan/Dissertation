@@ -82,8 +82,8 @@ stock_list = ['0001.HK', '0002.HK', '0003.HK', '0004.HK', '0005.HK', '0006.HK', 
 amount_method_list = [const.RANDOM_FOREST, const.LINEAR_REGRESSION, const.ARTIFICIAL_NEURAL_NETWORK]
 trend_method_list = [const.SVM, const.LOGISTIC_REGRESSION, const.RANDOM_FOREST]
 
-for amount_method in amount_method_list:
-    for trend_method in trend_method_list:
+for amount_method in amount_method_list[:1]:
+    for trend_method in trend_method_list[1:2]:
         method = '{}_{}'.format(amount_method.split(('_'))[0], trend_method.split('_')[0])
         new_file_path = os.path.join(output_path, method)
         if not os.path.isdir(new_file_path):
@@ -94,7 +94,7 @@ for amount_method in amount_method_list:
         for stock in stock_list[:5]:
             specific_file_path = os.path.join(new_file_path, stock[:4])
             specific_model_path = os.path.join(model_path, method, stock[:4])
-            test = MixInferenceSystem(stock, amount_type=const.RATIO_AMOUNT, data_folder_path=data_path,
+            test = MixInferenceSystem(stock, amount_type=const.RAW_AMOUNT, data_folder_path=data_path,
                                       using_exist_model=False, amount_method=amount_method,
                                       direction_method=trend_method, output_file_path=specific_file_path,
                                       model_path=specific_model_path)
@@ -107,7 +107,7 @@ for amount_method in amount_method_list:
             mad = get_MAD(predict_result_rdd)
             rmse = get_RMSE(predict_result_rdd)
             # tie = get_theils_inequality_coefficient(predict_result)
-            cdc = get_CDC(predict_result_rdd)
+            cdc = get_CDC_combine(predict_result_rdd)
             f.write('{},{},{},{},{},{}\n'.format(stock, mse, mape, mad, rmse, cdc))
             # except Exception, err:
             #     print "Error happens"

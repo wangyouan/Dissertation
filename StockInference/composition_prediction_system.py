@@ -193,7 +193,7 @@ class MixInferenceSystem(InferenceSystem):
                                      tomorrow_today=tomorrow_today)
         predict_rdd = self.sc.parallelize(predict)
         mse = get_MSE(predict_rdd)
-        cdc = get_CDC(predict_rdd)
+        cdc = get_CDC_combine(predict_rdd)
         mape = get_MAPE(predict_rdd)
         mad = get_MAD(predict_rdd)
         return mse, mape, cdc, mad
@@ -209,7 +209,8 @@ class MixInferenceSystem(InferenceSystem):
             amount_predict = amount_model.predict(test_features_rdd.map(lambda t: t[0])).map(
                 data_parser.inverse_transform_label).zip(test_features_label)
         else:
-            amount_predict = test_features_rdd.map(lambda t: (amount_model.predict(t[0]), t[1]))
+            amount_predict = test_features_rdd.map(lambda t: (data_parser.inverse_transform_label(
+                amount_model.predict(t[0])), t[1]))
 
         if self.trend_prediction_method == self.RANDOM_FOREST:
             trend_predict = trend_model.predict(test_features_rdd.map(lambda t: t[0]))
