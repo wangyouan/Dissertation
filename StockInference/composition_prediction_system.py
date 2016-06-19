@@ -96,6 +96,8 @@ class MixInferenceSystem(InferenceSystem):
             trend_model = LogisticRegressionModel.load(sc=self.sc, path=trend_model_path)
         elif self.trend_prediction_method == self.NAIVE_BAYES:
             trend_model = NaiveBayesModel.load(sc=self.sc, path=trend_model_path)
+        elif self.trend_prediction_method == self.SVM:
+            trend_model = SVMModel.load(sc=self.sc, path=trend_model_path)
         else:
             trend_model = self.load_data_from_file(data_type=self.SAVE_TYPE_MODEL, file_name='trend_model')
 

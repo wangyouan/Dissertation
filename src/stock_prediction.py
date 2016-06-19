@@ -87,6 +87,7 @@ for method in [const.ARTIFICIAL_NEURAL_NETWORK, const.RANDOM_FOREST, const.LINEA
 
     f = open(os.path.join(new_file_path, "stock_info.csv"), 'w')
     f.write('stock,MSE,MAPE,MAD,RMSE,CDC\n')
+    test = None
     for stock in stock_list[:5]:
 
         specific_file_path = os.path.join(new_file_path, stock[:4])
@@ -107,6 +108,9 @@ for method in [const.ARTIFICIAL_NEURAL_NETWORK, const.RANDOM_FOREST, const.LINEA
             print "Error happens"
             print err
             test.sc.stop()
-            break
+            time.sleep(20)
+
+    if hasattr(test, 'sc'):
+        test.sc.stop()
 
     f.close()
