@@ -201,11 +201,29 @@ class MixInferenceSystem(InferenceSystem):
     def model_predict(self, trend_model, amount_model, test_features, tomorrow_today):
         amount_type = self.amount_type
         data_parser = self.data_parser
-        test_features_rdd = self.sc.parallelize(test_features)
+        test_features_rdd = self.sc.parallelize(test_features).cache()
         tomorrow_today_bc = self.sc.broadcast(tomorrow_today)
-        predict = test_features_rdd.map(lambda t: (tomorrow_today_bc.value[t[1]], trend_model.predict(t[0]),
-                                                   data_parser.inverse_transform_label(amount_model.predict(t[0])))) \
-            .map(lambda t: (t[0][0], get_predict_result_from_data(t[2], t[1], amount_type, t[0][1]))).collect()
+
+        test_features_label = test_features_rdd.map(lambda t: t[1])
+        if self.amount_prediction_method == self.RANDOM_FOREST:
+            amount_predict = amount_model.predict(test_features_rdd.map(lambda t: t[0])).map(
+                data_parser.inverse_transform_label).zip(test_features_label)
+        else:
+            amount_predict = test_features_rdd.map(lambda t: (amount_model.predict(t[0]), t[1]))
+
+        if self.trend_prediction_method == self.RANDOM_FOREST:
+            trend_predict = trend_model.predict(test_features_rdd.map(lambda t: t[0]))
+        else:
+            trend_predict = test_features_rdd.map(lambda t: trend_model.predict(t[0]))
+
+        predict = amount_predict.zip(trend_predict) \
+            .map(lambda t: (tomorrow_today_bc.value[t[0][1]][0], get_predict_result_from_data \
+            (t[0][0], t[1], amount_type, tomorrow_today_bc.value[t[0][1]][1]))) \
+            .collect()
+
+        # predict = test_features_rdd.map(lambda t: (tomorrow_today_bc.value[t[1]], trend_model.predict(t[0]),
+        #                                            data_parser.inverse_transform_label(amount_model.predict(t[0])))) \
+        #     .map(lambda t: (t[0][0], get_predict_result_from_data(t[2], t[1], amount_type, t[0][1]))).collect()
         tomorrow_today_bc.unpersist()
         return predict
 
