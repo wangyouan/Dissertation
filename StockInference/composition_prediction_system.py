@@ -101,7 +101,7 @@ class MixInferenceSystem(InferenceSystem):
         else:
             trend_model = self.load_data_from_file(data_type=self.SAVE_TYPE_MODEL, file_name='trend_model')
 
-        return amount_model, trend_model
+        return trend_model, amount_model
 
     def save_model(self, trend_model, amount_model):
         self.save_data_to_file(self.amount_prediction_method, file_name='amount_method', data_type=self.SAVE_TYPE_MODEL)
@@ -126,7 +126,7 @@ class MixInferenceSystem(InferenceSystem):
         path = os.path.join(os.path.abspath(self.model_path), 'trend_model')
         if os.path.exists(path):
             shutil.rmtree(path)
-        if self.trend_prediction_method in [self.RANDOM_FOREST, self.LOGISTIC_REGRESSION, self.NAIVE_BAYES]:
+        if self.trend_prediction_method in [self.RANDOM_FOREST, self.LOGISTIC_REGRESSION, self.NAIVE_BAYES, self.SVM]:
             if not os.path.isdir(path):
                 os.makedirs(path)
             path = 'file:{}'.format(path)
@@ -377,6 +377,6 @@ class MixInferenceSystem(InferenceSystem):
                                      tomorrow_today=tomorrow_today)
 
         self.save_data_to_file(predict, "predict_result.csv", self.SAVE_TYPE_OUTPUT)
-        self.save_model(trend_model, amount_model)
+        self.save_model(trend_model=trend_model, amount_model=amount_model)
 
         return predict
