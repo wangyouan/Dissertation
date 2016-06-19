@@ -48,18 +48,18 @@ def get_theils_inequality_coefficient(label_and_prediction):
     return rmse / (math.sqrt(prediction) + math.sqrt(label))
 
 
-def get_CDC(label_prediction):
-    """ Correct Directional Change """
-    data = label_prediction.collect()
-    data_num = label_prediction.count()
-    correct_num = 0
-    for i in range(1, data_num):
-        label_change = data[i][0] - data[i - 1][0]
-        prediction = data[i][1] - data[i - 1][1]
-        if prediction * label_change > 0:
-            correct_num += 1
-
-    return correct_num * 100.0 / data_num
+# def get_CDC(label_prediction):
+#     """ Correct Directional Change """
+#     data = label_prediction.collect()
+#     data_num = label_prediction.count()
+#     correct_num = 0
+#     for i in range(1, data_num):
+#         label_change = data[i][0] - data[i - 1][0]
+#         prediction = data[i][1] - data[i - 1][1]
+#         if prediction * label_change > 0:
+#             correct_num += 1
+#
+#     return correct_num * 100.0 / data_num
 
 
 
@@ -75,3 +75,5 @@ def get_CDC_combine(label_prediction):
             correct_num += 1
 
     return correct_num * 100.0 / data_num
+
+get_CDC = get_CDC_combine
