@@ -96,14 +96,14 @@ for method in ["combine"]:
                                   model_path=specific_model_path)
         # try:
         predict_result = test.predict_historical_data(train_test_ratio=0.8, start_date="2006-04-14",
-                                                      end_date="2016-04-15", iterations=1)
-        predict_result.cache()
-        mse = get_MSE(predict_result)
-        mape = get_MAPE(predict_result)
-        mad = get_MAD(predict_result)
-        rmse = get_RMSE(predict_result)
+                                                      end_date="2016-04-15", iterations=10)
+        predict_result_rdd = test.sc.parallelize(predict_result)
+        mse = get_MSE(predict_result_rdd)
+        mape = get_MAPE(predict_result_rdd)
+        mad = get_MAD(predict_result_rdd)
+        rmse = get_RMSE(predict_result_rdd)
         # tie = get_theils_inequality_coefficient(predict_result)
-        cdc = get_CDC(predict_result)
+        cdc = get_CDC(predict_result_rdd)
         f.write('{},{},{},{},{},{}\n'.format(stock, mse, mape, mad, rmse, cdc))
         # except Exception, err:
         #     print "Error happens"

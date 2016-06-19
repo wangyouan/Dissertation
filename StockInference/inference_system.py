@@ -195,7 +195,10 @@ class InferenceSystem(Constants):
             os.makedirs(path)
 
         if data_type == self.SAVE_TYPE_OUTPUT:
-            train_data_num = len(self.train_data)
+            if hasattr(self, 'train_data_number'):
+                train_data_num = self.train_data_number
+            else:
+                train_data_num = len(self.train_data)
             test_date_list = self.date_list[train_data_num:]
             output_file = open(os.path.join(path, file_name), "w")
             output_file.write("date,origin,predict\n")

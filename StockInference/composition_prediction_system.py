@@ -8,11 +8,13 @@
 
 import os
 import sys
+import shutil
 
 import numpy as np
-from pyspark.mllib.regression import LinearRegressionWithSGD
-from pyspark.mllib.tree import RandomForest
-from pyspark.mllib.classification import LogisticRegressionWithLBFGS, SVMWithSGD, NaiveBayes
+from pyspark.mllib.regression import LinearRegressionWithSGD, LinearRegressionModel
+from pyspark.mllib.tree import RandomForest, RandomForestModel
+from pyspark.mllib.classification import LogisticRegressionWithLBFGS, SVMWithSGD, NaiveBayes, LogisticRegressionModel, \
+    SVMModel, NaiveBayesModel
 
 from StockInference.inference_system import InferenceSystem
 from StockInference.util.data_parse import *
@@ -68,51 +70,106 @@ class MixInferenceSystem(InferenceSystem):
         del self.train_data
         del self.training_method
         del self.test_data
+        self.train_data_number = 0
 
     def load_parameters(self):
-        pass
+        self.amount_prediction_method = self.load_data_from_file(data_type=self.SAVE_TYPE_MODEL,
+                                                                 file_name='amount_method')
+        self.trend_prediction_method = self.load_data_from_file(data_type=self.SAVE_TYPE_MODEL,
+                                                                file_name='trend_method')
+        self.data_features = self.load_data_from_file(data_type=self.SAVE_TYPE_MODEL, file_name='features')
+        self.stock_symbol = self.load_data_from_file(data_type=self.SAVE_TYPE_MODEL, file_name='symbol')
+        self.data_parser = self.load_data_from_file(data_type=self.SAVE_TYPE_MODEL, file_name='data_parser')
+        amount_model_path = os.path.join(os.path.abspath(self.model_path), 'amount_model')
+        trend_model_path = os.path.join(os.path.abspath(self.model_path), 'trend_model')
+
+        if self.amount_prediction_method == self.RANDOM_FOREST:
+            amount_model = RandomForestModel.load(sc=self.sc, path=amount_model_path)
+        elif self.amount_prediction_method == self.LINEAR_REGRESSION:
+            amount_model = LinearRegressionModel.load(sc=self.sc, path=amount_model_path)
+        else:
+            amount_model = self.load_data_from_file(data_type=self.SAVE_TYPE_MODEL, file_name='amount_model')
+
+        if self.trend_prediction_method == self.RANDOM_FOREST:
+            trend_model = RandomForestModel.load(sc=self.sc, path=trend_model_path)
+        elif self.trend_prediction_method == self.LOGISTIC_REGRESSION:
+            trend_model = LogisticRegressionModel.load(sc=self.sc, path=trend_model_path)
+        elif self.trend_prediction_method == self.NAIVE_BAYES:
+            trend_model = NaiveBayesModel.load(sc=self.sc, path=trend_model_path)
+        else:
+            trend_model = self.load_data_from_file(data_type=self.SAVE_TYPE_MODEL, file_name='trend_model')
+
+        return amount_model, trend_model
 
     def save_model(self, trend_model, amount_model):
-        pass
+        self.save_data_to_file(self.amount_prediction_method, file_name='amount_method', data_type=self.SAVE_TYPE_MODEL)
+        self.save_data_to_file(self.trend_prediction_method, file_name='trend_method', data_type=self.SAVE_TYPE_MODEL)
+        self.save_data_to_file(self.data_features, file_name='features', data_type=self.SAVE_TYPE_MODEL)
+        self.save_data_to_file(self.stock_symbol, file_name='symbol', data_type=self.SAVE_TYPE_MODEL)
+        self.save_data_to_file(self.data_parser, file_name='data_parser', data_type=self.SAVE_TYPE_MODEL)
+
+        # save amount prediction model
+        path = os.path.join(os.path.abspath(self.model_path), 'amount_model')
+        if os.path.exists(path):
+            shutil.rmtree(path)
+        if self.amount_prediction_method in [self.RANDOM_FOREST, self.LINEAR_REGRESSION]:
+            if not os.path.isdir(path):
+                os.makedirs(path)
+            path = 'file:{}'.format(path)
+            amount_model.save(sc=self.sc, path=path)
+        else:
+            self.save_data_to_file(amount_model, file_name='amount_model', data_type=self.SAVE_TYPE_MODEL)
+
+        # save trend prediction model
+        path = os.path.join(os.path.abspath(self.model_path), 'trend_model')
+        if os.path.exists(path):
+            shutil.rmtree(path)
+        if self.trend_prediction_method in [self.RANDOM_FOREST, self.LOGISTIC_REGRESSION, self.NAIVE_BAYES]:
+            if not os.path.isdir(path):
+                os.makedirs(path)
+            path = 'file:{}'.format(path)
+            trend_model.save(sc=self.sc, path=path)
 
     def train_trend_model(self, model, data, i):
         self.logger.info('Start to train the direction model')
+        rdd_data = self.sc.parallelize(data)
         if self.trend_prediction_method == self.RANDOM_FOREST:
             if i == 0 and model is None:
-                model = RandomForest.trainClassifier(data, numClasses=2, categoricalFeaturesInfo={}, numTrees=40,
+                model = RandomForest.trainClassifier(rdd_data, numClasses=2, categoricalFeaturesInfo={}, numTrees=40,
                                                      featureSubsetStrategy="auto", impurity='gini', maxDepth=20,
                                                      maxBins=32)
         elif self.trend_prediction_method == self.NAIVE_BAYES:
             if i == 0 and model is None:
-                model = NaiveBayes.train(data)
+                model = NaiveBayes.train(rdd_data)
 
         elif self.trend_prediction_method == self.LOGISTIC_REGRESSION:
-            model = LogisticRegressionWithLBFGS.train(data, iterations=1000, numClasses=2,
+            model = LogisticRegressionWithLBFGS.train(rdd_data, iterations=1000, numClasses=2,
                                                       initialWeights=None if model is None else model.weights)
 
         elif self.trend_prediction_method == self.SVM:
-            model = SVMWithSGD.train(data, iterations=10000, step=0.01,
+            model = SVMWithSGD.train(rdd_data, iterations=10000, step=0.01,
                                      initialWeights=None if model is None else model.weights)
 
         return model
 
     def train_amount_model(self, model, data, i):
+        rdd_data = self.sc.parallelize(data)
         self.logger.info('Start to train the amount model')
         if self.amount_prediction_method == self.ARTIFICIAL_NEURAL_NETWORK:
             input_num = self.feature_num
             layers = [input_num, input_num / 3 * 2, input_num / 3, 1]
 
             neural_network = NeuralNetworkSpark(layers=layers, bias=0)
-            model = neural_network.train(data, method=neural_network.BP, seed=1234, learn_rate=0.0001,
+            model = neural_network.train(rdd_data, method=neural_network.BP, seed=1234, learn_rate=0.0001,
                                          iteration=10, model=model)
         elif self.amount_prediction_method == self.RANDOM_FOREST:
             if i == 0 and model is None:
-                model = RandomForest.trainRegressor(data, categoricalFeaturesInfo={}, numTrees=40,
+                model = RandomForest.trainRegressor(rdd_data, categoricalFeaturesInfo={}, numTrees=40,
                                                     featureSubsetStrategy="auto", impurity='variance', maxDepth=20,
                                                     maxBins=32)
 
         elif self.amount_prediction_method == self.LINEAR_REGRESSION:
-            model = LinearRegressionWithSGD.train(data, iterations=10000, step=0.001,
+            model = LinearRegressionWithSGD.train(rdd_data, iterations=10000, step=0.001,
                                                   initialWeights=model.weights if model is not None else None)
 
         else:
@@ -134,24 +191,29 @@ class MixInferenceSystem(InferenceSystem):
     def evaluate_model(self, trend_model, amount_model, test_features, tomorrow_today):
         predict = self.model_predict(trend_model=trend_model, amount_model=amount_model, test_features=test_features,
                                      tomorrow_today=tomorrow_today)
-        predict.cache()
-        mse = get_MSE(predict)
-        cdc = get_CDC(predict)
-        mape = get_MAPE(predict)
-        mad = get_MAD(predict)
+        predict_rdd = self.sc.parallelize(predict)
+        mse = get_MSE(predict_rdd)
+        cdc = get_CDC(predict_rdd)
+        mape = get_MAPE(predict_rdd)
+        mad = get_MAD(predict_rdd)
         return mse, mape, cdc, mad
 
     def model_predict(self, trend_model, amount_model, test_features, tomorrow_today):
         amount_type = self.amount_type
         data_parser = self.data_parser
-        predict = test_features.map(lambda t: (tomorrow_today.value[t[1]], trend_model.predict(t[0]),
-                                               data_parser.inverse_transform_label(amount_model.predict(t[0])))) \
-            .map(lambda t: (t[0][0], get_predict_result_from_data(t[2], t[1], amount_type, t[0][1])))
+        test_features_rdd = self.sc.parallelize(test_features)
+        tomorrow_today_bc = self.sc.broadcast(tomorrow_today)
+        predict = test_features_rdd.map(lambda t: (tomorrow_today_bc.value[t[1]], trend_model.predict(t[0]),
+                                                   data_parser.inverse_transform_label(amount_model.predict(t[0])))) \
+            .map(lambda t: (t[0][0], get_predict_result_from_data(t[2], t[1], amount_type, t[0][1]))).collect()
+        tomorrow_today_bc.unpersist()
         return predict
 
-    def split_data(self, trend_train_bc, amount_train_bc, features):
-        training_data_num = len(trend_train_bc.value)
+    def split_data(self, trend_train, amount_train, features):
+        training_data_num = len(trend_train)
         train_num = int(0.9 * training_data_num)
+
+        trend_train_bc = self.sc.broadcast(trend_train)
         choice_index = np.random.choice(range(training_data_num), size=train_num, replace=False)
         choice_index_bc = self.sc.broadcast(choice_index)
         if self.trend_prediction_method in [self.RANDOM_FOREST, self.NAIVE_BAYES]:
@@ -160,6 +222,7 @@ class MixInferenceSystem(InferenceSystem):
         else:
             trend_train_rdd = self.sc.parallelize([0]).flatMap(lambda x: trend_train_bc.value).collect()
 
+        amount_train_bc = self.sc.broadcast(amount_train)
         if self.amount_prediction_method != self.RANDOM_FOREST:
             # f = open('test', 'w')
             # amount_train_bc.dump(amount_train_bc.value, f)
@@ -171,6 +234,8 @@ class MixInferenceSystem(InferenceSystem):
         test_features = self.sc.parallelize([0]).flatMap(lambda x: amount_train_bc.value).map(lambda p: p.features) \
             .zipWithIndex().filter(lambda x: x[1] not in choice_index_bc.value).collect()
         choice_index_bc.unpersist()
+        amount_train_bc.unpersist()
+        trend_train_bc.unpersist()
         return trend_train_rdd, amount_train_rdd, test_features
 
     def prepare_data(self, start_date, end_date):
@@ -239,8 +304,8 @@ class MixInferenceSystem(InferenceSystem):
 
         self.feature_num = len(train[0][0].features)
 
-        train_num = int(self.total_data_num * train_test_ratio)
-        index = range(train_num, self.total_data_num)
+        self.train_data_number = int(self.total_data_num * train_test_ratio)
+        index = range(self.train_data_number, self.total_data_num)
         test_features = zip(map(lambda p: p.features, test[0]), index)
         return train[0], train[1], test_features, tt
 
@@ -261,10 +326,6 @@ class MixInferenceSystem(InferenceSystem):
         data_list = self.prepare_data(start_date=start_date, end_date=end_date)
         trend_train, amount_train, all_features, tomorrow_today = self.processing_data(data_list, train_test_ratio)
 
-        trend_train_bc = self.sc.broadcast(trend_train)
-        amount_train_bc = self.sc.broadcast(amount_train)
-        tomorrow_today_bc = self.sc.broadcast(tomorrow_today)
-
         self.logger.info("Initialize Model")
         if not self.using_exist_model:
             trend_model, amount_model = self.initialize_model()
@@ -272,26 +333,18 @@ class MixInferenceSystem(InferenceSystem):
         self.logger.info('Start to training model')
         for i in range(iterations):
             self.logger.info("Epoch {} starts".format(i))
-            trend_train, amount_train, test_features = self.split_data(
-                trend_train_bc=trend_train_bc, amount_train_bc=amount_train_bc, features=all_features)
-            trend_train_rdd = self.sc.parallelize(trend_train)
-            trend_model = self.train_trend_model(data=trend_train_rdd, model=trend_model, i=i)
-            amount_train_rdd = self.sc.parallelize(amount_train)
-            amount_model = self.train_amount_model(model=amount_model, data=amount_train_rdd, i=i)
+            trend_train_x, amount_train_x, test_features_x = self.split_data(
+                trend_train=trend_train, amount_train=amount_train, features=all_features)
+            trend_model = self.train_trend_model(data=trend_train_x, model=trend_model, i=i)
+            amount_model = self.train_amount_model(model=amount_model, data=amount_train_x, i=i)
 
             self.logger.info("Epoch {} finishes".format(i))
-            test_features_rdd = self.sc.parallelize(test_features)
-
             mse, mape, cdc, mad = self.evaluate_model(trend_model=trend_model, amount_model=amount_model,
-                                                      test_features=test_features_rdd, tomorrow_today=tomorrow_today_bc)
+                                                      test_features=test_features_x, tomorrow_today=tomorrow_today)
             self.logger.info("Current MSE is {:.4f}".format(mse))
             self.logger.info("Current MAD is {:.4f}".format(mad))
             self.logger.info("Current MAPE is {:.4f}%".format(mape))
             self.logger.info("Current CDC is {:.4f}%".format(cdc))
-
-        trend_train_bc.unpersist()
-        amount_train_bc.unpersist()
-        tomorrow_today_bc.unpersist()
 
         # if train ratio is at that level, means that target want the model file, not the
         if train_test_ratio > 0.99:
@@ -299,13 +352,10 @@ class MixInferenceSystem(InferenceSystem):
 
         # Data prediction part
         self.logger.info("Start to use the model to predict price")
-        test_features = self.sc.parallelize(all_features)
-        tomorrow_today_bc = self.sc.broadcast(tomorrow_today)
-        predict = self.model_predict(trend_model=trend_model, amount_model=amount_model, test_features=test_features,
-                                     tomorrow_today=tomorrow_today_bc)
-        tomorrow_today_bc.unpersist()
+        predict = self.model_predict(trend_model=trend_model, amount_model=amount_model, test_features=all_features,
+                                     tomorrow_today=tomorrow_today)
 
-        self.save_data_to_file(predict.collect(), "predict_result.csv", self.SAVE_TYPE_OUTPUT)
+        self.save_data_to_file(predict, "predict_result.csv", self.SAVE_TYPE_OUTPUT)
         self.save_model(trend_model, amount_model)
 
         return predict
