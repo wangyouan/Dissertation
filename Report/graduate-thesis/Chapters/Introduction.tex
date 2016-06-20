@@ -10,8 +10,26 @@ Is stock price movement really predictable? How to measure the predict performan
 
 \subsection{Objectives}
 
-This study is to answer the above problems. A distributed stock prediction system which consists of data tracking, model training and price prediction will be built. The 
+This study is to answer the above problems. Target market is Hong Kong Stock Exchange Market. Objects is to find a good method to predict HSI stock price changes through testing on different machine learning algorithms (includes Linear Regression, Neural Network, Random Forest). Apart from using single learning methods, this study also tries to combine two machine learning methods to do that predict, which use one to predict how much a stock price changes and another to forecast what direction the stock price will change (up or down). 
 
-\section{Background}
+\section{Structure}
 
-Recently, with the development of machine learning and cloud computing technologies, people find a new way to analyze many factors of stock price at a time without too much manual cost. There are many works towards prediction have been attempted, includes neural network\cite{kimoto1990stock,naeini2010stock}, multi-class support vector machine\cite{kercheval2015modelling}, linear and polynomial regression\cite{nunnostock,alexanderstock}, random forest\cite{alexanderstock,lauretto2013evaluation}. However, none of those models have become widely accepted.
+
+This thesis follows the below structure\par
+\begin{itemize}
+	\item Chapter 1 briefly introduces the problems and shows the objective of this study.
+	\item Chapter 2 reviews previous works one this subject.
+	\item Chapter 3 to 7 discuss the research methodology. Chapter 3 shows understanding to the financial market, and talks about the reason of parameters chosen; Chapter 4 discusses data processing method, includes data normalization and deduction; Chapter 5 introduces those machine learning methods used in this projects; Chapter 6 is about basics of Spark; Chapter 7 gives the design and workflow of prediction system.
+	\item Chapter 8 to 10 is about results. Chapter 8 introduces testing environment; Chapter 9 shows testing results of different learning method; Chapter 10 compares running performance of distributed and non-distributed method.
+	\item Chapter 11 gives the conclusions and discusses some possible future works.
+\end{itemize}
+
+Outside the body, there are three Appendices.
+\begin{itemize}
+	\item Appendix A introduces the Technique Indicators used in this system.
+	\item Appendix B illustrates performance criterions.
+	\item Appendix C shows all results that are not includes in Chapter 9.
+\end{itemize}
+
+
+
