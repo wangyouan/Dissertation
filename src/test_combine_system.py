@@ -93,7 +93,7 @@ for amount_method in amount_method_list:
         f = open(os.path.join(new_file_path, "stock_info.csv"), 'w')
         f.write('stock,MSE,MAPE,MAD,RMSE,CDC\n')
         test = None
-        for stock in stock_list[:5]:
+        for stock in stock_list:
             specific_file_path = os.path.join(new_file_path, stock[:4])
             specific_model_path = os.path.join(model_path, method, stock[:4])
             test = MixInferenceSystem(stock, amount_type=const.RATIO_AMOUNT, data_folder_path=data_path,
@@ -114,12 +114,10 @@ for amount_method in amount_method_list:
             except Exception, err:
                 print "Error happens"
                 print err
-
-            finally:
                 test.sc.stop()
-                time.sleep(20)
+                time.sleep(60)
 
         if hasattr(test, 'sc'):
             test.sc.stop()
         f.close()
-        time.sleep(20)
+        time.sleep(120)
