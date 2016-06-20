@@ -83,6 +83,7 @@ stock_list = ['0001.HK', '0002.HK', '0003.HK', '0004.HK', '0005.HK', '0006.HK', 
 amount_method_list = [const.RANDOM_FOREST, const.LINEAR_REGRESSION, const.ARTIFICIAL_NEURAL_NETWORK]
 trend_method_list = [const.SVM, const.LOGISTIC_REGRESSION, const.RANDOM_FOREST]
 
+test = None
 for amount_method in amount_method_list:
     for trend_method in trend_method_list:
         method = '{}_{}'.format(amount_method.split(('_'))[0], trend_method.split('_')[0])
@@ -92,7 +93,6 @@ for amount_method in amount_method_list:
 
         f = open(os.path.join(new_file_path, "stock_info.csv"), 'w')
         f.write('stock,MSE,MAPE,MAD,RMSE,CDC\n')
-        test = None
         for stock in stock_list:
             specific_file_path = os.path.join(new_file_path, stock[:4])
             specific_model_path = os.path.join(model_path, method, stock[:4])
@@ -114,10 +114,10 @@ for amount_method in amount_method_list:
             except Exception, err:
                 print "Error happens"
                 print err
-                test.sc.stop()
                 time.sleep(60)
 
-        if hasattr(test, 'sc'):
-            test.sc.stop()
         f.close()
         time.sleep(300)
+
+if hasattr(test, 'sc'):
+    test.sc.stop()
