@@ -13,7 +13,7 @@ import shutil
 import numpy as np
 from pyspark.mllib.regression import LinearRegressionWithSGD, LinearRegressionModel
 from pyspark.mllib.tree import RandomForest, RandomForestModel
-from pyspark.mllib.classification import LogisticRegressionWithLBFGS, SVMWithSGD, NaiveBayes, LogisticRegressionModel, \
+from pyspark.mllib.classification import LogisticRegressionWithSGD, SVMWithSGD, NaiveBayes, LogisticRegressionModel, \
     SVMModel, NaiveBayesModel
 
 from StockInference.inference_system import InferenceSystem
@@ -145,7 +145,7 @@ class MixInferenceSystem(InferenceSystem):
                 model = NaiveBayes.train(rdd_data)
 
         elif self.trend_prediction_method == self.LOGISTIC_REGRESSION:
-            model = LogisticRegressionWithLBFGS.train(rdd_data, iterations=1000, numClasses=2,
+            model = LogisticRegressionWithSGD.train(rdd_data, iterations=1000, numClasses=2,
                                                       initialWeights=None if model is None else model.weights)
 
         elif self.trend_prediction_method == self.SVM:
