@@ -120,4 +120,4 @@ for amount_method in amount_method_list:
         if hasattr(test, 'sc'):
             test.sc.stop()
         f.close()
-        time.sleep(120)
+        time.sleep(300)
