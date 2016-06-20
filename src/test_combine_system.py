@@ -114,6 +114,8 @@ for amount_method in amount_method_list:
             except Exception, err:
                 print "Error happens"
                 print err
+
+            finally:
                 test.sc.stop()
                 time.sleep(20)
 
