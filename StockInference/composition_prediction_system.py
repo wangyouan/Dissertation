@@ -145,7 +145,7 @@ class MixInferenceSystem(InferenceSystem):
                 model = NaiveBayes.train(rdd_data)
 
         elif self.trend_prediction_method == self.LOGISTIC_REGRESSION:
-            model = LogisticRegressionWithSGD.train(rdd_data, iterations=10000, numClasses=2, step=0.001,
+            model = LogisticRegressionWithSGD.train(rdd_data, iterations=10000, step=0.001,
                                                     initialWeights=None if model is None else model.weights)
 
         elif self.trend_prediction_method == self.SVM:
