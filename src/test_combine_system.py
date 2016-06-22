@@ -84,8 +84,8 @@ amount_method_list = [const.RANDOM_FOREST, const.LINEAR_REGRESSION, const.ARTIFI
 trend_method_list = [const.SVM, const.LOGISTIC_REGRESSION, const.RANDOM_FOREST]
 
 test = None
-for amount_method in amount_method_list[2:]:
-    for trend_method in trend_method_list[1:2]:
+for amount_method in amount_method_list:
+    for trend_method in trend_method_list:
         method = '{}_{}'.format(amount_method.split(('_'))[0], trend_method.split('_')[0])
         new_file_path = os.path.join(output_path, method)
         if not os.path.isdir(new_file_path):
@@ -101,7 +101,7 @@ for amount_method in amount_method_list[2:]:
                                       direction_method=trend_method, output_file_path=specific_file_path,
                                       model_path=specific_model_path)
             try:
-                predict_result = test.predict_historical_data(train_test_ratio=0.8, start_date="2006-04-14",
+                predict_result = test.predict_historical_data(train_test_ratio=0.8, start_date="2011-04-14",
                                                               end_date="2016-04-15", iterations=10)
                 predict_result_rdd = test.sc.parallelize(predict_result)
                 mse = get_MSE(predict_result_rdd)
