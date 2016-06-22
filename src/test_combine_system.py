@@ -91,8 +91,8 @@ for amount_method in amount_method_list:
         if not os.path.isdir(new_file_path):
             os.makedirs(new_file_path)
 
-        f = open(os.path.join(new_file_path, "stock_info.csv"), 'a')
-        # f.write('stock,MSE,MAPE,MAD,RMSE,CDC\n')
+        f = open(os.path.join(new_file_path, "stock_info.csv"), 'w')
+        f.write('stock,MSE,MAPE,MAD,RMSE,CDC\n')
         for stock in stock_list[-9:]:
             specific_file_path = os.path.join(new_file_path, stock[:4])
             specific_model_path = os.path.join(model_path, method, stock[:4])
