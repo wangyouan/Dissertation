@@ -84,16 +84,16 @@ amount_method_list = [const.RANDOM_FOREST, const.LINEAR_REGRESSION, const.ARTIFI
 trend_method_list = [const.SVM, const.LOGISTIC_REGRESSION, const.RANDOM_FOREST]
 
 test = None
-for amount_method in amount_method_list:
+for amount_method in amount_method_list[2:]:
     for trend_method in trend_method_list[1:2]:
         method = '{}_{}'.format(amount_method.split(('_'))[0], trend_method.split('_')[0])
         new_file_path = os.path.join(output_path, method)
         if not os.path.isdir(new_file_path):
             os.makedirs(new_file_path)
 
-        f = open(os.path.join(new_file_path, "stock_info.csv"), 'w')
-        f.write('stock,MSE,MAPE,MAD,RMSE,CDC\n')
-        for stock in stock_list:
+        f = open(os.path.join(new_file_path, "stock_info.csv"), 'a')
+        # f.write('stock,MSE,MAPE,MAD,RMSE,CDC\n')
+        for stock in stock_list[-9:]:
             specific_file_path = os.path.join(new_file_path, stock[:4])
             specific_model_path = os.path.join(model_path, method, stock[:4])
             test = MixInferenceSystem(stock, amount_type=const.RATIO_AMOUNT, data_folder_path=data_path,
