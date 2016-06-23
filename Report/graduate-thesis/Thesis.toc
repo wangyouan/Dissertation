@@ -16,40 +16,38 @@
 \contentsline {section}{\numberline {2.1}Is Stock Market Really Predictable?}{4}{section.17}
 \contentsline {section}{\numberline {2.2}Traditional Ways to predict stock behavior}{5}{section.18}
 \contentsline {chapter}{\numberline {3}Market Understanding}{7}{chapter.19}
-\contentsline {section}{\numberline {3.1}A Section}{7}{section.20}
-\contentsline {subsection}{\numberline {3.1.1}A Subsection}{8}{subsection.21}
-\contentsline {section}{\numberline {3.2}Another Section}{8}{section.22}
-\contentsline {chapter}{\numberline {4}Distributed Computing Basics}{9}{chapter.23}
-\contentsline {section}{\numberline {4.1}A Section}{9}{section.24}
-\contentsline {subsection}{\numberline {4.1.1}A Subsection}{10}{subsection.25}
-\contentsline {section}{\numberline {4.2}Another Section}{10}{section.26}
-\contentsline {chapter}{\numberline {5}Data Mining Methods}{11}{chapter.27}
-\contentsline {section}{\numberline {5.1}A Section}{11}{section.28}
-\contentsline {subsection}{\numberline {5.1.1}A Subsection}{12}{subsection.29}
-\contentsline {section}{\numberline {5.2}Another Section}{12}{section.30}
-\contentsline {chapter}{\numberline {6}Model Design}{13}{chapter.31}
-\contentsline {section}{\numberline {6.1}A Section}{13}{section.32}
-\contentsline {subsection}{\numberline {6.1.1}A Subsection}{14}{subsection.33}
-\contentsline {section}{\numberline {6.2}Another Section}{14}{section.34}
-\contentsline {chapter}{\numberline {7}Data Preproesssing}{15}{chapter.35}
-\contentsline {section}{\numberline {7.1}A Section}{15}{section.36}
-\contentsline {subsection}{\numberline {7.1.1}A Subsection}{16}{subsection.37}
-\contentsline {section}{\numberline {7.2}Another Section}{16}{section.38}
-\contentsline {chapter}{\numberline {8}Training Model}{17}{chapter.39}
-\contentsline {section}{\numberline {8.1}A Section}{17}{section.40}
-\contentsline {subsection}{\numberline {8.1.1}A Subsection}{18}{subsection.41}
-\contentsline {section}{\numberline {8.2}Another Section}{18}{section.42}
-\contentsline {chapter}{\numberline {9}Results}{19}{chapter.43}
-\contentsline {section}{\numberline {9.1}A Section}{19}{section.44}
-\contentsline {subsection}{\numberline {9.1.1}A Subsection}{20}{subsection.45}
-\contentsline {section}{\numberline {9.2}Another Section}{20}{section.46}
-\contentsline {chapter}{\numberline {10}Conclusion}{21}{chapter.47}
-\contentsline {section}{\numberline {10.1}A Section}{21}{section.48}
-\contentsline {subsection}{\numberline {10.1.1}A Subsection}{22}{subsection.49}
-\contentsline {section}{\numberline {10.2}Another Section}{22}{section.50}
+\contentsline {section}{\numberline {3.1}Introduction of Hong Kong Stock Exchange market}{7}{section.20}
+\contentsline {chapter}{\numberline {4}Distributed Computing Basics}{9}{chapter.22}
+\contentsline {section}{\numberline {4.1}A Section}{9}{section.23}
+\contentsline {subsection}{\numberline {4.1.1}A Subsection}{10}{subsection.24}
+\contentsline {section}{\numberline {4.2}Another Section}{10}{section.25}
+\contentsline {chapter}{\numberline {5}Data Mining Methods}{11}{chapter.26}
+\contentsline {section}{\numberline {5.1}A Section}{11}{section.27}
+\contentsline {subsection}{\numberline {5.1.1}A Subsection}{12}{subsection.28}
+\contentsline {section}{\numberline {5.2}Another Section}{12}{section.29}
+\contentsline {chapter}{\numberline {6}Model Design}{13}{chapter.30}
+\contentsline {section}{\numberline {6.1}A Section}{13}{section.31}
+\contentsline {subsection}{\numberline {6.1.1}A Subsection}{14}{subsection.32}
+\contentsline {section}{\numberline {6.2}Another Section}{14}{section.33}
+\contentsline {chapter}{\numberline {7}Data Preproesssing}{15}{chapter.34}
+\contentsline {section}{\numberline {7.1}A Section}{15}{section.35}
+\contentsline {subsection}{\numberline {7.1.1}A Subsection}{16}{subsection.36}
+\contentsline {section}{\numberline {7.2}Another Section}{16}{section.37}
+\contentsline {chapter}{\numberline {8}Training Model}{17}{chapter.38}
+\contentsline {section}{\numberline {8.1}A Section}{17}{section.39}
+\contentsline {subsection}{\numberline {8.1.1}A Subsection}{18}{subsection.40}
+\contentsline {section}{\numberline {8.2}Another Section}{18}{section.41}
+\contentsline {chapter}{\numberline {9}Results}{19}{chapter.42}
+\contentsline {section}{\numberline {9.1}A Section}{19}{section.43}
+\contentsline {subsection}{\numberline {9.1.1}A Subsection}{20}{subsection.44}
+\contentsline {section}{\numberline {9.2}Another Section}{20}{section.45}
+\contentsline {chapter}{\numberline {10}Conclusion}{21}{chapter.46}
+\contentsline {section}{\numberline {10.1}A Section}{21}{section.47}
+\contentsline {subsection}{\numberline {10.1.1}A Subsection}{22}{subsection.48}
+\contentsline {section}{\numberline {10.2}Another Section}{22}{section.49}
 \vspace {2em}
-\contentsline {chapter}{\numberline {A}Technique Indicators}{23}{appendix.51}
-\contentsline {chapter}{\numberline {B}Description of Performance Measure}{25}{appendix.52}
-\contentsline {chapter}{\numberline {C}All Reslult}{27}{appendix.53}
+\contentsline {chapter}{\numberline {A}Technique Indicators}{23}{appendix.50}
+\contentsline {chapter}{\numberline {B}Description of Performance Measure}{25}{appendix.51}
+\contentsline {chapter}{\numberline {C}All Reslult}{27}{appendix.52}
 \vspace {2em}
-\contentsline {chapter}{Bibliography}{29}{dummy.54}
+\contentsline {chapter}{Bibliography}{29}{dummy.53}

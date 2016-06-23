@@ -53,6 +53,7 @@ class FundamentalAnalysis(BaseClass):
             self.IA: "2829.HK",
             self.IA300: "2846.HK",
             self.IMSCI: "3010.HK",
+            self.SHSE: '000001.SS',
         }
         self.fa_pca_transformer = None
         self.fa_min_list = []

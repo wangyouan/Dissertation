@@ -48,6 +48,7 @@ class Constants(object):
     IA = "iShares CSI A-Share Financials" # 2829.HK
     IA300 = "iShares CSI 300 A-Share" # 2846.HK
     IMSCI = "iShares MSCI AC Asia ex Japan" # 3010.HK
+    SHSE = "000001.SS" # Shanghai stock exchange market
 
     # Normalization method
     MIN_MAX = "Min-Max Normalization"
