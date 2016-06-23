@@ -8,9 +8,16 @@ However, as a very complex (non-linear) and volatile system with many factors (s
 
 Is stock price movement really predictable? How to measure the predict performance of given method? As those indicators of market keep changing every time, how can we keep tracking of them timely for many stocks? As calculating so many parameters is really demanding, but those high performance server is very expensive, can we utilize distributed computing to calculate those? With the development of machine learning, computer now can learn some human knowledge (like Alpha Go versus Lee Sedol), can them learn to predict stock price?
 
-\subsection{Objectives}
+\section{Objectives}
 
 This study is to answer the above problems. Target market is Hong Kong Stock Exchange Market. Objects is to find a good method to predict HSI stock price changes through testing on different machine learning algorithms (includes Linear Regression, Neural Network, Random Forest). Apart from using single learning methods, this study also tries to combine two machine learning methods to do that predict, which use one to predict how much a stock price changes and another to forecast what direction the stock price will change (up or down). 
+
+\section{The Dataset}
+Most of historical stock information are collected from Yahoo Finance (http://finance.yahoo.com), HIBOR are downloaded from the Hong Kong Association of Banks (HKAB) website, its url is http://www.hkab.org.hk/. Other data are collected through Quandl (https://www.quandl.com/)
+
+\section{Success Criteria}
+The purpose of the thesis is to find a stock price prediction system that can be applied as an assistant tool for investors in HKEX. Thus, the core research problem is which algorithm can make the best prediction. Several performance criteria (e.g. MSE, MAPE, details can be found in Appendix A) are used to measure these learning method.
+
 
 \section{Structure}
 

@@ -44,11 +44,11 @@ required_info = {
         (const.RSI, 21),
     ],
     const.FUNDAMENTAL_ANALYSIS: [
-        const.US10Y_BOND,
-        const.US30Y_BOND,
+        # const.US10Y_BOND,
+        # const.US30Y_BOND,
         const.FXI,
-        # const.IC,
-        # const.IA, # comment this  two because this two bond is a little newer
+        const.IC,
+        const.IA, # comment this  two because this two bond is a little newer
         const.HSI,
         {const.FROM: const.USD, const.TO: const.HKD},
         {const.FROM: const.EUR, const.TO: const.HKD},
