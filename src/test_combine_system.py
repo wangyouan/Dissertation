@@ -85,40 +85,40 @@ amount_method_list = [const.RANDOM_FOREST, const.LINEAR_REGRESSION, const.ARTIFI
 trend_method_list = [const.SVM, const.LOGISTIC_REGRESSION, const.RANDOM_FOREST]
 
 test = None
-for amount_method in amount_method_list:
-    for trend_method in trend_method_list:
-        method = '{}_{}'.format(amount_method.split(('_'))[0], trend_method.split('_')[0])
-        new_file_path = os.path.join(output_path, method)
-        if not os.path.isdir(new_file_path):
-            os.makedirs(new_file_path)
+for amount_method, trend_method in zip(amount_method_list, trend_method_list):
+    # for trend_method in trend_method_list:
+    method = '{}_{}'.format(amount_method.split(('_'))[0], trend_method.split('_')[0])
+    new_file_path = os.path.join(output_path, method)
+    if not os.path.isdir(new_file_path):
+        os.makedirs(new_file_path)
 
-        f = open(os.path.join(new_file_path, "stock_info.csv"), 'w')
-        f.write('stock,MSE,MAPE,MAD,RMSE,CDC\n')
-        for stock in stock_list:
-            specific_file_path = os.path.join(new_file_path, stock[:4])
-            specific_model_path = os.path.join(model_path, method, stock[:4])
-            test = MixInferenceSystem(stock, amount_type=const.RATIO_AMOUNT, data_folder_path=data_path,
-                                      using_exist_model=False, amount_method=amount_method,
-                                      direction_method=trend_method, output_file_path=specific_file_path,
-                                      model_path=specific_model_path)
-            try:
-                predict_result = test.predict_historical_data(train_test_ratio=0.8, start_date="2011-04-14",
-                                                              end_date="2016-04-15", iterations=10)
-                predict_result_rdd = test.sc.parallelize(predict_result)
-                mse = get_MSE(predict_result_rdd)
-                mape = get_MAPE(predict_result_rdd)
-                mad = get_MAD(predict_result_rdd)
-                rmse = get_RMSE(predict_result_rdd)
-                # tie = get_theils_inequality_coefficient(predict_result)
-                cdc = get_CDC_combine(predict_result_rdd)
-                f.write('{},{},{},{},{},{}\n'.format(stock, mse, mape, mad, rmse, cdc))
-            except Exception, err:
-                print "Error happens"
-                print err
-                time.sleep(60)
+    f = open(os.path.join(new_file_path, "stock_info.csv"), 'w')
+    f.write('stock,MSE,MAPE,MAD,RMSE,CDC\n')
+    for stock in stock_list[:10]:
+        specific_file_path = os.path.join(new_file_path, stock[:4])
+        specific_model_path = os.path.join(model_path, method, stock[:4])
+        test = MixInferenceSystem(stock, amount_type=const.RATIO_AMOUNT, data_folder_path=data_path,
+                                  using_exist_model=False, amount_method=amount_method,
+                                  direction_method=trend_method, output_file_path=specific_file_path,
+                                  model_path=specific_model_path)
+        try:
+            predict_result = test.predict_historical_data(train_test_ratio=0.8, start_date="2011-04-14",
+                                                          end_date="2016-04-15", iterations=10)
+            predict_result_rdd = test.sc.parallelize(predict_result)
+            mse = get_MSE(predict_result_rdd)
+            mape = get_MAPE(predict_result_rdd)
+            mad = get_MAD(predict_result_rdd)
+            rmse = get_RMSE(predict_result_rdd)
+            # tie = get_theils_inequality_coefficient(predict_result)
+            cdc = get_CDC_combine(predict_result_rdd)
+            f.write('{},{},{},{},{},{}\n'.format(stock, mse, mape, mad, rmse, cdc))
+        except Exception, err:
+            print "Error happens"
+            print err
+            time.sleep(60)
 
-        f.close()
-        time.sleep(300)
+    f.close()
+    time.sleep(300)
 
 if hasattr(test, 'sc'):
     test.sc.stop()

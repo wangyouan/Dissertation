@@ -18,7 +18,7 @@ const = Constants()
 
 required_info = {
     const.PRICE_TYPE: const.STOCK_CLOSE,
-    const.STOCK_PRICE: {const.DATA_PERIOD: 1},
+    const.STOCK_PRICE: {const.DATA_PERIOD: 5},
     const.STOCK_INDICATOR: [
         (const.MACD, {
             const.MACD_FAST_PERIOD: 12,
@@ -43,11 +43,11 @@ required_info = {
         (const.RSI, 21),
     ],
     const.FUNDAMENTAL_ANALYSIS: [
-        const.US10Y_BOND,
-        const.US30Y_BOND,
+        # const.US10Y_BOND,
+        # const.US30Y_BOND,
         const.FXI,
-        # const.IC,
-        # const.IA, # comment this  two because this two bond is a little newer
+        const.IC,
+        const.IA, # comment this  two because this two bond is a little newer
         const.HSI,
         {const.FROM: const.USD, const.TO: const.HKD},
         {const.FROM: const.EUR, const.TO: const.HKD},
@@ -79,6 +79,7 @@ stock_list = ['0001.HK', '0002.HK', '0003.HK', '0004.HK', '0005.HK', '0006.HK', 
               '0057.HK', '0058.HK', '0059.HK', '0060.HK', '0888.HK', '0062.HK', '0063.HK', '0064.HK', '0065.HK',
               '0066.HK', '1123.HK']
 
+test = None
 for method in [const.ARTIFICIAL_NEURAL_NETWORK, const.RANDOM_FOREST, const.LINEAR_REGRESSION]:
 
     new_file_path = os.path.join(output_path, method)
@@ -87,15 +88,14 @@ for method in [const.ARTIFICIAL_NEURAL_NETWORK, const.RANDOM_FOREST, const.LINEA
 
     f = open(os.path.join(new_file_path, "stock_info.csv"), 'w')
     f.write('stock,MSE,MAPE,MAD,RMSE,CDC\n')
-    test = None
-    for stock in stock_list[:5]:
+    for stock in stock_list[:10]:
 
         specific_file_path = os.path.join(new_file_path, stock[:4])
         specific_model_path = os.path.join(model_path, method, stock[:4])
         test = InferenceSystem(stock, training_method=method, data_folder_path=data_path, using_exist_model=False,
                                output_file_path=specific_file_path, model_path=specific_model_path)
         try:
-            predict_result = test.predict_historical_data(0.8, "2006-04-14", "2016-04-15", iterations=10)
+            predict_result = test.predict_historical_data(0.8, "20011-04-14", "2016-04-15", iterations=10)
             predict_result.cache()
             mse = get_MSE(predict_result)
             mape = get_MAPE(predict_result)
@@ -107,10 +107,10 @@ for method in [const.ARTIFICIAL_NEURAL_NETWORK, const.RANDOM_FOREST, const.LINEA
         except Exception, err:
             print "Error happens"
             print err
-            test.sc.stop()
             time.sleep(20)
 
-    if hasattr(test, 'sc'):
-        test.sc.stop()
-
     f.close()
+
+if hasattr(test, 'sc'):
+    test.sc.stop()
+
