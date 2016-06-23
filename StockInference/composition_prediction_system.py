@@ -71,6 +71,10 @@ class MixInferenceSystem(InferenceSystem):
         del self.training_method
         del self.test_data
         self.train_data_number = 0
+        self.trend_model = {'model': None,
+                            'cdc': 0}
+        self.amount_model = {'model': None,
+                             'rmse': float('inf')}
 
     def load_parameters(self):
         self.amount_prediction_method = self.load_data_from_file(data_type=self.SAVE_TYPE_MODEL,
@@ -136,13 +140,11 @@ class MixInferenceSystem(InferenceSystem):
         self.logger.info('Start to train the direction model')
         rdd_data = self.sc.parallelize(data)
         if self.trend_prediction_method == self.RANDOM_FOREST:
-            if i == 0 and model is None:
-                model = RandomForest.trainClassifier(rdd_data, numClasses=2, categoricalFeaturesInfo={}, numTrees=40,
-                                                     featureSubsetStrategy="auto", impurity='gini', maxDepth=20,
-                                                     maxBins=32)
+            model = RandomForest.trainClassifier(rdd_data, numClasses=2, categoricalFeaturesInfo={}, numTrees=40,
+                                                 featureSubsetStrategy="auto", impurity='gini', maxDepth=20,
+                                                 maxBins=32)
         elif self.trend_prediction_method == self.NAIVE_BAYES:
-            if i == 0 and model is None:
-                model = NaiveBayes.train(rdd_data)
+            model = NaiveBayes.train(rdd_data)
 
         elif self.trend_prediction_method == self.LOGISTIC_REGRESSION:
             model = LogisticRegressionWithSGD.train(rdd_data, iterations=10000, step=0.001,
@@ -165,10 +167,9 @@ class MixInferenceSystem(InferenceSystem):
             model = neural_network.train(rdd_data, method=neural_network.BP, seed=1234, learn_rate=0.0001,
                                          iteration=10, model=model)
         elif self.amount_prediction_method == self.RANDOM_FOREST:
-            if i == 0 and model is None:
-                model = RandomForest.trainRegressor(rdd_data, categoricalFeaturesInfo={}, numTrees=40,
-                                                    featureSubsetStrategy="auto", impurity='variance', maxDepth=20,
-                                                    maxBins=32)
+            model = RandomForest.trainRegressor(rdd_data, categoricalFeaturesInfo={}, numTrees=40,
+                                                featureSubsetStrategy="auto", impurity='variance', maxDepth=20,
+                                                maxBins=32)
 
         elif self.amount_prediction_method == self.LINEAR_REGRESSION:
             model = LinearRegressionWithSGD.train(rdd_data, iterations=10000, step=0.001,
@@ -198,6 +199,13 @@ class MixInferenceSystem(InferenceSystem):
         cdc = get_CDC_combine(predict_rdd)
         mape = get_MAPE(predict_rdd)
         mad = get_MAD(predict_rdd)
+        if cdc > self.trend_model['cdc']:
+            self.trend_model['model'] = trend_model
+            self.trend_model['cdc'] = cdc
+
+        if mse < self.amount_model['rmse']:
+            self.amount_model['rmse'] = mse
+            self.amount_model['model'] = amount_model
         return mse, mape, cdc, mad
 
     def model_predict(self, trend_model, amount_model, test_features, tomorrow_today):
@@ -237,21 +245,21 @@ class MixInferenceSystem(InferenceSystem):
         trend_train_bc = self.sc.broadcast(trend_train)
         choice_index = np.random.choice(range(training_data_num), size=train_num, replace=False)
         choice_index_bc = self.sc.broadcast(choice_index)
-        if self.trend_prediction_method in [self.RANDOM_FOREST, self.NAIVE_BAYES]:
-            trend_train_rdd = self.sc.parallelize([0]).flatMap(lambda x: choice_index_bc.value).map(
-                lambda x: trend_train_bc.value[x]).collect()
-        else:
-            trend_train_rdd = self.sc.parallelize([0]).flatMap(lambda x: trend_train_bc.value).collect()
+        # if self.trend_prediction_method in [self.RANDOM_FOREST, self.NAIVE_BAYES]:
+        #     trend_train_rdd = self.sc.parallelize([0]).flatMap(lambda x: choice_index_bc.value).map(
+        #         lambda x: trend_train_bc.value[x]).collect()
+        # else:
+        trend_train_rdd = self.sc.parallelize([0]).flatMap(lambda x: trend_train_bc.value).collect()
 
         amount_train_bc = self.sc.broadcast(amount_train)
-        if self.amount_prediction_method != self.RANDOM_FOREST:
-            # f = open('test', 'w')
-            # amount_train_bc.dump(amount_train_bc.value, f)
-            # f.close()
-            amount_train_rdd = self.sc.parallelize([0]).flatMap(lambda x: choice_index_bc.value).map(
-                lambda x: amount_train_bc.value[x]).collect()
-        else:
-            amount_train_rdd = self.sc.parallelize([0]).flatMap(lambda x: amount_train_bc.value).collect()
+        # if self.amount_prediction_method != self.RANDOM_FOREST:
+        #     # f = open('test', 'w')
+        #     # amount_train_bc.dump(amount_train_bc.value, f)
+        #     # f.close()
+        #     amount_train_rdd = self.sc.parallelize([0]).flatMap(lambda x: choice_index_bc.value).map(
+        #         lambda x: amount_train_bc.value[x]).collect()
+        # else:
+        amount_train_rdd = self.sc.parallelize([0]).flatMap(lambda x: amount_train_bc.value).collect()
         test_features = self.sc.parallelize([0]).flatMap(lambda x: amount_train_bc.value).map(lambda p: p.features) \
             .zipWithIndex().filter(lambda x: x[1] not in choice_index_bc.value).collect()
         choice_index_bc.unpersist()
@@ -369,12 +377,12 @@ class MixInferenceSystem(InferenceSystem):
 
         # if train ratio is at that level, means that target want the model file, not the
         if train_test_ratio > 0.99:
-            return trend_model, amount_model
+            return self.trend_model['model'], self.amount_model['model']
 
         # Data prediction part
         self.logger.info("Start to use the model to predict price")
-        predict = self.model_predict(trend_model=trend_model, amount_model=amount_model, test_features=all_features,
-                                     tomorrow_today=tomorrow_today)
+        predict = self.model_predict(trend_model=self.trend_model['model'], amount_model=self.amount_model['model'],
+                                     test_features=all_features, tomorrow_today=tomorrow_today)
 
         self.save_data_to_file(predict, "predict_result.csv", self.SAVE_TYPE_OUTPUT)
         self.save_model(trend_model=trend_model, amount_model=amount_model)
