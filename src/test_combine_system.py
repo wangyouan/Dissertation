@@ -56,7 +56,7 @@ required_info = {
         const.ONE_YEAR,
         const.HALF_YEAR,
         # const.OVER_NIGHT,
-        const.GOLDEN_PRICE,
+        # const.GOLDEN_PRICE,
         const.SHSE,
     ]
 }
