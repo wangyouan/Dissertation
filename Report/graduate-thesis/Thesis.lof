@@ -5,13 +5,14 @@
 \contentsline {figure}{\numberline {3.2}{\ignorespaces Comparison of HSI and other indexes\relax }}{8}{figure.caption.24}
 \contentsline {figure}{\numberline {3.3}{\ignorespaces HIBOR from 2011 to 2014\relax }}{10}{figure.caption.29}
 \addvspace {10\p@ }
-\contentsline {figure}{\numberline {4.1}{\ignorespaces Data cycle in Hadoop MapReduce\relax }}{13}{figure.caption.34}
+\contentsline {figure}{\numberline {4.1}{\ignorespaces Spark Stack\relax }}{13}{figure.caption.33}
 \contentsline {figure}{\numberline {4.2}{\ignorespaces Data cycle in Hadoop MapReduce\relax }}{14}{figure.caption.35}
-\contentsline {figure}{\numberline {4.3}{\ignorespaces Two types of Spark Dependency\cite {zaharia2016architecture}\relax }}{15}{figure.caption.38}
-\contentsline {subfigure}{\numberline {(a)}{\ignorespaces {Narrow Dependency}}}{15}{figure.caption.38}
-\contentsline {subfigure}{\numberline {(b)}{\ignorespaces {Wide Denpendency}}}{15}{figure.caption.38}
+\contentsline {figure}{\numberline {4.3}{\ignorespaces Data cycle in Hadoop MapReduce\relax }}{14}{figure.caption.36}
+\contentsline {figure}{\numberline {4.4}{\ignorespaces Two types of Spark Dependency\cite {zaharia2016architecture}\relax }}{16}{figure.caption.39}
+\contentsline {subfigure}{\numberline {(a)}{\ignorespaces {Narrow Dependency}}}{16}{figure.caption.39}
+\contentsline {subfigure}{\numberline {(b)}{\ignorespaces {Wide Denpendency}}}{16}{figure.caption.39}
 \addvspace {10\p@ }
-\addvspace {10\p@ }
+\contentsline {figure}{\numberline {5.1}{\ignorespaces Example for invalid data\relax }}{20}{figure.caption.52}
 \addvspace {10\p@ }
 \addvspace {10\p@ }
 \addvspace {10\p@ }
