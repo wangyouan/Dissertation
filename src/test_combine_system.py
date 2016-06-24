@@ -48,7 +48,7 @@ required_info = {
         # const.US30Y_BOND,
         const.FXI,
         const.IC,
-        const.IA, # comment this  two because this two bond is a little newer
+        const.IA,  # comment this  two because this two bond is a little newer
         const.HSI,
         {const.FROM: const.USD, const.TO: const.HKD},
         {const.FROM: const.EUR, const.TO: const.HKD},
@@ -56,7 +56,7 @@ required_info = {
         const.ONE_YEAR,
         const.HALF_YEAR,
         # const.OVER_NIGHT,
-        const.GOLDEN_PRICE,
+        # const.GOLDEN_PRICE,
         const.SHSE,
     ]
 }
@@ -102,8 +102,8 @@ for amount_method, trend_method in zip(amount_method_list, trend_method_list):
                                   direction_method=trend_method, output_file_path=specific_file_path,
                                   model_path=specific_model_path)
         try:
-            predict_result = test.predict_historical_data(train_test_ratio=0.8, start_date="2011-04-14",
-                                                          end_date="2016-04-15", iterations=10)
+            predict_result = test.predict_historical_data(train_test_ratio=0.8, start_date="2009-12-29",
+                                                          end_date="2015-01-06", iterations=10)
             predict_result_rdd = test.sc.parallelize(predict_result)
             mse = get_MSE(predict_result_rdd)
             mape = get_MAPE(predict_result_rdd)
