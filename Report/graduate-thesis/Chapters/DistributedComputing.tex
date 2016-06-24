@@ -61,3 +61,23 @@ However, this design brings a big challenge to Spark’s Fault Tolerance, as onc
 Resilient distributed datasets, or RDD, designed based on Matei \cite{zaharia2012resilient}, is one of the core technology in Spark frame. RDD can be regard as a table in database, which can hold any type of data. Spark save data to different partitions RDD \cite{ryza2015advanced}.\\
 
 
+Every RDD can contain many partitions, a partition is a part of dataset. RDD can rely on each other. The case that each partition of the parent RDD is used by at most one partition of the child RDD is called narrow dependency; while multiple child partitions may depend on one parent partition is called wide dependencies\cite{ryza2015advanced}.
+\begin{figure}[h]
+	\centering
+	\subfigure[Narrow Dependency]{
+		\centering
+		\includegraphics[width=.6\linewidth]{narrowdependencies}
+	}
+	\subfigure[Wide Denpendency]{
+		\centering
+		\includegraphics[width=.3\linewidth]{widedependences}
+	}
+	\caption{Two types of Spark Dependency\cite{zaharia2016architecture}}
+\end{figure} 
+\clearpage
+
+There are two reasons that why Spark make narrow dependencies out of wide one\cite{zaharia2016architecture},
+\begin{enumerate}
+	\item Narrow allow for pipelined execution on one cluster node, while wide dependencies must wait for all the parent partitions available.
+	\item Fault recover is much easier for narrow dependencies, as it just need to re-compute the lost partitions, and this operation can be done in different nodes. On the other hand, wide dependencies involves many parent partitions.
+\end{enumerate}

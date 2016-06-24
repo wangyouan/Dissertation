@@ -7,6 +7,9 @@
 \addvspace {10\p@ }
 \contentsline {figure}{\numberline {4.1}{\ignorespaces Data cycle in Hadoop MapReduce\relax }}{13}{figure.caption.34}
 \contentsline {figure}{\numberline {4.2}{\ignorespaces Data cycle in Hadoop MapReduce\relax }}{14}{figure.caption.35}
+\contentsline {figure}{\numberline {4.3}{\ignorespaces Two types of Spark Dependency\cite {zaharia2016architecture}\relax }}{15}{figure.caption.38}
+\contentsline {subfigure}{\numberline {(a)}{\ignorespaces {Narrow Dependency}}}{15}{figure.caption.38}
+\contentsline {subfigure}{\numberline {(b)}{\ignorespaces {Wide Denpendency}}}{15}{figure.caption.38}
 \addvspace {10\p@ }
 \addvspace {10\p@ }
 \addvspace {10\p@ }
