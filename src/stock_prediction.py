@@ -15,8 +15,8 @@ from StockInference.util.data_parse import *
 from StockInference.constant import Constants
 
 const = Constants()
-start_date = "2010-12-29"
-end_date = "2015-01-06"
+start_date = "2011-12-29"
+end_date = "2016-01-06"
 
 required_info = {
     const.PRICE_TYPE: const.STOCK_CLOSE,
