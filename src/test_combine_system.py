@@ -16,6 +16,8 @@ from StockInference.util.data_parse import *
 from StockInference.constant import Constants
 
 const = Constants()
+start_date = "2011-12-29"
+end_date = "2016-01-06"
 
 required_info = {
     const.PRICE_TYPE: const.STOCK_CLOSE,
@@ -102,8 +104,8 @@ for amount_method, trend_method in zip(amount_method_list, trend_method_list):
                                   direction_method=trend_method, output_file_path=specific_file_path,
                                   model_path=specific_model_path)
         try:
-            predict_result = test.predict_historical_data(train_test_ratio=0.75, start_date="2009-12-29",
-                                                          end_date="2014-01-06", iterations=10)
+            predict_result = test.predict_historical_data(train_test_ratio=0.75, start_date=start_date,
+                                                          end_date=end_date, iterations=10)
             predict_result_rdd = test.sc.parallelize(predict_result)
             mse = get_MSE(predict_result_rdd)
             mape = get_MAPE(predict_result_rdd)
