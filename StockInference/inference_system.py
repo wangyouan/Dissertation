@@ -56,6 +56,7 @@ class InferenceSystem(Constants):
             self.training_method = training_method
         log4jLogger = self.sc._jvm.org.apache.log4j
         self.logger = log4jLogger.LogManager.getLogger(self.__class__.__name__)
+        self.predict_model = {'model': None, 'mse': float('inf')}
 
     def get_train_test_data(self, train_test_ratio, start_date, end_date):
 
@@ -289,6 +290,9 @@ class InferenceSystem(Constants):
         mape = get_MAPE(predict)
         cdc = get_CDC(predict)
         mad = get_MAD(predict)
+        if mse < self.predict_model['mse']:
+            self.predict_model['model'] = model
+            self.predict_model['mse'] = mse
 
         return mse, mape, cdc, mad
 
@@ -312,32 +316,24 @@ class InferenceSystem(Constants):
         if not self.using_exist_model:
             model = self.initialize_model()
 
-        if self.training_method == self.RANDOM_FOREST and model is not None:
+        self.logger.info('Start to training model')
+        for i in range(iterations):
+            self.logger.info("Epoch {} starts".format(i))
+            train, test, test_features = self.randomly_split_data(training_data, ratio=0.8)
+            model = self.model_training(train, model)
+            self.logger.info("Epoch {} finishes".format(i))
 
-            # If model load is Random Forest Regression, then no re-train is needed
-            self.logger.info('Model has already been loaded, no retrain needed')
-        else:
-
-            self.logger.info('Start to training model')
-            for i in range(iterations):
-                self.logger.info("Epoch {} starts".format(i))
-                train, test, test_features = self.randomly_split_data(training_data, ratio=0.8)
-                model = self.model_training(train, model)
-                self.logger.info("Epoch {} finishes".format(i))
-
-                mse, mape, cdc, mad = self.evaluate_model_performance(model, test, test_features)
-                self.logger.info("Current MSE is {:.4f}".format(mse))
-                self.logger.info("Current MAD is {:.4f}".format(mad))
-                self.logger.info("Current MAPE is {:.4f}%".format(mape))
-                self.logger.info("Current CDC is {:.4f}%".format(cdc))
-
-                # Just train random forest tree one time
-                if self.training_method == self.RANDOM_FOREST:
-                    break
+            mse, mape, cdc, mad = self.evaluate_model_performance(model, test, test_features)
+            self.logger.info("Current MSE is {:.4f}".format(mse))
+            self.logger.info("Current MAD is {:.4f}".format(mad))
+            self.logger.info("Current MAPE is {:.4f}%".format(mape))
+            self.logger.info("Current CDC is {:.4f}%".format(cdc))
 
         # if train ratio is at that level, means that target want the model file, not the
         if train_test_ratio > 0.99:
-            return model
+            return self.predict_model['model']
+
+        model = self.predict_model['model']
 
         # Data prediction part
         self.logger.info("Start to use the model to predict price")
