@@ -99,7 +99,7 @@ for amount_method, trend_method in zip(amount_method_list, trend_method_list):
     for stock in stock_list[:10]:
         specific_file_path = os.path.join(new_file_path, stock[:4])
         specific_model_path = os.path.join(model_path, method, stock[:4])
-        test = MixInferenceSystem(stock, amount_type=const.RATIO_AMOUNT, data_folder_path=data_path,
+        test = MixInferenceSystem(stock, amount_type=const.RAW_AMOUNT, data_folder_path=data_path,
                                   using_exist_model=False, amount_method=amount_method,
                                   direction_method=trend_method, output_file_path=specific_file_path,
                                   model_path=specific_model_path)
