@@ -32,22 +32,22 @@
 \contentsline {section}{\numberline {4.4}Summary}{18}{section.49}
 \contentsline {chapter}{\numberline {5}Data Mining Methods}{19}{chapter.50}
 \contentsline {section}{\numberline {5.1}Remove invalid or missing data}{19}{section.51}
-\contentsline {chapter}{\numberline {6}Machine Learning Method}{21}{chapter.53}
-\contentsline {chapter}{\numberline {7}Model Design}{22}{chapter.54}
-\contentsline {section}{\numberline {7.1}A Section}{22}{section.55}
-\contentsline {subsection}{\numberline {7.1.1}A Subsection}{23}{subsection.56}
-\contentsline {section}{\numberline {7.2}Another Section}{23}{section.57}
-\contentsline {chapter}{\numberline {8}Results}{24}{chapter.58}
-\contentsline {section}{\numberline {8.1}A Section}{24}{section.59}
-\contentsline {subsection}{\numberline {8.1.1}A Subsection}{25}{subsection.60}
-\contentsline {section}{\numberline {8.2}Another Section}{25}{section.61}
-\contentsline {chapter}{\numberline {9}Conclusion}{26}{chapter.62}
-\contentsline {section}{\numberline {9.1}A Section}{26}{section.63}
-\contentsline {subsection}{\numberline {9.1.1}A Subsection}{27}{subsection.64}
-\contentsline {section}{\numberline {9.2}Another Section}{27}{section.65}
+\contentsline {chapter}{\numberline {6}Machine Learning Method}{23}{chapter.54}
+\contentsline {chapter}{\numberline {7}Model Design}{24}{chapter.55}
+\contentsline {section}{\numberline {7.1}A Section}{24}{section.56}
+\contentsline {subsection}{\numberline {7.1.1}A Subsection}{25}{subsection.57}
+\contentsline {section}{\numberline {7.2}Another Section}{25}{section.58}
+\contentsline {chapter}{\numberline {8}Results}{26}{chapter.59}
+\contentsline {section}{\numberline {8.1}A Section}{26}{section.60}
+\contentsline {subsection}{\numberline {8.1.1}A Subsection}{27}{subsection.61}
+\contentsline {section}{\numberline {8.2}Another Section}{27}{section.62}
+\contentsline {chapter}{\numberline {9}Conclusion}{28}{chapter.63}
+\contentsline {section}{\numberline {9.1}A Section}{28}{section.64}
+\contentsline {subsection}{\numberline {9.1.1}A Subsection}{29}{subsection.65}
+\contentsline {section}{\numberline {9.2}Another Section}{29}{section.66}
 \vspace {2em}
-\contentsline {chapter}{\numberline {A}Technique Indicators}{28}{appendix.66}
-\contentsline {chapter}{\numberline {B}Description of Performance Measure}{30}{appendix.67}
-\contentsline {chapter}{\numberline {C}All Reslult}{32}{appendix.68}
+\contentsline {chapter}{\numberline {A}Technique Indicators}{30}{appendix.67}
+\contentsline {chapter}{\numberline {B}Description of Performance Measure}{32}{appendix.68}
+\contentsline {chapter}{\numberline {C}All Reslult}{34}{appendix.69}
 \vspace {2em}
-\contentsline {chapter}{Bibliography}{34}{dummy.69}
+\contentsline {chapter}{Bibliography}{36}{dummy.70}

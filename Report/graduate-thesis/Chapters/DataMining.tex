@@ -14,4 +14,16 @@ As a real-world applications of data mining, there are some invalid or missing d
 		\caption{Example for invalid data}
 		\label{fg:invalid_data}
 	\end{figure}
+	\item Missing data. Like figure~\ref{fg:missing_data}, the overnight and 1-week rate is inaccessible on that day. In this case, the system would automatically use valid previous information to instead this value.
+	\begin{figure}[h]
+		\centering
+		\includegraphics[width=0.6\textwidth]{missingdata}
+		\caption{Example for missing data}
+		\label{fg:missing_data}
+	\end{figure}
+	\clearpage
+	\item Time difference. This is a big issue when the system queries some data based on different time zone from Hong Kong Time (HKT, GMT+8), e.g. New York time (GMT -4), which is 12 hours behind HKT. Obviously, at the beginning of each transaction day in Hong Kong, it is impossible to get the same day information in NY. Thus, the date of data at NYT should be one day prior to that in HKT.
 \end{itemize}
+
+
+The above are data cleaning rules in this system, and after the above processing, clean data would do the following step, normalization.

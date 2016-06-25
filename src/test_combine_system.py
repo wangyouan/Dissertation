@@ -87,7 +87,7 @@ trend_method_list = [const.SVM, const.LOGISTIC_REGRESSION, const.RANDOM_FOREST]
 test = None
 for amount_method, trend_method in zip(amount_method_list, trend_method_list):
     # for trend_method in trend_method_list:
-    method = '{}_{}'.format(amount_method.split(('_'))[0], trend_method.split('_')[0])
+    method = '{}_{}'.format(amount_method.split(('_'))[0].lower(), trend_method.split('_')[0].lower())
     new_file_path = os.path.join(output_path, method)
     if not os.path.isdir(new_file_path):
         os.makedirs(new_file_path)
