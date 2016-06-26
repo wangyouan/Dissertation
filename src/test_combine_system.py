@@ -56,6 +56,8 @@ required_info = {
         # {const.FROM: const.AUD, const.TO: const.HKD},
         const.ONE_YEAR,
         const.HALF_YEAR,
+        const.ONE_MONTH,
+        const.ONE_WEEK,
         # const.OVER_NIGHT,
         # const.GOLDEN_PRICE,
         const.SHSE,

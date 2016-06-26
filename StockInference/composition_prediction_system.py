@@ -147,11 +147,11 @@ class MixInferenceSystem(InferenceSystem):
             model = NaiveBayes.train(rdd_data)
 
         elif self.trend_prediction_method == self.LOGISTIC_REGRESSION:
-            model = LogisticRegressionWithSGD.train(rdd_data, iterations=10000, step=0.001,
+            model = LogisticRegressionWithSGD.train(rdd_data, iterations=100000, step=0.001,
                                                     initialWeights=None if model is None else model.weights)
 
         elif self.trend_prediction_method == self.SVM:
-            model = SVMWithSGD.train(rdd_data, iterations=10000, step=0.01,
+            model = SVMWithSGD.train(rdd_data, iterations=100000, step=0.001,
                                      initialWeights=None if model is None else model.weights)
 
         return model
@@ -165,14 +165,14 @@ class MixInferenceSystem(InferenceSystem):
 
             neural_network = NeuralNetworkSpark(layers=layers, bias=0)
             model = neural_network.train(rdd_data, method=neural_network.BP, seed=1234, learn_rate=0.0001,
-                                         iteration=10, model=model)
+                                         iteration=15, model=model)
         elif self.amount_prediction_method == self.RANDOM_FOREST:
             model = RandomForest.trainRegressor(rdd_data, categoricalFeaturesInfo={}, numTrees=40,
                                                 featureSubsetStrategy="auto", impurity='variance', maxDepth=20,
                                                 maxBins=32)
 
         elif self.amount_prediction_method == self.LINEAR_REGRESSION:
-            model = LinearRegressionWithSGD.train(rdd_data, iterations=10000, step=0.001,
+            model = LinearRegressionWithSGD.train(rdd_data, iterations=100000, step=0.001,
                                                   initialWeights=model.weights if model is not None else None)
 
         else:

@@ -21,7 +21,7 @@ In this study, the label of every sample is tomorrow's stock price, changing dir
 When the target variable that we're trying to predict is continuous, e.g. predicting tomorrow's stock price, we call this type of problem as \textbf{regression} problem. On the other hand, if the target variable only have a small number of discrete values (such as stock price changing direction, up or down), we call it a \textbf{classification} problem.
 
 
-\section{Regression Method}
+\section{Linear Model}
 Regression method are mainly used to predict stock price or its changing amount in combined system.
 
 \subsection{Linear Regression}
@@ -101,4 +101,120 @@ Usually, SGD gets $ w $ "close" to the optimal solution more faster than batch g
 
 In this study, the training iterations of our linear regression model are set to 100000, while the learning rate is 0.001.
 
-\subsection{Random Forest}
+\subsection{Linear Support Vector Machines (SVMs)}
+SVMs was developed by Vladimir Vapnik\cite{cortes1995support} and is one of the most popular supervised learning methods. This study uses SVM to solve the classification of stock change direction, a typical 2-class classification problem.\\
+
+
+Without loss of generality, let's using a simple 2-D example to illustrate this problem. Assume we have a set of data, and we want to classify them into two categorical classes. As figure~\ref{fg:SVM} shows, there exits two possible parting lines with different boundary sizes. Are these decision boundaries equally good?
+\begin{figure}[h]
+	\centering
+	\includegraphics[width=0.8\textwidth]{svms}
+	\caption{Illustration of service vector machines\cite{8_svm_2016}}
+	\label{fg:SVM}
+\end{figure}
+\clearpage
+The main idea of SVM is: "The decision boundary should be as far away as possible from the data points of both class"\cite{4_kantardzic}. Based one the above idea, A is a better parting line than B (in figure~\ref{fg:SVM}).\\
+
+
+Mathematica description is as follows. Given a classification problem with a training set $ D $, belongs to two classes (using binary with -1 and 1)
+\begin{equation}
+D={(x_1,y_1),(x_2,y_2),\dots,(x_n,y_n)},x\in R^n, y\in{-1, 1},
+\end{equation}
+The hyperplane can be represented as
+\begin{equation}
+w^T \cdot x+b=0
+\end{equation}
+This means that
+\begin{align*}
+w^T\cdot x_i+b>0,& \text{if $y_i = 1$}\\
+w^T\cdot x_i+b<0,& \text{if $y_i = -1$}
+\end{align*}
+Then margin can be mathematically expressed as the following equation\cite{6_tan_steinbach_kumar_2005}
+\begin{equation}
+margin=\min_{i=1,\dots,n}y_i\cdot(\frac{w^T\cdot x_i}{\lVert w\rVert} +\frac{b}{\lVert w\rVert})
+\end{equation}
+Then next step is to find the maximum margin.\\
+
+
+However, in real-world applications, there are the cases where subsets cannot be completely separated (like figure~\ref{fg:SVM_soft})\cite{4_kantardzic}. In other words, the algorithm would find a balance between maximizing the margin and minimizing the classifications error during optimization process.
+\begin{figure}[h]
+	\centering
+	\includegraphics[width=0.8\textwidth]{svm_soft}
+	\caption{Soft margin of SVMs}
+	\label{fg:SVM_soft}
+\end{figure}
+
+\subsection{Logistic Regression}
+Logistic is also a widely used method to predict binary responses. Rather than predicting the value of the dependent variable in linear regression, logistic regression method estimates the probability that the dependent variable will choose from a given range\cite{4_kantardzic}.
+
+ 
+Logistic regression takes probabilities of every label into consideration. Suppose that output Y has two possible values, 0 and 1. In training set, the possibilities can be expressed as: $ P(y_i=0)=1-p_i $ and $ P(y_i=1)=p_i $, then the \textit{linear logistic model} can be represented by~\cite{4_kantardzic},
+\begin{equation}
+	\log (\frac{p_i}{1-p_i}) = b + w^T \cdot x_i
+\end{equation}
+The reason for using the logit form of output is to prevent the model from generating a result out-range of $ [0, 1] $\\
+
+
+In this system, logistic regression algorithm are mainly used to predict the changing direction of stock price.
+
+\section{Random Forest}
+Random forest algorithm was first created by Tin Kam Ho\cite{ho1995random} and is based on decision trees. To reduce the risk of overfitting, random forests composes of a number of individual decision trees, and this is also where this method get its name from (as figure~\ref{fg:decision-tree} shows).
+\begin{figure}[h]
+	\centering
+	\includegraphics[width=0.9\textwidth]{random-forest}
+	\caption{Illustration of random forest}
+	\label{fg:decision-tree}
+\end{figure}
+
+\clearpage
+Random Forest can solve both classification and regression problems. For the former problem, every decision tree's prediction is counted as a vote for one class, and the final result is the class that received most votes (like figure~\ref{fg:decision-tree}). For the later question, final result this the average of all decision trees' prediction value.\\
+
+
+As every decision tree are trained and predicted separately, they can work in parallel, which makes random forest a very suitable algorithm for distributed computing.
+
+
+\section{Artificial Neural Network}
+Neural networks was first inspired by human nervous system which is made up of neurons, a information processing unit (figure~\ref{fg:neural-nework}). Every neuron receive signals from input or former neurons, then compute them with the activation function and send its result to output or latter neurons\cite{russell2003artificial}.
+\begin{figure}[h]
+	\centering
+	\includegraphics[width=0.6\textwidth]{neural_network}
+	\caption{Illustration of Artificial Neural Network with one hidden layer}
+	\label{fg:neural-nework}
+\end{figure}
+
+This study focus on back propagation MLP. The steps of algorithm can be described as follow\cite{russell2003artificial}:
+\begin{enumerate}
+	\item \textit{Initialize weights $ w $ with a small random value}. Suppose layer $ j $ has $ m $ nodes, layer $j + 1$ has $ n $ nodes, then the weight matrix between these two layer $ w_{jj+1} $ should have $ m \times n $.
+	\item \textit{Forward Propagation}. The values of every layer $ i $ remark as $ l_i $ (Input as $ l_i =l_1 $, output as $l_o=l_n$, suppose there are n layers in total), the node $ k $ in $ l_j $ remark as $ l_jk $. Given the activation function
+	\begin{equation}
+	f(l) = \frac{1}{1+e^{-l}}
+	\end{equation}
+	the value of layer $ i + 1 $ is calculated by,
+	\begin{equation}
+	l_{i+1}=f(w_{ii+1}^T\cdot l_i)
+	\end{equation}
+	From the input layer, do this calculation. Record those values as $ l = [l_i, l_2, \ldots, l_o] $.
+	\item \textit{Back Propagation and weights update} 
+	\begin{enumerate}
+		\item Get the error value using
+		\begin{equation}
+		\delta_n = y - l_n
+		\end{equation}
+		
+		\item For the following layers, using formula,
+		\begin{equation}
+		\delta_j = w_{jj+1}^T\delta_{j+1}\cdot f'(l_i)
+		\end{equation}
+		where $ f'(l) = f(l)(1-f(l)) $
+		
+		\item Update weights.
+		\begin{equation}
+		w_{ii+1} = w_{ii+1} + \alpha \delta_i 
+		\end{equation}
+	\end{enumerate}
+\end{enumerate}
+
+The above algorithm is a typical batch gradient descent process. As data amount is relatively small (e.g. 1 year only have around 250 transaction days), using this method is much faster to reach the optimal solution.
+
+\section{Summary}
+This chapter introduces the learning algorithms used in this study. The regression method (Random Forest, ANN, Linear Regression) are used to predict the stock price directly or the changing amount, while the classification method (Logistic Regression, SVM, Random Forest) are used to predict the change direction.

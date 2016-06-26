@@ -1,0 +1,18 @@
+\chapter{Simulation Data and Model Evaluation Method}
+\label{ch:data&model}
+
+\section{Raw data for training}
+Details of selected data is introduced in Chapter~\ref{ch:market}, the date range is from 2006-04-15 to 2016-04-15. As some data prior to the start date is hard to be collected. \\
+
+
+Let $ EMA(n) $ represents $ n $ days EMA, similar to to $ SMA(n) $ , $ ROC(n) $ and $ RSI(n) $. $ MACD(m, n) $ means that the long term EMA of $ n $ days and short term EMA of $ m $ days, then the input features can be represented as [$ Price_{open}, Price_{high}, Price_{low}, Price_{close}, $ MACD(7, 14), MACD(12, 26), ROC(13), ROC(21), EMA(5), EMA(13), EMA(21), SMA(3), SMA(13), SMA(21), RSI(9), RSI(14), RSI(21), $ HIBOR_{\text{1 Year}} $, $ HIBOR_{\text{6 Months}} $, $ HIBOR_{\text{1 Week}} $, $ HIBOR_{\text{1 Month}} $, HKD/USD, HKD/EUR, HKD/CNY, HSI, SSE], feature number is 26 in total.\\
+
+
+The stock chosen in this experiment is Cheung Kong (Holdings) Limited, CLP Holdings Limited, The Hong Kong and China Gas Company Limited, The Wharf (Holdings) Limited, HSBC Holdings plc, Power Assets Holdings Limited, Hoifu Energy Group Limited, PCCW Limited, Nine Express Limited and Hang Lung Group Limited. They are just the first 10 stocks in Yahoo Finance (0001.HK to 0010.HK).\\
+
+
+Three of the above companies are top 50 in market capitalization (0001.HK, 0004.HK and 0002.HK). Two of them are top 20 active stocks in dollars (0001.HK and 0005.HK). One in finance (0005.HK), 3 in Utilities (0002.HK, 0003.HK and 0006.HK), two properties (0001.HK and 0004.HK).
+
+
+\section{Model Evaluation}
+

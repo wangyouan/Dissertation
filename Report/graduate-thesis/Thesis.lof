@@ -20,6 +20,12 @@
 \contentsline {figure}{\numberline {6.1}{\ignorespaces Example of simple linear regression with one variable\relax }}{32}{figure.caption.85}
 \contentsline {figure}{\numberline {6.2}{\ignorespaces Illustration of gradient descent\relax }}{33}{figure.caption.90}
 \contentsline {figure}{\numberline {6.3}{\ignorespaces Illustration of stochastic gradient descent (SGD)\relax }}{34}{figure.caption.91}
+\contentsline {figure}{\numberline {6.4}{\ignorespaces Illustration of service vector machines\cite {8_svm_2016}\relax }}{35}{figure.caption.93}
+\contentsline {figure}{\numberline {6.5}{\ignorespaces Soft margin of SVMs\relax }}{37}{figure.caption.97}
+\contentsline {figure}{\numberline {6.6}{\ignorespaces Illustration of random forest\relax }}{38}{figure.caption.101}
+\contentsline {figure}{\numberline {6.7}{\ignorespaces Illustration of Artificial Neural Network with one hidden layer\relax }}{39}{figure.caption.103}
+\addvspace {10\p@ }
+\contentsline {figure}{\numberline {7.1}{\ignorespaces Flow Chart of the whole system\relax }}{43}{figure.caption.117}
 \addvspace {10\p@ }
 \addvspace {10\p@ }
 \addvspace {10\p@ }
