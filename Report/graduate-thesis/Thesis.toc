@@ -40,21 +40,24 @@
 \contentsline {subsection}{\numberline {5.3.1}Procedure of PCA\cite {4_kantardzic}}{25}{subsection.62}
 \contentsline {section}{\numberline {5.4}Summary}{29}{section.77}
 \contentsline {chapter}{\numberline {6}Supervised Learning Method}{30}{chapter.78}
-\contentsline {chapter}{\numberline {7}Model Design}{31}{chapter.79}
-\contentsline {section}{\numberline {7.1}A Section}{31}{section.80}
-\contentsline {subsection}{\numberline {7.1.1}A Subsection}{32}{subsection.81}
-\contentsline {section}{\numberline {7.2}Another Section}{32}{section.82}
-\contentsline {chapter}{\numberline {8}Results}{33}{chapter.83}
-\contentsline {section}{\numberline {8.1}A Section}{33}{section.84}
-\contentsline {subsection}{\numberline {8.1.1}A Subsection}{34}{subsection.85}
-\contentsline {section}{\numberline {8.2}Another Section}{34}{section.86}
-\contentsline {chapter}{\numberline {9}Conclusion}{35}{chapter.87}
-\contentsline {section}{\numberline {9.1}A Section}{35}{section.88}
-\contentsline {subsection}{\numberline {9.1.1}A Subsection}{36}{subsection.89}
-\contentsline {section}{\numberline {9.2}Another Section}{36}{section.90}
+\contentsline {section}{\numberline {6.1}Regression Method}{31}{section.82}
+\contentsline {subsection}{\numberline {6.1.1}Linear Regression}{31}{subsection.83}
+\contentsline {subsection}{\numberline {6.1.2}Random Forest}{34}{subsection.92}
+\contentsline {chapter}{\numberline {7}Model Design}{35}{chapter.93}
+\contentsline {section}{\numberline {7.1}A Section}{35}{section.94}
+\contentsline {subsection}{\numberline {7.1.1}A Subsection}{36}{subsection.95}
+\contentsline {section}{\numberline {7.2}Another Section}{36}{section.96}
+\contentsline {chapter}{\numberline {8}Results}{37}{chapter.97}
+\contentsline {section}{\numberline {8.1}A Section}{37}{section.98}
+\contentsline {subsection}{\numberline {8.1.1}A Subsection}{38}{subsection.99}
+\contentsline {section}{\numberline {8.2}Another Section}{38}{section.100}
+\contentsline {chapter}{\numberline {9}Conclusion}{39}{chapter.101}
+\contentsline {section}{\numberline {9.1}A Section}{39}{section.102}
+\contentsline {subsection}{\numberline {9.1.1}A Subsection}{40}{subsection.103}
+\contentsline {section}{\numberline {9.2}Another Section}{40}{section.104}
 \vspace {2em}
-\contentsline {chapter}{\numberline {A}Technique Indicators}{37}{appendix.91}
-\contentsline {chapter}{\numberline {B}Description of Performance Measure}{39}{appendix.92}
-\contentsline {chapter}{\numberline {C}All Reslult}{41}{appendix.93}
+\contentsline {chapter}{\numberline {A}Technique Indicators}{41}{appendix.105}
+\contentsline {chapter}{\numberline {B}Description of Performance Measure}{43}{appendix.106}
+\contentsline {chapter}{\numberline {C}All Reslult}{45}{appendix.107}
 \vspace {2em}
-\contentsline {chapter}{Bibliography}{43}{dummy.94}
+\contentsline {chapter}{Bibliography}{47}{dummy.108}

@@ -237,7 +237,7 @@ class InferenceSystem(Constants):
 
             neural_network = NeuralNetworkSpark(layers=layers, bias=0)
             model = neural_network.train(training_data, method=neural_network.BP, seed=1234, learn_rate=0.0001,
-                                         iteration=20, model=model)
+                                         iteration=10, model=model)
         elif self.training_method == self.RANDOM_FOREST:
 
             model = RandomForest.trainRegressor(training_data, categoricalFeaturesInfo={}, numTrees=40,

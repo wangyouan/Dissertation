@@ -5,3 +5,9 @@
 # File name: __init__.py
 # Author: Mark Wang
 # Date: 9/5/2016
+
+
+
+start_date = "2011-12-29"
+end_date = "2016-01-06"
+test_ratio = 0.6667
