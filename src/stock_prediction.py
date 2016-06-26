@@ -13,10 +13,9 @@ import time
 from StockInference.inference_system import InferenceSystem
 from StockInference.util.data_parse import *
 from StockInference.constant import Constants
+from __init__ import start_date, end_date, test_ratio
 
 const = Constants()
-start_date = "2011-12-29"
-end_date = "2015-01-06"
 
 required_info = {
     const.PRICE_TYPE: const.STOCK_CLOSE,
@@ -98,7 +97,7 @@ for method in [const.ARTIFICIAL_NEURAL_NETWORK, const.RANDOM_FOREST, const.LINEA
         test = InferenceSystem(stock, training_method=method, data_folder_path=data_path, using_exist_model=False,
                                output_file_path=specific_file_path, model_path=specific_model_path)
         try:
-            predict_result = test.predict_historical_data(0.6667, start_date, end_date, iterations=10)
+            predict_result = test.predict_historical_data(test_ratio, start_date, end_date, iterations=10)
             predict_result.cache()
             mse = get_MSE(predict_result)
             mape = get_MAPE(predict_result)

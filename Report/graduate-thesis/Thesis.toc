@@ -4,9 +4,9 @@
 \vspace {1em}
 \contentsline {chapter}{Acknowledgements}{iv}{dummy.3}
 \vspace {1em}
-\contentsline {chapter}{List of Figures}{vii}{dummy.5}
-\contentsline {chapter}{List of Tables}{viii}{dummy.7}
-\contentsline {chapter}{Abbreviations}{ix}{dummy.9}
+\contentsline {chapter}{List of Figures}{viii}{dummy.5}
+\contentsline {chapter}{List of Tables}{ix}{dummy.7}
+\contentsline {chapter}{Abbreviations}{x}{dummy.9}
 \vspace {2em}
 \contentsline {chapter}{\numberline {1}Introduction}{1}{chapter.12}
 \contentsline {section}{\numberline {1.1}Problem Statement}{1}{section.13}
@@ -32,22 +32,32 @@
 \contentsline {section}{\numberline {4.4}Summary}{18}{section.49}
 \contentsline {chapter}{\numberline {5}Data Mining Methods}{19}{chapter.50}
 \contentsline {section}{\numberline {5.1}Remove invalid or missing data}{19}{section.51}
-\contentsline {chapter}{\numberline {6}Machine Learning Method}{23}{chapter.54}
-\contentsline {chapter}{\numberline {7}Model Design}{24}{chapter.55}
-\contentsline {section}{\numberline {7.1}A Section}{24}{section.56}
-\contentsline {subsection}{\numberline {7.1.1}A Subsection}{25}{subsection.57}
-\contentsline {section}{\numberline {7.2}Another Section}{25}{section.58}
-\contentsline {chapter}{\numberline {8}Results}{26}{chapter.59}
-\contentsline {section}{\numberline {8.1}A Section}{26}{section.60}
-\contentsline {subsection}{\numberline {8.1.1}A Subsection}{27}{subsection.61}
-\contentsline {section}{\numberline {8.2}Another Section}{27}{section.62}
-\contentsline {chapter}{\numberline {9}Conclusion}{28}{chapter.63}
-\contentsline {section}{\numberline {9.1}A Section}{28}{section.64}
-\contentsline {subsection}{\numberline {9.1.1}A Subsection}{29}{subsection.65}
-\contentsline {section}{\numberline {9.2}Another Section}{29}{section.66}
+\contentsline {section}{\numberline {5.2}Data Normalization}{22}{section.54}
+\contentsline {subsection}{\numberline {5.2.1}Min-Max Normalization\cite {4_kantardzic}}{22}{subsection.55}
+\contentsline {subsection}{\numberline {5.2.2}Standard Deviation Normalization\cite {4_kantardzic}}{23}{subsection.57}
+\contentsline {subsection}{\numberline {5.2.3}Sigmoid Normalization\cite {nayak2014impact}}{24}{subsection.59}
+\contentsline {section}{\numberline {5.3}Principal Components Analysis}{24}{section.61}
+\contentsline {subsection}{\numberline {5.3.1}Procedure of PCA\cite {4_kantardzic}}{25}{subsection.62}
+\contentsline {section}{\numberline {5.4}Summary}{29}{section.77}
+\contentsline {chapter}{\numberline {6}Supervised Learning Method}{30}{chapter.78}
+\contentsline {section}{\numberline {6.1}Regression Method}{31}{section.82}
+\contentsline {subsection}{\numberline {6.1.1}Linear Regression}{31}{subsection.83}
+\contentsline {subsection}{\numberline {6.1.2}Random Forest}{34}{subsection.92}
+\contentsline {chapter}{\numberline {7}Model Design}{35}{chapter.93}
+\contentsline {section}{\numberline {7.1}A Section}{35}{section.94}
+\contentsline {subsection}{\numberline {7.1.1}A Subsection}{36}{subsection.95}
+\contentsline {section}{\numberline {7.2}Another Section}{36}{section.96}
+\contentsline {chapter}{\numberline {8}Results}{37}{chapter.97}
+\contentsline {section}{\numberline {8.1}A Section}{37}{section.98}
+\contentsline {subsection}{\numberline {8.1.1}A Subsection}{38}{subsection.99}
+\contentsline {section}{\numberline {8.2}Another Section}{38}{section.100}
+\contentsline {chapter}{\numberline {9}Conclusion}{39}{chapter.101}
+\contentsline {section}{\numberline {9.1}A Section}{39}{section.102}
+\contentsline {subsection}{\numberline {9.1.1}A Subsection}{40}{subsection.103}
+\contentsline {section}{\numberline {9.2}Another Section}{40}{section.104}
 \vspace {2em}
-\contentsline {chapter}{\numberline {A}Technique Indicators}{30}{appendix.67}
-\contentsline {chapter}{\numberline {B}Description of Performance Measure}{32}{appendix.68}
-\contentsline {chapter}{\numberline {C}All Reslult}{34}{appendix.69}
+\contentsline {chapter}{\numberline {A}Technique Indicators}{41}{appendix.105}
+\contentsline {chapter}{\numberline {B}Description of Performance Measure}{43}{appendix.106}
+\contentsline {chapter}{\numberline {C}All Reslult}{45}{appendix.107}
 \vspace {2em}
-\contentsline {chapter}{Bibliography}{36}{dummy.70}
+\contentsline {chapter}{Bibliography}{47}{dummy.108}
