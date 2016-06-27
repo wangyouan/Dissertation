@@ -17,10 +17,10 @@ from __init__ import start_date, end_date, test_ratio
 
 const = Constants()
 
-if len(sys.argv) >= 3:
-    date_start = sys.argv[0]
-    date_end = sys.argv[1]
-    ratio = float(sys.argv[2])
+if len(sys.argv) > 3:
+    date_start = sys.argv[1]
+    date_end = sys.argv[2]
+    ratio = float(sys.argv[3])
 else:
     date_start = start_date
     date_end = end_date
