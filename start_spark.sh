@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
-start_date="2013-01-01"
-end_date="2015-01-06"
+start_date="2014-01-01"
+end_date="2016-01-06"
 test_ratio=0.5
 
 rm -rf output/*
