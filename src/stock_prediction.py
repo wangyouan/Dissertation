@@ -17,6 +17,15 @@ from __init__ import start_date, end_date, test_ratio
 
 const = Constants()
 
+if len(sys.argv) >= 3:
+    date_start = sys.argv[0]
+    date_end = sys.argv[1]
+    ratio = float(sys.argv[2])
+else:
+    date_start = start_date
+    date_end = end_date
+    ratio = test_ratio
+
 required_info = {
     const.PRICE_TYPE: const.STOCK_CLOSE,
     const.STOCK_PRICE: {const.DATA_PERIOD: 5},
@@ -48,7 +57,7 @@ required_info = {
         # const.US30Y_BOND,
         const.FXI,
         const.IC,
-        const.IA, # comment this  two because this two bond is a little newer
+        const.IA,  # comment this  two because this two bond is a little newer
         const.HSI,
         {const.FROM: const.USD, const.TO: const.HKD},
         {const.FROM: const.EUR, const.TO: const.HKD},
@@ -89,7 +98,7 @@ for method in [const.ARTIFICIAL_NEURAL_NETWORK, const.RANDOM_FOREST, const.LINEA
         os.makedirs(new_file_path)
 
     f = open(os.path.join(new_file_path, "stock_info.csv"), 'w')
-    f.write('stock,MSE,MAPE,MAD,RMSE,CDC\n')
+    f.write('stock,MSE,MAPE,MAD,RMSE,CDC,HMSE,ME\n')
     for stock in stock_list[:10]:
 
         specific_file_path = os.path.join(new_file_path, stock[:4])
@@ -97,15 +106,17 @@ for method in [const.ARTIFICIAL_NEURAL_NETWORK, const.RANDOM_FOREST, const.LINEA
         test = InferenceSystem(stock, training_method=method, data_folder_path=data_path, using_exist_model=False,
                                output_file_path=specific_file_path, model_path=specific_model_path)
         try:
-            predict_result = test.predict_historical_data(test_ratio, start_date, end_date, iterations=10)
+            predict_result = test.predict_historical_data(ratio, date_start, date_end, iterations=10)
             predict_result.cache()
             mse = get_MSE(predict_result)
             mape = get_MAPE(predict_result)
             mad = get_MAD(predict_result)
             rmse = get_RMSE(predict_result)
+            hmse = get_HMSE(predict_result)
+            me = get_ME(predict_result)
             # tie = get_theils_inequality_coefficient(predict_result)
             cdc = get_CDC(predict_result)
-            f.write('{},{},{},{},{},{}\n'.format(stock, mse, mape, mad, rmse, cdc))
+            f.write('{},{},{},{},{},{}\n'.format(stock, mse, mape, mad, rmse, cdc, hmse, me))
         except Exception, err:
             print "Error happens"
             print err
@@ -115,4 +126,3 @@ for method in [const.ARTIFICIAL_NEURAL_NETWORK, const.RANDOM_FOREST, const.LINEA
 
 if hasattr(test, 'sc'):
     test.sc.stop()
-

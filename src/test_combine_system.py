@@ -18,6 +18,15 @@ from __init__ import start_date, end_date, test_ratio
 
 const = Constants()
 
+if len(sys.argv) >= 3:
+    date_start = sys.argv[0]
+    date_end = sys.argv[1]
+    ratio = float(sys.argv[2])
+else:
+    date_start = start_date
+    date_end = end_date
+    ratio = test_ratio
+
 required_info = {
     const.PRICE_TYPE: const.STOCK_CLOSE,
     const.STOCK_PRICE: {const.DATA_PERIOD: 1},
@@ -96,7 +105,7 @@ for amount_method, trend_method in zip(amount_method_list, trend_method_list):
         os.makedirs(new_file_path)
 
     f = open(os.path.join(new_file_path, "stock_info.csv"), 'w')
-    f.write('stock,MSE,MAPE,MAD,RMSE,CDC\n')
+    f.write('stock,MSE,MAPE,MAD,RMSE,CDC,HMSE,ME\n')
     for stock in stock_list[:10]:
         specific_file_path = os.path.join(new_file_path, stock[:4])
         specific_model_path = os.path.join(model_path, method, stock[:4])
@@ -105,16 +114,18 @@ for amount_method, trend_method in zip(amount_method_list, trend_method_list):
                                   direction_method=trend_method, output_file_path=specific_file_path,
                                   model_path=specific_model_path)
         try:
-            predict_result = test.predict_historical_data(train_test_ratio=test_ratio, start_date=start_date,
-                                                          end_date=end_date, iterations=10)
+            predict_result = test.predict_historical_data(train_test_ratio=ratio, start_date=date_start,
+                                                          end_date=date_end, iterations=10)
             predict_result_rdd = test.sc.parallelize(predict_result)
+            me = get_ME(predict_result_rdd)
             mse = get_MSE(predict_result_rdd)
             mape = get_MAPE(predict_result_rdd)
             mad = get_MAD(predict_result_rdd)
             rmse = get_RMSE(predict_result_rdd)
+            hmse = get_HMSE(predict_result_rdd)
             # tie = get_theils_inequality_coefficient(predict_result)
             cdc = get_CDC_combine(predict_result_rdd)
-            f.write('{},{},{},{},{},{}\n'.format(stock, mse, mape, mad, rmse, cdc))
+            f.write('{},{},{},{},{},{}\n'.format(stock, mse, mape, mad, rmse, cdc, hmse, me))
         except Exception, err:
             print "Error happens"
             print err
