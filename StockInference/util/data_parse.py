@@ -31,6 +31,11 @@ def get_MAD(label_prediction):
     return label_prediction.map(lambda (v, p): abs(v - p)).sum() / float(label_prediction.count())
 
 
+def get_ME(label_prediction):
+    """ Mean Absolute DEVIATION """
+    return label_prediction.map(lambda (v, p): v - p).sum() / float(label_prediction.count())
+
+
 def get_MAPE(label_prediction):
     """ Mean Absolute Percentage Error """
     return label_prediction.map(lambda (v, p): abs((v - p) / float(v))).sum() / float(label_prediction.count()) * 100
@@ -41,11 +46,15 @@ def get_RMSE(label_and_prediction):
     return math.sqrt(get_MSE(label_and_prediction))
 
 
+def get_HMSE(label_and_prediction):
+    return label_and_prediction.map(lambda (v, p): (v / p - 1) ** 2).sum() / float(label_and_prediction.count())
+
+
 def get_theils_inequality_coefficient(label_and_prediction):
-    rmse = get_RMSE(label_and_prediction)
+    mse = get_MSE(label_and_prediction) * label_and_prediction.count()
     prediction = label_and_prediction.map(lambda (v, p): p ** p).sum() / float(label_and_prediction.count())
     label = label_and_prediction.map(lambda (v, p): v ** v).sum() / float(label_and_prediction.count())
-    return rmse / (math.sqrt(prediction) + math.sqrt(label))
+    return mse / (math.sqrt(prediction) + math.sqrt(label))
 
 
 # def get_CDC(label_prediction):
@@ -75,5 +84,6 @@ def get_CDC_combine(label_prediction):
             correct_num += 1
 
     return correct_num * 100.0 / data_num
+
 
 get_CDC = get_CDC_combine
