@@ -1,11 +1,57 @@
 \chapter{Technique Indicators}
 
-Lorem ipsum dolor sit amet, consectetur adipiscing elit. Vivamus at pulvinar nisi. Phasellus hendrerit, diam placerat interdum iaculis, mauris justo cursus risus, in viverra purus eros at ligula. Ut metus justo, consequat a tristique posuere, laoreet nec nibh. Etiam et scelerisque mauris. Phasellus vel massa magna. Ut non neque id tortor pharetra bibendum vitae sit amet nisi. Duis nec quam quam, sed euismod justo. Pellentesque eu tellus vitae ante tempus malesuada. Nunc accumsan, quam in congue consequat, lectus lectus dapibus erat, id aliquet urna neque at massa. Nulla facilisi. Morbi ullamcorper eleifend posuere. Donec libero leo, faucibus nec bibendum at, mattis et urna. Proin consectetur, nunc ut imperdiet lobortis, magna neque tincidunt lectus, id iaculis nisi justo id nibh. Pellentesque vel sem in erat vulputate faucibus molestie ut lorem.
+\label{append:technical_indicator}
 
-Quisque tristique urna in lorem laoreet at laoreet quam congue. Donec dolor turpis, blandit non imperdiet aliquet, blandit et felis. In lorem nisi, pretium sit amet vestibulum sed, tempus et sem. Proin non ante turpis. Nulla imperdiet fringilla convallis. Vivamus vel bibendum nisl. Pellentesque justo lectus, molestie vel luctus sed, lobortis in libero. Nulla facilisi. Aliquam erat volutpat. Suspendisse vitae nunc nunc. Sed aliquet est suscipit sapien rhoncus non adipiscing nibh consequat. Aliquam metus urna, faucibus eu vulputate non, luctus eu justo.
+Technical analysis is one of the oldest security analysis methodology. A qualified technician predicts the direction of prices and makes buy or sell decision under the help of all kinds of charts and indicators.\\
 
-Donec urna leo, vulputate vitae porta eu, vehicula blandit libero. Phasellus eget massa et leo condimentum mollis. Nullam molestie, justo at pellentesque vulputate, sapien velit ornare diam, nec gravida lacus augue non diam. Integer mattis lacus id libero ultrices sit amet mollis neque molestie. Integer ut leo eget mi volutpat congue. Vivamus sodales, turpis id venenatis placerat, tellus purus adipiscing magna, eu aliquam nibh dolor id nibh. Pellentesque habitant morbi tristique senectus et netus et malesuada fames ac turpis egestas. Sed cursus convallis quam nec vehicula. Sed vulputate neque eget odio fringilla ac sodales urna feugiat.
 
-Phasellus nisi quam, volutpat non ullamcorper eget, congue fringilla leo. Cras et erat et nibh placerat commodo id ornare est. Nulla facilisi. Aenean pulvinar scelerisque eros eget interdum. Nunc pulvinar magna ut felis varius in hendrerit dolor accumsan. Nunc pellentesque magna quis magna bibendum non laoreet erat tincidunt. Nulla facilisi.
+This study also covers some indicators, the details of which can be find below.
 
-Duis eget massa sem, gravida interdum ipsum. Nulla nunc nisl, hendrerit sit amet commodo vel, varius id tellus. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nunc ac dolor est. Suspendisse ultrices tincidunt metus eget accumsan. Nullam facilisis, justo vitae convallis sollicitudin, eros augue malesuada metus, nec sagittis diam nibh ut sapien. Duis blandit lectus vitae lorem aliquam nec euismod nisi volutpat. Vestibulum ornare dictum tortor, at faucibus justo tempor non. Nulla facilisi. Cras non massa nunc, eget euismod purus. Nunc metus ipsum, euismod a consectetur vel, hendrerit nec nunc.
+
+\section{Moving Average (MA)\cite{kahn2006technical}}
+A \textit{moving average} is the average price of a stock or market over a given period. MA helps neglect fluctuations and catch the main trend. Two basic type of MAs are used in this study.
+
+\subsection{Simple Moving Average (SMA)}
+SMA is the simplest MA. Assume that the price at time t is $ p_t $ where $t=1,2,3,\ldots$, $n$ is the given period, then the SMA at time $ t $ with $ n $ periods is
+\begin{equation}
+SMA(t, n)=\frac{\sum_{i=0}^{n-1}p_{t-i}}{n}
+\end{equation}
+
+\subsection{Exponential Moving Average (EMA)}  
+SMA pays equal attention to every historical price. But, intuitively, the closer the stock price, the more significant it is in forecasting future price. To solve this problem, people developed EMA, which gives later prices higher weights than prior ones. Let $ K =\frac{2}{n+1} $, then EMA is 
+\begin{equation}
+EMA(t) = K\times p_t+(1-K) \times EMA(t-1)
+\end{equation}
+
+A comparison between EMA and SMA can be find in figure~\ref{fg:smaema}.
+\begin{figure}[h]
+	\centering
+	\includegraphics[width=0.8\textwidth]{EmaSma}
+	\caption{Comparison between EMA and SMA\cite{9_sma_ema}}
+	\label{fg:smaema}
+\end{figure}
+
+\section{Rate of Change (ROC)}
+ROC is a simple way of measure the speed at which the price changes\cite{pring2002technical}. ROC can be calculated by
+\begin{equation}
+	ROC(n) = 100\times\frac{p_t}{p_{t-n}}
+\end{equation}
+
+
+\section{Relative Strength Index (RSI)}
+RSI which was developed by Wells Wilder, measures change and speed of stock price relative strength\cite{pring2002technical}. The formula for RSI is
+\begin{equation}
+RSI = 100 - \frac{100}{1 + RS}
+\end{equation}
+where RS is
+\begin{gather*}
+RS=\frac{\text{Average Gain}}{\text{Average Loss}}\\
+\end{gather*}
+RSI value fluctuates in a constant range between 0 and 100. Usually, overbought and oversold lines are drawn at the 70 and 30 level\cite{pring2002technical}
+
+\section{Moving Average Convergence Divergence (MACD)}
+MACD measures the distance between two EMA lines (with different periods), and was developed by Gerald Appel\cite{kahn2006technical}. MACD can be calculted through,
+\begin{equation}
+MACD(m,n)=EMA(m)-EMA(n)
+\end{equation}
+Usually $ m < n $. The most widely used parameter for MACD is using 12-day EMA minus 26-day EMA\cite{kahn2006technical}.

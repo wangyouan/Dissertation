@@ -125,7 +125,7 @@ for amount_method, trend_method in zip(amount_method_list, trend_method_list):
             hmse = get_HMSE(predict_result_rdd)
             # tie = get_theils_inequality_coefficient(predict_result)
             cdc = get_CDC_combine(predict_result_rdd)
-            f.write('{},{},{},{},{},{}\n'.format(stock, mse, mape, mad, rmse, cdc, hmse, me))
+            f.write('{},{},{},{},{},{},{},{}\n'.format(stock, mse, mape, mad, rmse, cdc, hmse, me))
         except Exception, err:
             print "Error happens"
             print err

@@ -55,17 +55,23 @@
 \contentsline {section}{\numberline {8.1}Raw data for training}{47}{section.136}
 \contentsline {section}{\numberline {8.2}Detail Parameters of every training method}{48}{section.137}
 \contentsline {section}{\numberline {8.3}Testing Environment}{49}{section.139}
-\contentsline {chapter}{\numberline {9}Results}{50}{chapter.141}
-\contentsline {section}{\numberline {9.1}A Section}{50}{section.142}
-\contentsline {subsection}{\numberline {9.1.1}A Subsection}{51}{subsection.143}
-\contentsline {section}{\numberline {9.2}Another Section}{51}{section.144}
-\contentsline {chapter}{\numberline {10}Conclusion}{52}{chapter.145}
-\contentsline {section}{\numberline {10.1}A Section}{52}{section.146}
-\contentsline {subsection}{\numberline {10.1.1}A Subsection}{53}{subsection.147}
-\contentsline {section}{\numberline {10.2}Another Section}{53}{section.148}
+\contentsline {chapter}{\numberline {9}Results}{51}{chapter.143}
+\contentsline {section}{\numberline {9.1}A Section}{51}{section.144}
+\contentsline {subsection}{\numberline {9.1.1}A Subsection}{52}{subsection.145}
+\contentsline {section}{\numberline {9.2}Another Section}{52}{section.146}
+\contentsline {chapter}{\numberline {10}Conclusion}{53}{chapter.147}
+\contentsline {section}{\numberline {10.1}A Section}{53}{section.148}
+\contentsline {subsection}{\numberline {10.1.1}A Subsection}{54}{subsection.149}
+\contentsline {section}{\numberline {10.2}Another Section}{54}{section.150}
 \vspace {2em}
-\contentsline {chapter}{\numberline {A}Technique Indicators}{54}{appendix.149}
-\contentsline {chapter}{\numberline {B}Description of Performance Measure}{56}{appendix.150}
-\contentsline {chapter}{\numberline {C}All Reslult}{58}{appendix.151}
+\contentsline {chapter}{\numberline {A}Technique Indicators}{55}{appendix.151}
+\contentsline {section}{\numberline {A.1}Moving Average (MA)\cite {kahn2006technical}}{55}{section.152}
+\contentsline {subsection}{\numberline {A.1.1}Simple Moving Average (SMA)}{56}{subsection.153}
+\contentsline {subsection}{\numberline {A.1.2}Exponential Moving Average (EMA)}{56}{subsection.155}
+\contentsline {section}{\numberline {A.2}Rate of Change (ROC)}{57}{section.158}
+\contentsline {section}{\numberline {A.3}Relative Strength Index (RSI)}{57}{section.160}
+\contentsline {section}{\numberline {A.4}Moving Average Convergence Divergence (MACD)}{57}{section.162}
+\contentsline {chapter}{\numberline {B}Description of Performance Measure}{59}{appendix.164}
+\contentsline {chapter}{\numberline {C}All Reslult}{61}{appendix.165}
 \vspace {2em}
-\contentsline {chapter}{Bibliography}{60}{dummy.152}
+\contentsline {chapter}{Bibliography}{63}{dummy.166}

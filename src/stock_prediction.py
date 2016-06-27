@@ -116,7 +116,7 @@ for method in [const.ARTIFICIAL_NEURAL_NETWORK, const.RANDOM_FOREST, const.LINEA
             me = get_ME(predict_result)
             # tie = get_theils_inequality_coefficient(predict_result)
             cdc = get_CDC(predict_result)
-            f.write('{},{},{},{},{},{}\n'.format(stock, mse, mape, mad, rmse, cdc, hmse, me))
+            f.write('{},{},{},{},{},{},{},{}\n'.format(stock, mse, mape, mad, rmse, cdc, hmse, me))
         except Exception, err:
             print "Error happens"
             print err

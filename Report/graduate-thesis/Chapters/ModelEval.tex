@@ -43,7 +43,7 @@ For the normalization method, the range of min-max normalizer is $ [-1, 1] $.
 
 
 \section{Testing Environment}
-The model of physical computer is Dell Inspiron Ins14VD-4516, details about the hardware information is showed in table~\ref{tb:hardwareConf}, software are listed in table
+The model of physical computer is Dell Inspiron Ins14VD-4516, details about the hardware information is showed in table~\ref{tb:hardwareConf}, software are listed in table~\ref{tb:softwareList}
 \begin{table}[h]
 	\centering
 	\begin{tabular}{|l|l|}
@@ -57,3 +57,25 @@ The model of physical computer is Dell Inspiron Ins14VD-4516, details about the 
 	\label{tb:hardwareConf}
 \end{table}
 
+\begin{table}[h]
+	\centering
+	\begin{tabular}{|l|l|}
+		\hline
+		\textbf{Name} & \textbf{Details} \\ \hline
+		OS & Ubuntu (Host version: 16.04, Guest version: 14.04) \\ \hline
+		Virtualbox & Version 5.0.20 r106931 \\ \hline
+		Python & 2.7.6 \\ \hline
+		Apache Spark & 1.6.1 \\ \hline
+		Hadoop & 2.6.0 \\ \hline
+	\end{tabular}r
+	\caption{Primary Software information}
+	\label{tb:softwareList}
+\end{table}
+\clearpage
+The cluster is formed by three virtual machines (as figure~\ref{fg:clustur}). "Master" is NameNode for HDFS, and Master, HistoryServer for Spark. The other two virtual machines work as DataNode (for HDFS) and worker (for Spark). Every computer has 40GB hard disk, 2GB memory and 1 virtual CPU core.
+\begin{figure}[h]
+	\centering
+	\includegraphics[width=0.6\textwidth]{ClusterStructure}
+	\caption{Network Structure of the cluster}
+	\label{fg:clustur}
+\end{figure}
