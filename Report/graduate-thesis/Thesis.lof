@@ -1,50 +1,113 @@
+\boolfalse {citerequest}\boolfalse {citetracker}\boolfalse {pagetracker}\boolfalse {backtracker}\relax 
+\defcounter {refsection}{0}\relax 
 \addvspace {10\p@ }
+\defcounter {refsection}{0}\relax 
 \addvspace {10\p@ }
+\defcounter {refsection}{0}\relax 
 \addvspace {10\p@ }
-\contentsline {figure}{\numberline {3.1}{\ignorespaces logo of HKEX\relax }}{7}{figure.caption.23}
-\contentsline {figure}{\numberline {3.2}{\ignorespaces Comparison of HSI and other indexes\relax }}{8}{figure.caption.24}
-\contentsline {figure}{\numberline {3.3}{\ignorespaces HIBOR from 2011 to 2014\relax }}{10}{figure.caption.29}
+\defcounter {refsection}{0}\relax 
+\contentsline {figure}{\numberline {3.1}{\ignorespaces logo of HKEX\relax }}{9}{figure.caption.23}
+\defcounter {refsection}{0}\relax 
+\contentsline {figure}{\numberline {3.2}{\ignorespaces Comparison of HSI and other indexes\relax }}{10}{figure.caption.24}
+\defcounter {refsection}{0}\relax 
+\contentsline {figure}{\numberline {3.3}{\ignorespaces HIBOR from 2011 to 2014\relax }}{12}{figure.caption.29}
+\defcounter {refsection}{0}\relax 
 \addvspace {10\p@ }
-\contentsline {figure}{\numberline {4.1}{\ignorespaces Spark Stack\relax }}{13}{figure.caption.33}
-\contentsline {figure}{\numberline {4.2}{\ignorespaces Data cycle in Hadoop MapReduce\relax }}{14}{figure.caption.35}
-\contentsline {figure}{\numberline {4.3}{\ignorespaces Data cycle in Hadoop MapReduce\relax }}{14}{figure.caption.36}
-\contentsline {figure}{\numberline {4.4}{\ignorespaces Two types of Spark Dependency\cite {zaharia2016architecture}\relax }}{16}{figure.caption.39}
-\contentsline {subfigure}{\numberline {(a)}{\ignorespaces {Narrow Dependency}}}{16}{figure.caption.39}
-\contentsline {subfigure}{\numberline {(b)}{\ignorespaces {Wide Denpendency}}}{16}{figure.caption.39}
+\defcounter {refsection}{0}\relax 
+\contentsline {figure}{\numberline {4.1}{\ignorespaces Spark Stack\relax }}{15}{figure.caption.33}
+\defcounter {refsection}{0}\relax 
+\contentsline {figure}{\numberline {4.2}{\ignorespaces Data cycle in Hadoop MapReduce\relax }}{17}{figure.caption.35}
+\defcounter {refsection}{0}\relax 
+\contentsline {figure}{\numberline {4.3}{\ignorespaces Data cycle in Hadoop MapReduce\relax }}{17}{figure.caption.36}
+\defcounter {refsection}{0}\relax 
+\contentsline {figure}{\numberline {4.4}{\ignorespaces Two types of Spark Dependency\cite {zaharia2016architecture}\relax }}{19}{figure.caption.39}
+\defcounter {refsection}{0}\relax 
+\contentsline {subfigure}{\numberline {(a)}{\ignorespaces {Narrow Dependency}}}{19}{figure.caption.39}
+\defcounter {refsection}{0}\relax 
+\contentsline {subfigure}{\numberline {(b)}{\ignorespaces {Wide Denpendency}}}{19}{figure.caption.39}
+\defcounter {refsection}{0}\relax 
 \addvspace {10\p@ }
-\contentsline {figure}{\numberline {5.1}{\ignorespaces Example for invalid data\relax }}{20}{figure.caption.52}
-\contentsline {figure}{\numberline {5.2}{\ignorespaces Example for missing data\relax }}{21}{figure.caption.53}
-\contentsline {figure}{\numberline {5.3}{\ignorespaces Rotating the axes\relax }}{25}{figure.caption.64}
-\contentsline {figure}{\numberline {5.4}{\ignorespaces Data visualization before and after PCA transformation\cite {6_tan_steinbach_kumar_2005}\relax }}{28}{figure.caption.76}
+\defcounter {refsection}{0}\relax 
+\contentsline {figure}{\numberline {5.1}{\ignorespaces Example for invalid data\relax }}{25}{figure.caption.52}
+\defcounter {refsection}{0}\relax 
+\contentsline {figure}{\numberline {5.2}{\ignorespaces Example for missing data\relax }}{26}{figure.caption.53}
+\defcounter {refsection}{0}\relax 
+\contentsline {figure}{\numberline {5.3}{\ignorespaces Rotating the axes\relax }}{32}{figure.caption.64}
+\defcounter {refsection}{0}\relax 
+\contentsline {figure}{\numberline {5.4}{\ignorespaces Data visualization before and after PCA transformation\cite {6_tan_steinbach_kumar_2005}\relax }}{35}{figure.caption.76}
+\defcounter {refsection}{0}\relax 
 \addvspace {10\p@ }
-\contentsline {figure}{\numberline {6.1}{\ignorespaces Example of simple linear regression with one variable\relax }}{32}{figure.caption.85}
-\contentsline {figure}{\numberline {6.2}{\ignorespaces Illustration of gradient descent\relax }}{33}{figure.caption.90}
-\contentsline {figure}{\numberline {6.3}{\ignorespaces Illustration of stochastic gradient descent (SGD)\relax }}{34}{figure.caption.91}
-\contentsline {figure}{\numberline {6.4}{\ignorespaces Illustration of service vector machines\cite {8_svm_2016}\relax }}{35}{figure.caption.93}
-\contentsline {figure}{\numberline {6.5}{\ignorespaces Soft margin of SVMs\relax }}{37}{figure.caption.97}
-\contentsline {figure}{\numberline {6.6}{\ignorespaces Illustration of random forest\relax }}{38}{figure.caption.101}
-\contentsline {figure}{\numberline {6.7}{\ignorespaces Illustration of Artificial Neural Network with one hidden layer\relax }}{39}{figure.caption.103}
+\defcounter {refsection}{0}\relax 
+\contentsline {figure}{\numberline {6.1}{\ignorespaces Example of simple linear regression with one variable\relax }}{39}{figure.caption.85}
+\defcounter {refsection}{0}\relax 
+\contentsline {figure}{\numberline {6.2}{\ignorespaces Illustration of gradient descent\relax }}{41}{figure.caption.90}
+\defcounter {refsection}{0}\relax 
+\contentsline {figure}{\numberline {6.3}{\ignorespaces Illustration of stochastic gradient descent (SGD)\relax }}{42}{figure.caption.91}
+\defcounter {refsection}{0}\relax 
+\contentsline {figure}{\numberline {6.4}{\ignorespaces Illustration of service vector machines\cite {8_svm_2016}\relax }}{44}{figure.caption.93}
+\defcounter {refsection}{0}\relax 
+\contentsline {figure}{\numberline {6.5}{\ignorespaces Soft margin of SVMs\relax }}{46}{figure.caption.97}
+\defcounter {refsection}{0}\relax 
+\contentsline {figure}{\numberline {6.6}{\ignorespaces Illustration of random forest\relax }}{48}{figure.caption.101}
+\defcounter {refsection}{0}\relax 
+\contentsline {figure}{\numberline {6.7}{\ignorespaces Illustration of Artificial Neural Network with one hidden layer\relax }}{50}{figure.caption.103}
+\defcounter {refsection}{0}\relax 
 \addvspace {10\p@ }
-\contentsline {figure}{\numberline {7.1}{\ignorespaces Flow Chart of the whole system\relax }}{43}{figure.caption.117}
+\defcounter {refsection}{0}\relax 
+\contentsline {figure}{\numberline {7.1}{\ignorespaces Flow Chart of the whole system\relax }}{53}{figure.caption.117}
+\defcounter {refsection}{0}\relax 
 \addvspace {10\p@ }
-\contentsline {figure}{\numberline {8.1}{\ignorespaces Network Structure of the cluster\relax }}{51}{figure.caption.142}
+\defcounter {refsection}{0}\relax 
+\contentsline {figure}{\numberline {8.1}{\ignorespaces Network Structure of the cluster\relax }}{63}{figure.caption.142}
+\defcounter {refsection}{0}\relax 
 \addvspace {10\p@ }
-\contentsline {figure}{\numberline {9.1}{\ignorespaces Testing result in time period 2014-01-07 to 2015-01-06\relax }}{53}{figure.caption.146}
-\contentsline {figure}{\numberline {9.2}{\ignorespaces Testing result in time period 2014-01-07 to 2015-01-06 (continue)\relax }}{54}{figure.caption.147}
-\contentsline {subfigure}{\numberline {(a)}{\ignorespaces {RMSE}}}{54}{figure.caption.147}
-\contentsline {subfigure}{\numberline {(b)}{\ignorespaces {CDC}}}{54}{figure.caption.147}
-\contentsline {figure}{\numberline {9.3}{\ignorespaces Testing result in time period 2014-01-07 to 2015-01-06 (continue)\relax }}{55}{figure.caption.150}
-\contentsline {subfigure}{\numberline {(a)}{\ignorespaces {MAPE}}}{55}{figure.caption.150}
-\contentsline {subfigure}{\numberline {(b)}{\ignorespaces {HMSE}}}{55}{figure.caption.150}
-\contentsline {figure}{\numberline {9.4}{\ignorespaces Testing result in time period 2010-01-06 to 2014-01-06\relax }}{57}{figure.caption.156}
-\contentsline {figure}{\numberline {9.5}{\ignorespaces Testing result in time period 2010-01-06 to 2014-01-06 (continue)\relax }}{58}{figure.caption.157}
-\contentsline {subfigure}{\numberline {(a)}{\ignorespaces {RMSE}}}{58}{figure.caption.157}
-\contentsline {subfigure}{\numberline {(b)}{\ignorespaces {CDC}}}{58}{figure.caption.157}
-\contentsline {figure}{\numberline {9.6}{\ignorespaces Testing result in time period 2010-01-06 to 2014-01-06 (continue)\relax }}{59}{figure.caption.160}
-\contentsline {subfigure}{\numberline {(a)}{\ignorespaces {MAPE}}}{59}{figure.caption.160}
-\contentsline {subfigure}{\numberline {(b)}{\ignorespaces {HMSE}}}{59}{figure.caption.160}
+\defcounter {refsection}{0}\relax 
+\contentsline {figure}{\numberline {9.1}{\ignorespaces Testing result in time period 2014-01-07 to 2015-01-06\relax }}{65}{figure.caption.146}
+\defcounter {refsection}{0}\relax 
+\contentsline {figure}{\numberline {9.2}{\ignorespaces Testing result in time period 2014-01-07 to 2015-01-06 (continue)\relax }}{66}{figure.caption.147}
+\defcounter {refsection}{0}\relax 
+\contentsline {subfigure}{\numberline {(a)}{\ignorespaces {RMSE}}}{66}{figure.caption.147}
+\defcounter {refsection}{0}\relax 
+\contentsline {subfigure}{\numberline {(b)}{\ignorespaces {CDC}}}{66}{figure.caption.147}
+\defcounter {refsection}{0}\relax 
+\contentsline {figure}{\numberline {9.3}{\ignorespaces Testing result in time period 2014-01-07 to 2015-01-06 (continue)\relax }}{67}{figure.caption.150}
+\defcounter {refsection}{0}\relax 
+\contentsline {subfigure}{\numberline {(a)}{\ignorespaces {MAPE}}}{67}{figure.caption.150}
+\defcounter {refsection}{0}\relax 
+\contentsline {subfigure}{\numberline {(b)}{\ignorespaces {HMSE}}}{67}{figure.caption.150}
+\defcounter {refsection}{0}\relax 
+\contentsline {figure}{\numberline {9.4}{\ignorespaces Testing result in time period 2013-01-07 to 2014-01-06\relax }}{69}{figure.caption.156}
+\defcounter {refsection}{0}\relax 
+\contentsline {figure}{\numberline {9.5}{\ignorespaces Testing result in time period 2013-01-07 to 2014-01-06 (continue)\relax }}{70}{figure.caption.157}
+\defcounter {refsection}{0}\relax 
+\contentsline {subfigure}{\numberline {(a)}{\ignorespaces {RMSE}}}{70}{figure.caption.157}
+\defcounter {refsection}{0}\relax 
+\contentsline {subfigure}{\numberline {(b)}{\ignorespaces {CDC}}}{70}{figure.caption.157}
+\defcounter {refsection}{0}\relax 
+\contentsline {figure}{\numberline {9.6}{\ignorespaces Testing result in time period 2013-01-07 to 2014-01-06 (continue)\relax }}{71}{figure.caption.160}
+\defcounter {refsection}{0}\relax 
+\contentsline {subfigure}{\numberline {(a)}{\ignorespaces {MAPE}}}{71}{figure.caption.160}
+\defcounter {refsection}{0}\relax 
+\contentsline {subfigure}{\numberline {(b)}{\ignorespaces {HMSE}}}{71}{figure.caption.160}
+\defcounter {refsection}{0}\relax 
+\contentsline {figure}{\numberline {9.7}{\ignorespaces Testing result in time period 2014-01-06 to 2015-01-06\relax }}{74}{figure.caption.166}
+\defcounter {refsection}{0}\relax 
+\contentsline {subfigure}{\numberline {(a)}{\ignorespaces {ME}}}{74}{figure.caption.166}
+\defcounter {refsection}{0}\relax 
+\contentsline {subfigure}{\numberline {(b)}{\ignorespaces {MAPE}}}{74}{figure.caption.166}
+\defcounter {refsection}{0}\relax 
+\contentsline {figure}{\numberline {9.8}{\ignorespaces Testing result in time period 2014-01-06 to 2015-01-06 (continue)\relax }}{75}{figure.caption.169}
+\defcounter {refsection}{0}\relax 
+\contentsline {subfigure}{\numberline {(a)}{\ignorespaces {RMSE}}}{75}{figure.caption.169}
+\defcounter {refsection}{0}\relax 
+\contentsline {subfigure}{\numberline {(b)}{\ignorespaces {CDC}}}{75}{figure.caption.169}
+\defcounter {refsection}{0}\relax 
 \addvspace {10\p@ }
+\defcounter {refsection}{0}\relax 
 \addvspace {10\p@ }
+\defcounter {refsection}{0}\relax 
 \addvspace {10\p@ }
-\contentsline {figure}{\numberline {A.1}{\ignorespaces Comparison between EMA and SMA\cite {9_sma_ema}\relax }}{64}{figure.caption.175}
+\defcounter {refsection}{0}\relax 
+\contentsline {figure}{\numberline {A.1}{\ignorespaces Comparison between EMA and SMA\cite {9_sma_ema}\relax }}{82}{figure.caption.183}
+\defcounter {refsection}{0}\relax 
 \addvspace {10\p@ }
