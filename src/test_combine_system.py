@@ -97,7 +97,7 @@ amount_method_list = [const.RANDOM_FOREST, const.LINEAR_REGRESSION, const.ARTIFI
 trend_method_list = [const.SVM, const.LOGISTIC_REGRESSION, const.RANDOM_FOREST]
 
 test = None
-for amount_method, trend_method in zip(amount_method_list, trend_method_list)[:1]:
+for amount_method, trend_method in zip(amount_method_list, trend_method_list):
     # for trend_method in trend_method_list:
     method = '{}_{}'.format(amount_method.split(('_'))[0].lower(), trend_method.split('_')[0].lower())
     new_file_path = os.path.join(output_path, method)
@@ -106,7 +106,7 @@ for amount_method, trend_method in zip(amount_method_list, trend_method_list)[:1
 
     f = open(os.path.join(new_file_path, "stock_info.csv"), 'w')
     f.write('stock,MSE,MAPE,MAD,RMSE,CDC,HMSE,ME\n')
-    for stock in stock_list[:1]:
+    for stock in stock_list[:10]:
         me = 0.0
         mse = 0.0
         mape = 0.0
@@ -143,7 +143,6 @@ for amount_method, trend_method in zip(amount_method_list, trend_method_list)[:1
                                                    me / test_times))
 
     f.close()
-    time.sleep(300)
 
 if hasattr(test, 'sc'):
     test.sc.stop()
