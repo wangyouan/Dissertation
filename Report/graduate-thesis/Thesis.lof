@@ -29,15 +29,22 @@
 \addvspace {10\p@ }
 \contentsline {figure}{\numberline {8.1}{\ignorespaces Network Structure of the cluster\relax }}{51}{figure.caption.142}
 \addvspace {10\p@ }
-\contentsline {figure}{\numberline {9.1}{\ignorespaces Sample Predict prices of 0002.HK\relax }}{53}{figure.caption.146}
-\contentsline {figure}{\numberline {9.2}{\ignorespaces Testing result in time period 2010-01-06 to 2015-01-06\relax }}{54}{figure.caption.147}
+\contentsline {figure}{\numberline {9.1}{\ignorespaces Testing result in time period 2014-01-07 to 2015-01-06\relax }}{53}{figure.caption.146}
+\contentsline {figure}{\numberline {9.2}{\ignorespaces Testing result in time period 2014-01-07 to 2015-01-06 (continue)\relax }}{54}{figure.caption.147}
 \contentsline {subfigure}{\numberline {(a)}{\ignorespaces {RMSE}}}{54}{figure.caption.147}
 \contentsline {subfigure}{\numberline {(b)}{\ignorespaces {CDC}}}{54}{figure.caption.147}
-\contentsline {figure}{\numberline {9.3}{\ignorespaces Testing result in time period 2010-01-06 to 2015-01-06 (continue)\relax }}{55}{figure.caption.150}
+\contentsline {figure}{\numberline {9.3}{\ignorespaces Testing result in time period 2014-01-07 to 2015-01-06 (continue)\relax }}{55}{figure.caption.150}
 \contentsline {subfigure}{\numberline {(a)}{\ignorespaces {MAPE}}}{55}{figure.caption.150}
 \contentsline {subfigure}{\numberline {(b)}{\ignorespaces {HMSE}}}{55}{figure.caption.150}
+\contentsline {figure}{\numberline {9.4}{\ignorespaces Testing result in time period 2010-01-06 to 2014-01-06\relax }}{57}{figure.caption.156}
+\contentsline {figure}{\numberline {9.5}{\ignorespaces Testing result in time period 2010-01-06 to 2014-01-06 (continue)\relax }}{58}{figure.caption.157}
+\contentsline {subfigure}{\numberline {(a)}{\ignorespaces {RMSE}}}{58}{figure.caption.157}
+\contentsline {subfigure}{\numberline {(b)}{\ignorespaces {CDC}}}{58}{figure.caption.157}
+\contentsline {figure}{\numberline {9.6}{\ignorespaces Testing result in time period 2010-01-06 to 2014-01-06 (continue)\relax }}{59}{figure.caption.160}
+\contentsline {subfigure}{\numberline {(a)}{\ignorespaces {MAPE}}}{59}{figure.caption.160}
+\contentsline {subfigure}{\numberline {(b)}{\ignorespaces {HMSE}}}{59}{figure.caption.160}
 \addvspace {10\p@ }
 \addvspace {10\p@ }
 \addvspace {10\p@ }
-\contentsline {figure}{\numberline {A.1}{\ignorespaces Comparison between EMA and SMA\cite {9_sma_ema}\relax }}{61}{figure.caption.166}
+\contentsline {figure}{\numberline {A.1}{\ignorespaces Comparison between EMA and SMA\cite {9_sma_ema}\relax }}{64}{figure.caption.175}
 \addvspace {10\p@ }

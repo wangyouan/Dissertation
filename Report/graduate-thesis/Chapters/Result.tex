@@ -5,10 +5,10 @@ In this chapter, all test result would be represented and discussed here. Most o
 
 \section{Using 4 years historical data}
 
-The test slot is from 2010-01-06 to 2015-01-06, the first four year data (from 2010-01-06 to 2014-01-05) are training dataset, the remaining used to act as testing data (test size is 248).\\
+The test slot is from 2010-01-06 to 2015-01-06, the first four year data (from 2010-01-06 to 2014-01-05) are training dataset (986 transaction days), the remaining used to act as testing data (test size is 248).\\
 
 
-The average stock price over this period is showed in table~\ref{tb:avg20142015} and the RMSE comparison is in figure~\ref{fg:4yearpredict1} and ~\ref{fg:4yearpredict2}. Average CDC info can be found in table~\ref{tb:averageCDC1}.\\
+The average stock price over this period is showed in table~\ref{tb:avg20142015} and the RMSE comparison is in figure~\ref{fg:4yearpredict1}, \ref{fg:4yearpredict2} and \ref{fg:4yearpredict3}. Average CDC info can be found in table~\ref{tb:averageCDC1}.\\
 
 
 \begin{table}[h]
@@ -26,10 +26,17 @@ The average stock price over this period is showed in table~\ref{tb:avg20142015}
 	\label{tb:avg20142015}
 \end{table}
 
+%\begin{figure}[h]
+%	\centering
+%	\includegraphics[width=.8\textwidth]{Result/20102015/0002}
+%	\caption{Sample Predict prices of 0002.HK}
+%\end{figure}
+
 \begin{figure}[h]
 	\centering
-	\includegraphics[width=.8\textwidth]{Result/20102015/0002}
-	\caption{Sample Predict prices of 0002.HK}
+	\includegraphics[width=.8\textwidth]{Result/20102015/ME}
+	\caption{Testing result in time period 2014-01-07 to 2015-01-06}
+	\label{fg:4yearpredict1}
 \end{figure}
 
 \begin{figure}[h]
@@ -42,8 +49,8 @@ The average stock price over this period is showed in table~\ref{tb:avg20142015}
 		\centering
 		\includegraphics[width=.8\linewidth]{Result/20102015/CDC}
 	}
-	\caption{Testing result in time period 2010-01-06 to 2015-01-06}
-	\label{fg:4yearpredict1}
+	\caption{Testing result in time period 2014-01-07 to 2015-01-06 (continue)}
+	\label{fg:4yearpredict2}
 \end{figure}
 
 \begin{figure}[h]
@@ -56,8 +63,8 @@ The average stock price over this period is showed in table~\ref{tb:avg20142015}
 		\centering
 		\includegraphics[width=.8\linewidth]{Result/20102015/HMSE}
 	}
-	\caption{Testing result in time period 2010-01-06 to 2015-01-06 (continue)}
-	\label{fg:4yearpredict2}
+	\caption{Testing result in time period 2014-01-07 to 2015-01-06 (continue)}
+	\label{fg:4yearpredict3}
 \end{figure}
 
 \begin{table}[h]
@@ -77,8 +84,7 @@ The average stock price over this period is showed in table~\ref{tb:avg20142015}
 \end{table}
 \clearpage
 
-
-The best learning algorithm under this circumstance is Random Forest, which has the second best CDC (the best algorithm is a combined method whose trend model is also based on Random Forest) and lowest error in amount prediction. And as both linear classifiers, the CDC result of Logistic Regression and SVM are almost same\\
+The best learning algorithm under this circumstance is Random Forest, which has the second best CDC (In figure~\ref{fg:4yearpredict2}.b and table~\ref{tb:averageCDC1} the best algorithm is a combined method whose trend model is also based on Random Forest) and lowest error in amount prediction. And as both linear classifiers, the CDC result of Logistic Regression and SVM are almost same\\
 
 
 For combination method, random forest algorithm is also the best model to predict stock price change amount. The performance of classifiers is also acceptable.
@@ -86,10 +92,10 @@ For combination method, random forest algorithm is also the best model to predic
 
 \section{Using 3 years historical data}
 
-This time slot is from 2010-01-06 to 2014-01-06, the first three year data (from 2010-01-06 to 2013-01-06) are training dataset (train size is 735), the remaining used to act as testing data (test size is 244).\\
+This time slot is from 2010-01-06 to 2014-01-06, the first three year data (from 2010-01-06 to 2013-01-06) are training dataset (train size is 743), the remaining used to act as testing data (test size is 244).\\
 
 
-The average stock price over this period is showed in table~\ref{tb:avg20132014} and the RMSE comparison is in figure~\ref{fg:4yearpredict1} and ~\ref{fg:4yearpredict2}. Average CDC info can be found in table~\ref{tb:averageCDC1}.\\
+The average stock price over this period is showed in table~\ref{tb:avg20132014} and the RMSE comparison is in figure~\ref{fg:3yearpredict1}, \ref{fg:3yearpredict2} and \ref{fg:3yearpredict3}. Average CDC info can be found in table~\ref{tb:averageCDC2}.\\
 \begin{table}[h]
 	\centering
 	\begin{tabular}{|l|l|l|l|}
@@ -107,30 +113,37 @@ The average stock price over this period is showed in table~\ref{tb:avg20132014}
 
 \begin{figure}[h]
 	\centering
+	\includegraphics[width=.8\textwidth]{Result/3120102014/ME}
+	\caption{Testing result in time period 2013-01-07 to 2014-01-06}
+	\label{fg:3yearpredict1}
+\end{figure}
+
+\begin{figure}[h]
+	\centering
 	\subfigure[RMSE]{
 		\centering
-		\includegraphics[width=.8\textwidth]{Result/20102015/RMSE}
+		\includegraphics[width=.8\textwidth]{Result/3120102014/RMSE}
 	}
 	\subfigure[CDC]{
 		\centering
-		\includegraphics[width=.8\linewidth]{Result/20102015/CDC}
+		\includegraphics[width=.8\linewidth]{Result/3120102014/CDC}
 	}
-	\caption{Testing result in time period 2010-01-06 to 2014-01-06}
-	\label{fg:3yearpredict1}
+	\caption{Testing result in time period 2013-01-07 to 2014-01-06 (continue)}
+	\label{fg:3yearpredict2}
 \end{figure}
 
 \begin{figure}[h]
 	\centering
 	\subfigure[MAPE]{
 		\centering
-		\includegraphics[width=.8\textwidth]{Result/20102015/MAPE}
+		\includegraphics[width=.8\textwidth]{Result/3120102014/MAPE}
 	}
 	\subfigure[HMSE]{
 		\centering
-		\includegraphics[width=.8\linewidth]{Result/20102015/HMSE}
+		\includegraphics[width=.8\linewidth]{Result/3120102014/HMSE}
 	}
-	\caption{Testing result in time period 2010-01-06 to 2014-01-06 (continue)}
-	\label{fg:3yearpredict2}
+	\caption{Testing result in time period 2013-01-07 to 2014-01-06 (continue)}
+	\label{fg:3yearpredict3}
 \end{figure}
 
 \begin{table}[h]
@@ -142,9 +155,18 @@ The average stock price over this period is showed in table~\ref{tb:avg20132014}
 		\textbf{Linear Regression} & 46.50\% \\ \hline
 		\textbf{Random Forest} & 59.12\% \\ \hline
 		\textbf{\begin{tabular}[c]{@{}l@{}}Linear Regression \\ + Logistic Regression\end{tabular}} & 63.55\% \\ \hline
-		\textbf{Random Forest + SVM} & 63.55\% \\ \hline
+		\textbf{Random Forest + SVM} & 63.54\% \\ \hline
 		\textbf{ANN + Random Forest} & 65.82\% \\ \hline
 	\end{tabular}
-	\caption{Average CDC in time period 2010-01-06 to 2014-01-06}
+	\caption{Average CDC in time period 2013-01-07 to 2014-01-06}
 	\label{tb:averageCDC2}
 \end{table}
+\clearpage
+
+Composed learning model performed better in CDC test (in table~\ref{tb:averageCDC2}). Two linear classifiers share similar performance in this test. ANN and Linear Regression are also not trustworthy method to predict stock change direction\\
+
+
+Random Forest alone and Linear + Logsitic Regression model turns out to be an unreliable choice to predict stock price in this test for some stock (like 0009.HK and 0007.HK). However, almost every method reach its worst performance when handle this two stocks, which on the other way shows that those model are not suitable for stock with average price less than.\\
+
+
+The overall performance of using 3 years as historical data is better than that of 4 years, which means that 3 years may be more suitable as training period.
