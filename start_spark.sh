@@ -1,8 +1,8 @@
 #!/usr/bin/env bash
 
-start_date="2010-12-29"
-end_date="2014-01-06"
-test_ratio=0.6667
+start_date="2011-01-06"
+end_date="2013-07-06"
+test_ratio=0.8
 
 rm -rf output/*
 
