@@ -4,7 +4,7 @@
 The objective of this dissertation is to build an automatic system which can download raw data, do transformation, train model, and give prediction result. This system is based on Python, a Friendly power programming language. “Quandl”, “TA-Lib”, “SciPy”, “pySpark”, “SciPy-learner” are used for data collecting, mining analysis and handling times series data structure. The whole process can be found in figure~\ref{fg:system_model}.
 \begin{figure}[h]
 	\centering
-	\includegraphics[width=0.6\textwidth]{FlowChart}
+	\includegraphics[width=0.6\textwidth]{Model/FlowChart}
 	\caption{Flow Chart of the whole system}
 	\label{fg:system_model}
 \end{figure}
@@ -101,7 +101,11 @@ let $ \hat{p} $ be the predicted variable, $ p $ be the actual stock price, $ \e
 The first four measurements is scaled by predicted volatility, which are suitable to compare the prediction of same stock during equal period. The later two can be used to compare every method as they represent percentage errors.\\
 
 
-In addition to knowing the amount of changes measurement, the direction of changes is also very important. Here, corrected direction change (CDC)\cite{naeini2010stock} are used
+In addition to knowing the amount of changes measurement, the direction of prices is also very important. Here, corrected direction change (CDC)\cite{naeini2010stock} are used
 \begin{equation}
 CDC = \frac{\text{Number of Corrected Forecast Trend}}{N}
 \end{equation}
+A completely random prediction should have $ 50\% $ CDC, so for a reliable forecast, this value should be greater than $ 50\% $\\
+
+
+This is no measurement that are perfect enough to compare all learning algorithms, all criteria would be considered as a whole.

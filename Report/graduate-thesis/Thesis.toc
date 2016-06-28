@@ -51,27 +51,27 @@
 \contentsline {section}{\numberline {7.1}Data Processing}{43}{section.118}
 \contentsline {section}{\numberline {7.2}Training and Predict}{44}{section.126}
 \contentsline {section}{\numberline {7.3}Model Evaluation}{45}{section.127}
-\contentsline {chapter}{\numberline {8}Simulation Data，Parameters and Testing Environment Evaluation Method}{47}{chapter.135}
-\contentsline {section}{\numberline {8.1}Raw data for training}{47}{section.136}
-\contentsline {section}{\numberline {8.2}Detail Parameters of every training method}{48}{section.137}
-\contentsline {section}{\numberline {8.3}Testing Environment}{49}{section.139}
-\contentsline {chapter}{\numberline {9}Results}{51}{chapter.143}
-\contentsline {section}{\numberline {9.1}A Section}{51}{section.144}
-\contentsline {subsection}{\numberline {9.1.1}A Subsection}{52}{subsection.145}
-\contentsline {section}{\numberline {9.2}Another Section}{52}{section.146}
-\contentsline {chapter}{\numberline {10}Conclusion}{53}{chapter.147}
-\contentsline {section}{\numberline {10.1}A Section}{53}{section.148}
-\contentsline {subsection}{\numberline {10.1.1}A Subsection}{54}{subsection.149}
-\contentsline {section}{\numberline {10.2}Another Section}{54}{section.150}
+\contentsline {chapter}{\numberline {8}Simulation Data，Parameters and Testing Environment Evaluation Method}{48}{chapter.135}
+\contentsline {section}{\numberline {8.1}Raw data for training}{48}{section.136}
+\contentsline {section}{\numberline {8.2}Detail Parameters of every training method}{49}{section.137}
+\contentsline {section}{\numberline {8.3}Testing Environment}{50}{section.139}
+\contentsline {chapter}{\numberline {9}Model Accuracy Results}{52}{chapter.143}
+\contentsline {section}{\numberline {9.1}A Section}{52}{section.144}
+\contentsline {subsection}{\numberline {9.1.1}A Subsection}{53}{subsection.145}
+\contentsline {section}{\numberline {9.2}Another Section}{53}{section.146}
+\contentsline {chapter}{\numberline {10}Speed Result}{54}{chapter.147}
+\contentsline {chapter}{\numberline {11}Conclusion}{55}{chapter.148}
+\contentsline {section}{\numberline {11.1}A Section}{55}{section.149}
+\contentsline {subsection}{\numberline {11.1.1}A Subsection}{56}{subsection.150}
+\contentsline {section}{\numberline {11.2}Another Section}{56}{section.151}
 \vspace {2em}
-\contentsline {chapter}{\numberline {A}Technique Indicators}{55}{appendix.151}
-\contentsline {section}{\numberline {A.1}Moving Average (MA)\cite {kahn2006technical}}{55}{section.152}
-\contentsline {subsection}{\numberline {A.1.1}Simple Moving Average (SMA)}{56}{subsection.153}
-\contentsline {subsection}{\numberline {A.1.2}Exponential Moving Average (EMA)}{56}{subsection.155}
-\contentsline {section}{\numberline {A.2}Rate of Change (ROC)}{57}{section.158}
-\contentsline {section}{\numberline {A.3}Relative Strength Index (RSI)}{57}{section.160}
-\contentsline {section}{\numberline {A.4}Moving Average Convergence Divergence (MACD)}{57}{section.162}
-\contentsline {chapter}{\numberline {B}Description of Performance Measure}{59}{appendix.164}
-\contentsline {chapter}{\numberline {C}All Reslult}{61}{appendix.165}
+\contentsline {chapter}{\numberline {A}Technique Indicators}{57}{appendix.152}
+\contentsline {section}{\numberline {A.1}Moving Average (MA)\cite {kahn2006technical}}{57}{section.153}
+\contentsline {subsection}{\numberline {A.1.1}Simple Moving Average (SMA)}{58}{subsection.154}
+\contentsline {subsection}{\numberline {A.1.2}Exponential Moving Average (EMA)}{58}{subsection.156}
+\contentsline {section}{\numberline {A.2}Rate of Change (ROC)}{59}{section.159}
+\contentsline {section}{\numberline {A.3}Relative Strength Index (RSI)}{59}{section.161}
+\contentsline {section}{\numberline {A.4}Moving Average Convergence Divergence (MACD)}{59}{section.163}
+\contentsline {chapter}{\numberline {B}All Reslult}{61}{appendix.165}
 \vspace {2em}
 \contentsline {chapter}{Bibliography}{63}{dummy.166}
