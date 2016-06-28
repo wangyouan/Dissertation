@@ -100,27 +100,39 @@ for method in [const.ARTIFICIAL_NEURAL_NETWORK, const.RANDOM_FOREST, const.LINEA
     f = open(os.path.join(new_file_path, "stock_info.csv"), 'w')
     f.write('stock,MSE,MAPE,MAD,RMSE,CDC,HMSE,ME\n')
     for stock in stock_list[:10]:
+        me = 0.0
+        mse = 0.0
+        mape = 0.0
+        mad = 0.0
+        rmse = 0.0
+        hmse = 0.0
+        cdc = 0.0
+        test_times = 3
 
         specific_file_path = os.path.join(new_file_path, stock[:4])
         specific_model_path = os.path.join(model_path, method, stock[:4])
-        test = InferenceSystem(stock, training_method=method, data_folder_path=data_path, using_exist_model=False,
-                               output_file_path=specific_file_path, model_path=specific_model_path)
-        try:
-            predict_result = test.predict_historical_data(ratio, date_start, date_end, iterations=10)
-            predict_result.cache()
-            mse = get_MSE(predict_result)
-            mape = get_MAPE(predict_result)
-            mad = get_MAD(predict_result)
-            rmse = get_RMSE(predict_result)
-            hmse = get_HMSE(predict_result)
-            me = get_ME(predict_result)
-            # tie = get_theils_inequality_coefficient(predict_result)
-            cdc = get_CDC(predict_result)
-            f.write('{},{},{},{},{},{},{},{}\n'.format(stock, mse, mape, mad, rmse, cdc, hmse, me))
-        except Exception, err:
-            print "Error happens"
-            print err
-            time.sleep(20)
+        for i in range(test_times):
+            test = InferenceSystem(stock, training_method=method, data_folder_path=data_path, using_exist_model=False,
+                                   output_file_path=specific_file_path, model_path=specific_model_path)
+            try:
+                predict_result = test.predict_historical_data(ratio, date_start, date_end, iterations=10)
+                predict_result.cache()
+                me += get_ME(predict_result)
+                mse += get_MSE(predict_result)
+                mape += get_MAPE(predict_result)
+                mad += get_MAD(predict_result)
+                rmse += get_RMSE(predict_result)
+                hmse += get_HMSE(predict_result)
+                # tie = get_theils_inequality_coefficient(predict_result)
+                cdc += get_CDC_combine(predict_result)
+            except Exception, err:
+                print "Error happens"
+                print err
+                time.sleep(20)
+                
+        f.write('{},{},{},{},{},{},{},{}\n'.format(stock, mse / test_times, mape / test_times, mad / test_times,
+                                                   rmse / test_times, cdc / test_times, hmse / test_times,
+                                                   me / test_times))
 
     f.close()
 
