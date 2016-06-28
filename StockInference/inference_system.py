@@ -21,7 +21,7 @@ from StockInference.DataCollection.data_collect import DataCollect
 from StockInference.Regression.distributed_neural_network import NeuralNetworkSpark, NeuralNetworkModel
 from StockInference.util.data_parse import min_max_de_normalize, get_MSE, get_MAD, get_MAPE, get_CDC
 from StockInference.DataParser.data_parser import DataParser
-from StockInference.util.date_parser import get_ahead_date
+from StockInference.util.date_parser import get_ahead_date, string_to_datetime
 from StockInference.util.file_operation import load_data_from_file, save_data_to_file
 from StockInference.util.hongkong_calendar import HongKongCalendar
 
@@ -58,10 +58,10 @@ class InferenceSystem(Constants):
         self.logger = log4jLogger.LogManager.getLogger(self.__class__.__name__)
         self.predict_model = {'model': None, 'mse': float('inf')}
 
-    def get_train_test_data(self, train_test_ratio, start_date, end_date):
+    def get_train_test_data(self, test_start_date, start_date, end_date):
 
         self.logger.info('Get train and testing data')
-        self.logger.info('Training / Testing ratio is {}'.format(train_test_ratio))
+        self.logger.info('Training / Testing ratio is {}'.format(test_start_date))
         self.logger.info('Start date is {}, end date is {}'.format(start_date, end_date))
 
         # collect data, will do some preliminary process to stock process
@@ -104,6 +104,12 @@ class InferenceSystem(Constants):
         self.logger.info("No previous data, will collected them from Internet")
         raw_data = data_collection.get_raw_data(label_info=self.data_features[self.PRICE_TYPE],
                                                 required_info=self.data_features)
+        self.date_list = data_collection.get_date_list()
+        train_num = 0
+        if test_start_date is not None:
+            for date_str in self.date_list:
+                if string_to_datetime(date_str) < string_to_datetime(test_start_date):
+                    train_num += 1
 
         # debug
         # raw_data_file = open(os.path.join('../output', "raw.dat"), 'w')
@@ -126,12 +132,11 @@ class InferenceSystem(Constants):
             self.data_parser = DataParser(n_components=n_components)
 
             self.train_data, self.test_data, self.test_data_features = self.data_parser.split_train_test_data(
-                train_ratio=train_test_ratio, raw_data=raw_data, fit_transform=True)
+                train_num=train_num, raw_data=raw_data, fit_transform=True)
         else:
             self.train_data, self.test_data, self.test_data_features = self.data_parser.split_train_test_data(
-                train_ratio=train_test_ratio, raw_data=raw_data, fit_transform=False)
+                train_num=train_num, raw_data=raw_data, fit_transform=False)
         self.total_data_num = len(raw_data)
-        self.date_list = data_collection.get_date_list()
         self.feature_num = len(self.train_data[0].features)
         self.logger.info('Get train and testing data finished')
         self.logger.info("Total data num is {}, train data num is {}".format(self.total_data_num, len(self.train_data)))
@@ -296,7 +301,7 @@ class InferenceSystem(Constants):
 
         return mse, mape, cdc, mad
 
-    def predict_historical_data(self, train_test_ratio, start_date, end_date, iterations=10):
+    def predict_historical_data(self, test_start_date, start_date, end_date, iterations=10):
 
         """ Get raw data -> process data -> pca -> normalization -> train -> test """
         self.logger.info('Start to predict stock symbol {}'.format(self.stock_symbol))
@@ -308,7 +313,7 @@ class InferenceSystem(Constants):
             model = None
 
         # Generate training data
-        train_features = self.get_train_test_data(train_test_ratio, start_date=start_date, end_date=end_date)
+        train_features = self.get_train_test_data(test_start_date, start_date=start_date, end_date=end_date)
 
         training_data = self.sc.parallelize(zip(self.train_data, train_features)).cache()
 
@@ -330,7 +335,7 @@ class InferenceSystem(Constants):
             self.logger.info("Current CDC is {:.4f}%".format(cdc))
 
         # if train ratio is at that level, means that target want the model file, not the
-        if train_test_ratio > 0.99:
+        if test_start_date is None:
             return self.predict_model['model']
 
         model = self.predict_model['model']

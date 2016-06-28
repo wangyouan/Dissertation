@@ -21,6 +21,7 @@ from StockInference.util.data_parse import *
 from StockInference.constant import Constants
 from StockInference.DataCollection.data_collect import DataCollect
 from StockInference.DataParser.data_parser import DataParser
+from StockInference.util.date_parser import string_to_datetime
 from StockInference.Regression.distributed_neural_network import NeuralNetworkModel, NeuralNetworkSpark
 
 
@@ -267,7 +268,7 @@ class MixInferenceSystem(InferenceSystem):
         trend_train_bc.unpersist()
         return trend_train_rdd, amount_train_rdd, test_features
 
-    def prepare_data(self, start_date, end_date):
+    def prepare_data(self, start_date, end_date, test_start_date):
 
         self.logger.info('Get train and testing data')
         self.logger.info('Start date is {}, end date is {}'.format(start_date, end_date))
@@ -320,25 +321,31 @@ class MixInferenceSystem(InferenceSystem):
         raw_data = data_collection.get_raw_data(label_info=self.data_features[self.PRICE_TYPE],
                                                 required_info=self.data_features)
         self.date_list = data_collection.get_date_list()
+        if test_start_date is not None:
+            self.train_data_number = 0
+            for date_str in self.date_list:
+                if string_to_datetime(date_str) < string_to_datetime(test_start_date):
+                    self.train_data_number += 1
+
         self.total_data_num = len(raw_data)
 
         return raw_data
 
-    def processing_data(self, input_data, train_test_ratio=0.8):
+    def processing_data(self, input_data, train_num):
         if self.data_parser is None:
             self.data_parser = DataParser(label_data_type=self.amount_type)
-            train, test, tt = self.data_parser.split_train_test_data(train_test_ratio, input_data, True)
+            train, test, tt = self.data_parser.split_train_test_data(train_num, input_data, True)
         else:
-            train, test, tt = self.data_parser.split_train_test_data(train_test_ratio, input_data, False)
+            train, test, tt = self.data_parser.split_train_test_data(train_num, input_data, False)
 
         self.feature_num = len(train[0][0].features)
 
-        self.train_data_number = int(self.total_data_num * train_test_ratio)
+        self.train_data_number = train_num
         index = range(self.train_data_number, self.total_data_num)
         test_features = zip(map(lambda p: p.features, test[0]), index)
         return train[0], train[1], test_features, tt
 
-    def predict_historical_data(self, start_date, end_date, train_test_ratio=0.8, iterations=10):
+    def predict_historical_data(self, start_date, end_date, test_start_date=None, iterations=10):
         """ Get raw data -> process data -> pca -> normalization -> train -> test """
         self.logger.info('Start to predict stock symbol {}'.format(self.stock_symbol))
         self.logger.info("The amount training method is {}".format(self.amount_prediction_method))
@@ -352,8 +359,9 @@ class MixInferenceSystem(InferenceSystem):
             amount_model = None
 
         # Generate training data
-        data_list = self.prepare_data(start_date=start_date, end_date=end_date)
-        trend_train, amount_train, all_features, tomorrow_today = self.processing_data(data_list, train_test_ratio)
+        data_list = self.prepare_data(start_date=start_date, end_date=end_date, test_start_date=test_start_date)
+        trend_train, amount_train, all_features, tomorrow_today = self.processing_data(data_list,
+                                                                                       self.train_data_number)
 
         self.logger.info("Initialize Model")
         if not self.using_exist_model:
@@ -376,7 +384,7 @@ class MixInferenceSystem(InferenceSystem):
             self.logger.info("Current CDC is {:.4f}%".format(cdc))
 
         # if train ratio is at that level, means that target want the model file, not the
-        if train_test_ratio > 0.99:
+        if test_start_date is None:
             return self.trend_model['model'], self.amount_model['model']
 
         # Data prediction part

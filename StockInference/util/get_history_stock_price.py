@@ -67,4 +67,6 @@ def get_all_data_about_stock(symbol, start_date=None, end_date=None, remove_zero
 
 
 if __name__ == "__main__":
-    print get_all_data_about_stock("0003.HK", start_date='2016-02-14', end_date='2016-03-15')
+    a = get_all_data_about_stock("0003.HK", start_date='2011-01-06', end_date='2015-01-06')
+    print 247 * 5
+    print len(a) * 0.2

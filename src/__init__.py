@@ -8,6 +8,6 @@
 
 
 
-start_date = "2009-12-29"
-end_date = "2013-01-06"
-test_ratio = 0.6667
+start_date = "2012-01-06"
+end_date = "2016-01-06"
+test_ratio = "2015-01-06"

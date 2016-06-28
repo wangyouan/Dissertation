@@ -1,11 +1,45 @@
 \chapter{All Reslult}
+\label{ch:all_result}
+\section{Using 4 year historical data}
 
-Lorem ipsum dolor sit amet, consectetur adipiscing elit. Vivamus at pulvinar nisi. Phasellus hendrerit, diam placerat interdum iaculis, mauris justo cursus risus, in viverra purus eros at ligula. Ut metus justo, consequat a tristique posuere, laoreet nec nibh. Etiam et scelerisque mauris. Phasellus vel massa magna. Ut non neque id tortor pharetra bibendum vitae sit amet nisi. Duis nec quam quam, sed euismod justo. Pellentesque eu tellus vitae ante tempus malesuada. Nunc accumsan, quam in congue consequat, lectus lectus dapibus erat, id aliquet urna neque at massa. Nulla facilisi. Morbi ullamcorper eleifend posuere. Donec libero leo, faucibus nec bibendum at, mattis et urna. Proin consectetur, nunc ut imperdiet lobortis, magna neque tincidunt lectus, id iaculis nisi justo id nibh. Pellentesque vel sem in erat vulputate faucibus molestie ut lorem.
+\subsection{Test slot 1 (from 2010-01-06 to 2015-01-06)}
+\begin{table}[h]
+	\centering
+	\begin{tabular}{|l|l|l|l|}
+		\hline
+		\textbf{Stock Symbol} & \textbf{ANN} & \textbf{Linear Regression} & \textbf{Random Forest} \\ \hline
+		\textbf{0001.HK} & 1.38334597505 & 1.41065732414 & 0.972444825168 \\ \hline
+		\textbf{0002.HK} & 0.549165424561 & 0.555364918442 & 0.436771813314 \\ \hline
+		\textbf{0003.HK} & 0.241161674796 & 0.24278300254 & 0.155335728347 \\ \hline
+		\textbf{0004.HK} & 0.926452083732 & 0.951995216119 & 0.722838810309 \\ \hline
+		\textbf{0005.HK} & 0.72481141519 & 0.699665416044 & 0.681137012476 \\ \hline
+		\textbf{0006.HK} & 0.96868498895 & 0.872457538492 & 0.582241659529 \\ \hline
+		\textbf{0007.HK} & 0.0552499886373 & 0.054355820256 & 0.0754901165252 \\ \hline
+		\textbf{0008.HK} & 0.0673278936112 & 0.0686471875948 & 0.0505653541437 \\ \hline
+		\textbf{0009.HK} & 0.0214870427384 & 0.0211365456216 & 0.251905964828 \\ \hline
+		\textbf{0010.HK} & 0.552114926394 & 0.547072375485 & 0.398383124828 \\ \hline
+	\end{tabular}
+	\caption{4 year predict one year, single learning method RMSE compare}
+	\label{tb:rmse201020151}
+\end{table}
 
-Quisque tristique urna in lorem laoreet at laoreet quam congue. Donec dolor turpis, blandit non imperdiet aliquet, blandit et felis. In lorem nisi, pretium sit amet vestibulum sed, tempus et sem. Proin non ante turpis. Nulla imperdiet fringilla convallis. Vivamus vel bibendum nisl. Pellentesque justo lectus, molestie vel luctus sed, lobortis in libero. Nulla facilisi. Aliquam erat volutpat. Suspendisse vitae nunc nunc. Sed aliquet est suscipit sapien rhoncus non adipiscing nibh consequat. Aliquam metus urna, faucibus eu vulputate non, luctus eu justo.
 
-Donec urna leo, vulputate vitae porta eu, vehicula blandit libero. Phasellus eget massa et leo condimentum mollis. Nullam molestie, justo at pellentesque vulputate, sapien velit ornare diam, nec gravida lacus augue non diam. Integer mattis lacus id libero ultrices sit amet mollis neque molestie. Integer ut leo eget mi volutpat congue. Vivamus sodales, turpis id venenatis placerat, tellus purus adipiscing magna, eu aliquam nibh dolor id nibh. Pellentesque habitant morbi tristique senectus et netus et malesuada fames ac turpis egestas. Sed cursus convallis quam nec vehicula. Sed vulputate neque eget odio fringilla ac sodales urna feugiat.
-
-Phasellus nisi quam, volutpat non ullamcorper eget, congue fringilla leo. Cras et erat et nibh placerat commodo id ornare est. Nulla facilisi. Aenean pulvinar scelerisque eros eget interdum. Nunc pulvinar magna ut felis varius in hendrerit dolor accumsan. Nunc pellentesque magna quis magna bibendum non laoreet erat tincidunt. Nulla facilisi.
-
-Duis eget massa sem, gravida interdum ipsum. Nulla nunc nisl, hendrerit sit amet commodo vel, varius id tellus. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nunc ac dolor est. Suspendisse ultrices tincidunt metus eget accumsan. Nullam facilisis, justo vitae convallis sollicitudin, eros augue malesuada metus, nec sagittis diam nibh ut sapien. Duis blandit lectus vitae lorem aliquam nec euismod nisi volutpat. Vestibulum ornare dictum tortor, at faucibus justo tempor non. Nulla facilisi. Cras non massa nunc, eget euismod purus. Nunc metus ipsum, euismod a consectetur vel, hendrerit nec nunc.
+\begin{table}[h]
+	\centering
+	\begin{tabular}{|l|l|l|l|}
+		\hline
+		\textbf{Stock Symbol} & \textbf{\begin{tabular}[c]{@{}l@{}}ANN\\ +Random Forest\end{tabular}} & \textbf{\begin{tabular}[c]{@{}l@{}}Linear Regression \\ + Logistic Regression\end{tabular}} & \textbf{\begin{tabular}[c]{@{}l@{}}Random Forest \\ + SVM\end{tabular}} \\ \hline
+		\textbf{0001.HK} & 2.33401148802 & 3.19668696818 & 1.46523709284 \\ \hline
+		\textbf{0002.HK} & 0.559808465006 & 0.980718993279 & 0.421486423273 \\ \hline
+		\textbf{0003.HK} & 0.341306741482 & 1.00027198345 & 0.17827610061 \\ \hline
+		\textbf{0004.HK} & 1.18706799693 & 2.60460346532 & 1.26725128683 \\ \hline
+		\textbf{0005.HK} & 1.57045064708 & 3.56327327472 & 1.29752127026 \\ \hline
+		\textbf{0006.HK} & 1.07621837917 & 1.85031062654 & 0.684171082543 \\ \hline
+		\textbf{0007.HK} & 0.23021060728 & 0.628791425422 & 0.104232832175 \\ \hline
+		\textbf{0008.HK} & 0.158097250958 & 0.331792317021 & 0.127629766153 \\ \hline
+		\textbf{0009.HK} & 0.738205162638 & 2.55436231012 & 0.123849582479 \\ \hline
+		\textbf{0010.HK} & 0.637051760446 & 1.41702593765 & 0.605996058882 \\ \hline
+	\end{tabular}
+	\caption{4 year predict one year, composed learning method RMSE compare}
+	\label{tb:rmse201020152}
+\end{table}

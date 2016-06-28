@@ -54,14 +54,13 @@ class DataParser(Constants):
         self.label_data_type = label_data_type
         self.label_transformer = None
 
-    def split_train_test_data(self, train_ratio, raw_data, fit_transform=False):
+    def split_train_test_data(self, train_num, raw_data, fit_transform=False):
         """
             Base on the train ratio, will split raw data into 3 parts, one is train (normalized_label with transformed
             feature), another is test (non-normalized_label with transformed feature) the third one is the
             non-transformed test features
         """
         total_num = len(raw_data)
-        train_num = int(train_ratio * total_num)
         if self.label_data_type is None or self.label_data_type == self.ORIGINAL_PRICE:
             train_raw_data = raw_data[:train_num]
             test_raw_data = raw_data[train_num:]
