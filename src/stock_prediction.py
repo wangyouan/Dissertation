@@ -16,6 +16,7 @@ from StockInference.constant import Constants
 from __init__ import start_date, end_date, test_ratio
 
 const = Constants()
+test_times = 10
 
 if len(sys.argv) > 3:
     date_start = sys.argv[1]
@@ -99,7 +100,7 @@ for method in [const.ARTIFICIAL_NEURAL_NETWORK, const.RANDOM_FOREST, const.LINEA
 
     f = open(os.path.join(new_file_path, "stock_info.csv"), 'w')
     f.write('stock,MSE,MAPE,MAD,RMSE,CDC,HMSE,ME\n')
-    for stock in stock_list[:10]:
+    for stock in stock_list[:1]:
         me = 0.0
         mse = 0.0
         mape = 0.0
@@ -107,7 +108,6 @@ for method in [const.ARTIFICIAL_NEURAL_NETWORK, const.RANDOM_FOREST, const.LINEA
         rmse = 0.0
         hmse = 0.0
         cdc = 0.0
-        test_times = 3
 
         specific_file_path = os.path.join(new_file_path, stock[:4])
         specific_model_path = os.path.join(model_path, method, stock[:4])
@@ -129,12 +129,13 @@ for method in [const.ARTIFICIAL_NEURAL_NETWORK, const.RANDOM_FOREST, const.LINEA
                 print "Error happens"
                 print err
                 time.sleep(20)
-                
+
+
         f.write('{},{},{},{},{},{},{},{}\n'.format(stock, mse / test_times, mape / test_times, mad / test_times,
                                                    rmse / test_times, cdc / test_times, hmse / test_times,
                                                    me / test_times))
 
     f.close()
-
-if hasattr(test, 'sc'):
-    test.sc.stop()
+    if hasattr(test, 'sc'):
+        test.sc.stop()
+        time.sleep(60)

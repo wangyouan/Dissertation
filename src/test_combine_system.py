@@ -17,6 +17,7 @@ from StockInference.constant import Constants
 from __init__ import start_date, end_date, test_ratio
 
 const = Constants()
+test_times = 3
 
 if len(sys.argv) > 3:
     date_start = sys.argv[1]
@@ -106,7 +107,7 @@ for amount_method, trend_method in zip(amount_method_list, trend_method_list):
 
     f = open(os.path.join(new_file_path, "stock_info.csv"), 'w')
     f.write('stock,MSE,MAPE,MAD,RMSE,CDC,HMSE,ME\n')
-    for stock in stock_list[:10]:
+    for stock in stock_list[:1]:
         me = 0.0
         mse = 0.0
         mape = 0.0
@@ -114,7 +115,6 @@ for amount_method, trend_method in zip(amount_method_list, trend_method_list):
         rmse = 0.0
         hmse = 0.0
         cdc = 0.0
-        test_times = 3
         specific_file_path = os.path.join(new_file_path, stock[:4])
         specific_model_path = os.path.join(model_path, method, stock[:4])
         for i in range(test_times):
@@ -138,11 +138,11 @@ for amount_method, trend_method in zip(amount_method_list, trend_method_list):
                 print "Error happens"
                 print err
                 time.sleep(60)
+
+        if hasattr(test, 'sc'):
+            test.sc.stop()
         f.write('{},{},{},{},{},{},{},{}\n'.format(stock, mse / test_times, mape / test_times, mad / test_times,
                                                    rmse / test_times, cdc / test_times, hmse / test_times,
                                                    me / test_times))
 
     f.close()
-
-if hasattr(test, 'sc'):
-    test.sc.stop()

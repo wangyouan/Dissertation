@@ -36,7 +36,7 @@ class InferenceSystem(Constants):
                  model_path=None, using_exist_model=False):
         self.stock_symbol = stock_symbol
         conf = SparkConf()
-        conf.setAppName("{}_{}".format(self.__class__.__name__, stock_symbol))
+        conf.setAppName("{}_{}_{}".format(self.__class__.__name__, stock_symbol, training_method))
         self.sc = SparkContext.getOrCreate(conf=conf)
         self.train_data = None
         self.test_data = None
