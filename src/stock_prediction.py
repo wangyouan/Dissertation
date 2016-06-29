@@ -21,7 +21,7 @@ test_times = 10
 if len(sys.argv) > 3:
     date_start = sys.argv[1]
     date_end = sys.argv[2]
-    ratio = float(sys.argv[3])
+    ratio = sys.argv[3]
 else:
     date_start = start_date
     date_end = end_date
