@@ -16,7 +16,7 @@ from StockInference.constant import Constants
 from __init__ import start_date, end_date, test_ratio
 
 const = Constants()
-test_times = 10
+test_times = 3
 
 if len(sys.argv) > 3:
     date_start = sys.argv[1]
@@ -100,7 +100,8 @@ for method in [const.RANDOM_FOREST, const.LINEAR_REGRESSION, const.ARTIFICIAL_NE
 
     f = open(os.path.join(new_file_path, "stock_info.csv"), 'w')
     f.write('stock,MSE,MAPE,MAD,RMSE,CDC,HMSE,ME\n')
-    for stock in stock_list[:1]:
+    for stock in stock_list[:10]:
+    # for stock in ['0377.HK', '1195.HK']:
         me = 0.0
         mse = 0.0
         mape = 0.0
@@ -136,6 +137,6 @@ for method in [const.RANDOM_FOREST, const.LINEAR_REGRESSION, const.ARTIFICIAL_NE
                                                    me / test_times))
 
     f.close()
-    if hasattr(test, 'sc'):
-        test.sc.stop()
-        time.sleep(60)
+
+if hasattr(test, 'sc'):
+    test.sc.stop()
