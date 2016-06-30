@@ -219,10 +219,10 @@ class MixInferenceSystem(InferenceSystem):
         test_features_label = test_features_rdd.map(lambda t: t[1])
         if self.amount_prediction_method == self.RANDOM_FOREST:
             amount_predict = amount_model.predict(test_features_rdd.map(lambda t: t[0])).map(
-                data_parser.inverse_transform_label).zip(test_features_label)
+                data_parser.inverse_transform_label).map(abs).zip(test_features_label)
         else:
-            amount_predict = test_features_rdd.map(lambda t: (data_parser.inverse_transform_label(
-                amount_model.predict(t[0])), t[1]))
+            amount_predict = test_features_rdd.map(lambda t: (abs(data_parser.inverse_transform_label(
+                amount_model.predict(t[0]))), t[1]))
 
         if self.trend_prediction_method == self.RANDOM_FOREST:
             trend_predict = trend_model.predict(test_features_rdd.map(lambda t: t[0]))
