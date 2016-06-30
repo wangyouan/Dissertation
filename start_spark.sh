@@ -4,7 +4,7 @@ start_date="2012-01-06"
 end_date="2016-01-06"
 test_ratio="2015-01-06"
 
-rm -rf output/*
+#rm -rf output/*
 
 #spark-submit --master "spark://Master:7077" \
 #    --py-files dist/StockInference-0.3-py2.7.egg,src/__init__.py \
