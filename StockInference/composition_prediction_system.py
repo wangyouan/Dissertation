@@ -52,7 +52,8 @@ class MixInferenceSystem(InferenceSystem):
                  data_folder_path=None, model_path=None, using_exist_model=False, amount_type=None):
         InferenceSystem.__init__(self, stock_symbol=stock_symbol, data_folder_path=data_folder_path,
                                  features=features, output_file_path=output_file_path, model_path=model_path,
-                                 using_exist_model=using_exist_model)
+                                 using_exist_model=using_exist_model, training_method='{}_{}'.format(amount_method,
+                                                                                                     direction_method))
         if direction_method is None:
             self.trend_prediction_method = self.RANDOM_FOREST
         else:
