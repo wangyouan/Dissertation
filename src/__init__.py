@@ -9,5 +9,5 @@
 
 
 start_date = "2012-01-06"
-end_date = "2016-01-06"
-test_ratio = "2015-01-06"
+end_date = "2015-01-06"
+test_ratio = "2014-01-06"

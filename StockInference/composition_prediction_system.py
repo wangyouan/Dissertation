@@ -384,12 +384,17 @@ class MixInferenceSystem(InferenceSystem):
             self.logger.info("Current CDC is {:.4f}%".format(cdc))
 
         # if train ratio is at that level, means that target want the model file, not the
+        if self.amount_prediction_method == self.RANDOM_FOREST:
+            amount_model = self.amount_model['model']
+        if self.trend_prediction_method == self.RANDOM_FOREST:
+            trend_model = self.trend_model['model']
+
         if test_start_date is None:
-            return self.trend_model['model'], self.amount_model['model']
+            return trend_model, amount_model
 
         # Data prediction part
         self.logger.info("Start to use the model to predict price")
-        predict = self.model_predict(trend_model=self.trend_model['model'], amount_model=self.amount_model['model'],
+        predict = self.model_predict(trend_model=trend_model, amount_model=amount_model,
                                      test_features=all_features, tomorrow_today=tomorrow_today)
 
         self.save_data_to_file(predict, "predict_result.csv", self.SAVE_TYPE_OUTPUT)

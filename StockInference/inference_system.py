@@ -335,10 +335,11 @@ class InferenceSystem(Constants):
             self.logger.info("Current CDC is {:.4f}%".format(cdc))
 
         # if train ratio is at that level, means that target want the model file, not the
+        if self.training_method == self.RANDOM_FOREST:
+            model = self.predict_model['model']
         if test_start_date is None:
-            return self.predict_model['model']
+            return model
 
-        model = self.predict_model['model']
 
         # Data prediction part
         self.logger.info("Start to use the model to predict price")
