@@ -14,7 +14,7 @@ import time
 from StockInference.composition_prediction_system import MixInferenceSystem
 from StockInference.util.data_parse import *
 from StockInference.constant import Constants
-from __init__ import start_date, end_date, test_ratio
+from __init__ import start_date, end_date, test_ratio, predict_list
 
 const = Constants()
 test_times = 1
@@ -95,7 +95,7 @@ stock_list = ['0001.HK', '0002.HK', '0003.HK', '0004.HK', '0005.HK', '0006.HK', 
               '0066.HK', '1123.HK']
 
 amount_method_list = [const.RANDOM_FOREST, const.LINEAR_REGRESSION, const.ARTIFICIAL_NEURAL_NETWORK]
-trend_method_list = [const.SVM, const.LOGISTIC_REGRESSION, const.RANDOM_FOREST]
+trend_method_list = [const.SVM, const.RANDOM_FOREST, const.LOGISTIC_REGRESSION]
 
 test = None
 for amount_method, trend_method in zip(amount_method_list, trend_method_list)[:2]:
@@ -107,8 +107,8 @@ for amount_method, trend_method in zip(amount_method_list, trend_method_list)[:2
 
     f = open(os.path.join(new_file_path, "stock_info.csv"), 'w')
     f.write('stock,MSE,MAPE,MAD,RMSE,CDC,HMSE,ME\n')
-    for stock in stock_list[10:40]:
-    # for stock in ['6823.HK', '0066.HK', '0054.HK']:
+    # for stock in stock_list[:10]:
+    for stock in predict_list:
         me = 0.0
         mse = 0.0
         mape = 0.0
