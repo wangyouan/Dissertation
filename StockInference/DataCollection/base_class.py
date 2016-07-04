@@ -212,7 +212,7 @@ class BaseClass(Constants):
             stock_info = append_stock_info
 
         if self._price_type == self.STOCK_ADJUSTED_CLOSED:
-            stock_info = map(lambda p: [p[0] * p[5] / p[3], p[1] * p[5] / p[3], p[2] * p[5] / p[3], p[5]], stock_info)
+            stock_info = map(lambda p: [p[0] * p[5] / p[3], p[1] * p[5] / p[3], p[2] * p[5] / p[3], p[5], p[4]], stock_info)
         return stock_info
 
     def set_date_list(self, date_list):
