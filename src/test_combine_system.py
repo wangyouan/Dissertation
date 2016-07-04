@@ -10,6 +10,7 @@
 import os
 import sys
 import time
+import traceback
 
 from StockInference.composition_prediction_system import MixInferenceSystem
 from StockInference.util.data_parse import *
@@ -136,10 +137,8 @@ for amount_method, trend_method in zip(amount_method_list, trend_method_list):
                 # tie = get_theils_inequality_coefficient(predict_result)
                 cdc += get_CDC_combine(predict_result_rdd)
             except Exception, err:
-                print "Error happens"
-                print err
-                raise Exception(err)
-                # time.sleep(60)
+                traceback.print_exc()
+                time.sleep(60)
 
         f.write('{},{},{},{},{},{},{},{}\n'.format(stock, mse / test_times, mape / test_times, mad / test_times,
                                                    rmse / test_times, cdc / test_times, hmse / test_times,

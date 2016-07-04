@@ -9,6 +9,7 @@
 import os
 import sys
 import time
+import traceback
 
 from StockInference.inference_system import InferenceSystem
 from StockInference.util.data_parse import *
@@ -127,8 +128,7 @@ for method in [const.RANDOM_FOREST, const.LINEAR_REGRESSION, const.ARTIFICIAL_NE
                 # tie = get_theils_inequality_coefficient(predict_result)
                 cdc += get_CDC_combine(predict_result)
             except Exception, err:
-                print "Error happens"
-                print err
+                traceback.print_exc()
                 time.sleep(20)
 
 
