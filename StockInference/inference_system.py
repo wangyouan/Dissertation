@@ -66,7 +66,7 @@ class InferenceSystem(Constants):
 
         # collect data, will do some preliminary process to stock process
         required_info = {
-            self.PRICE_TYPE: self.STOCK_CLOSE,
+            self.PRICE_TYPE: self.STOCK_ADJUSTED_CLOSED,
             self.STOCK_PRICE: {self.DATA_PERIOD: 5},
             self.STOCK_INDICATOR: [
                 (self.MACD, {self.MACD_FAST_PERIOD: 12, self.MACD_SLOW_PERIOD: 26, self.MACD_TIME_PERIOD: 9}),

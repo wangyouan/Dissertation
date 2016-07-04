@@ -28,7 +28,7 @@ else:
     ratio = test_ratio
 
 required_info = {
-    const.PRICE_TYPE: const.STOCK_CLOSE,
+    const.PRICE_TYPE: const.STOCK_ADJUSTED_CLOSED,
     const.STOCK_PRICE: {const.DATA_PERIOD: 5},
     const.STOCK_INDICATOR: [
         (const.MACD, {
@@ -92,7 +92,7 @@ stock_list = ['0001.HK', '0002.HK', '0003.HK', '0004.HK', '0005.HK', '0006.HK', 
               '0066.HK', '1123.HK']
 
 test = None
-for method in [const.RANDOM_FOREST, const.LINEAR_REGRESSION, const.ARTIFICIAL_NEURAL_NETWORK]:
+for method in [const.RANDOM_FOREST, const.LINEAR_REGRESSION, const.ARTIFICIAL_NEURAL_NETWORK][:2]:
 
     new_file_path = os.path.join(output_path, method.lower())
     if not os.path.isdir(new_file_path):

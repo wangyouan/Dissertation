@@ -29,7 +29,7 @@ else:
     ratio = test_ratio
 
 required_info = {
-    const.PRICE_TYPE: const.STOCK_CLOSE,
+    const.PRICE_TYPE: const.STOCK_ADJUSTED_CLOSED,
     const.STOCK_PRICE: {const.DATA_PERIOD: 1},
     const.STOCK_INDICATOR: [
         (const.MACD, {
@@ -94,11 +94,11 @@ stock_list = ['0001.HK', '0002.HK', '0003.HK', '0004.HK', '0005.HK', '0006.HK', 
               '0057.HK', '0058.HK', '0059.HK', '0060.HK', '0888.HK', '0062.HK', '0063.HK', '0064.HK', '0065.HK',
               '0066.HK', '1123.HK']
 
-amount_method_list = [const.RANDOM_FOREST, const.LINEAR_REGRESSION, const.ARTIFICIAL_NEURAL_NETWORK]
+amount_method_list = [const.ARTIFICIAL_NEURAL_NETWORK, const.LINEAR_REGRESSION, const.RANDOM_FOREST]
 trend_method_list = [const.SVM, const.RANDOM_FOREST, const.LOGISTIC_REGRESSION]
 
 test = None
-for amount_method, trend_method in zip(amount_method_list, trend_method_list)[:2]:
+for amount_method, trend_method in zip(amount_method_list, trend_method_list):
     # for trend_method in trend_method_list:
     method = '{}_{}'.format(amount_method.split(('_'))[0].lower(), trend_method.split('_')[0].lower())
     new_file_path = os.path.join(output_path, method)
@@ -119,7 +119,7 @@ for amount_method, trend_method in zip(amount_method_list, trend_method_list)[:2
         specific_file_path = os.path.join(new_file_path, stock[:4])
         specific_model_path = os.path.join(model_path, method, stock[:4])
         for i in range(test_times):
-            test = MixInferenceSystem(stock, amount_type=const.RAW_AMOUNT, data_folder_path=data_path,
+            test = MixInferenceSystem(stock, amount_type=const.RATIO_AMOUNT, data_folder_path=data_path,
                                       using_exist_model=False, amount_method=amount_method,
                                       direction_method=trend_method, output_file_path=specific_file_path,
                                       model_path=specific_model_path)
