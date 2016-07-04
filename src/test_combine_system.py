@@ -123,9 +123,9 @@ for amount_method, trend_method in zip(amount_method_list, trend_method_list):
                                       using_exist_model=False, amount_method=amount_method,
                                       direction_method=trend_method, output_file_path=specific_file_path,
                                       model_path=specific_model_path)
+            predict_result = test.predict_historical_data(test_start_date=ratio, start_date=date_start,
+                                                          end_date=date_end, iterations=10)
             try:
-                predict_result = test.predict_historical_data(test_start_date=ratio, start_date=date_start,
-                                                              end_date=date_end, iterations=10)
                 predict_result_rdd = test.sc.parallelize(predict_result)
                 me += get_ME(predict_result_rdd)
                 mse += get_MSE(predict_result_rdd)
