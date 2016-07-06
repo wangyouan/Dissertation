@@ -38,7 +38,7 @@ def get_ME(label_prediction):
 
 def get_MAPE(label_prediction):
     """ Mean Absolute Percentage Error """
-    return label_prediction.map(lambda (v, p): abs((v - p) / float(v))).sum() / float(label_prediction.count()) * 100
+    return label_prediction.map(lambda (v, p): abs((v - p) / float(v))).sum() / float(label_prediction.count())
 
 
 def get_RMSE(label_and_prediction):
@@ -71,7 +71,6 @@ def get_theils_inequality_coefficient(label_and_prediction):
 #     return correct_num * 100.0 / data_num
 
 
-
 def get_CDC_combine(label_prediction):
     """ Correct Directional Change """
     data = label_prediction.collect()
@@ -83,7 +82,7 @@ def get_CDC_combine(label_prediction):
         if prediction * label_change > 0:
             correct_num += 1
 
-    return correct_num * 100.0 / data_num
+    return correct_num / (data_num - 1)
 
 
 get_CDC = get_CDC_combine

@@ -381,8 +381,8 @@ class MixInferenceSystem(InferenceSystem):
                                                       test_features=test_features_x, tomorrow_today=tomorrow_today)
             self.logger.info("Current MSE is {:.4f}".format(mse))
             self.logger.info("Current MAD is {:.4f}".format(mad))
-            self.logger.info("Current MAPE is {:.4f}%".format(mape))
-            self.logger.info("Current CDC is {:.4f}%".format(cdc))
+            self.logger.info("Current MAPE is {:.4f}%".format(mape * 100))
+            self.logger.info("Current CDC is {:.4f}%".format(cdc * 100))
 
         # if train ratio is at that level, means that target want the model file, not the
         if self.amount_prediction_method == self.RANDOM_FOREST:

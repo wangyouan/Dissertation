@@ -8,9 +8,9 @@
 
 
 
-start_date = "2013-01-06"
-end_date = "2016-01-06"
-test_ratio = "2015-01-06"
+start_date = "2011-01-06"
+end_date = "2014-01-06"
+test_ratio = "2013-01-06"
 
 predict_list = ['0001.HK', '0002.HK', '0003.HK', '0004.HK', '0005.HK', '0006.HK', '0011.HK', '0012.HK', '0014.HK',
                 '0016.HK', '0017.HK', '0019.HK', '0023.HK', '0027.HK', '0031.HK', '0043.HK', '0064.HK', '0066.HK',
@@ -27,15 +27,26 @@ if __name__ == '__main__':
     from StockInference.util.get_history_stock_price import get_all_data_about_stock
     from select_stock_list import stock_list
 
-    predict_list.sort()
-    print predict_list
+    # predict_list.sort()
+    # print predict_list
     new_predict_list = []
 
-    for symbol in stock_list:
+    for symbol in predict_list:
         data = get_all_data_about_stock(symbol, start_date=start_date, end_date=end_date, remove_zero_volume=True)
-        if len(data) > 0.9 * 738:
+        # print len(data)
+        if len(data) > 0.95 * 737:
             new_predict_list.append(symbol)
         elif len(data) == 0:
             print symbol
+
+    predict_set = set(predict_list)
+
+    for symbol in stock_list:
+        if symbol not in predict_set:
+            data = get_all_data_about_stock(symbol, start_date=start_date, end_date=end_date, remove_zero_volume=True)
+            if len(data) > 0.95 * 737:
+                new_predict_list.append(symbol)
+                if len(new_predict_list) >= 50:
+                    break
 
     print new_predict_list
