@@ -82,7 +82,7 @@ def get_CDC_combine(label_prediction):
         if prediction * label_change > 0:
             correct_num += 1
 
-    return correct_num / (data_num - 1)
+    return float(correct_num) / float(data_num - 1)
 
 
 get_CDC = get_CDC_combine
