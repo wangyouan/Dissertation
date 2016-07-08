@@ -36,7 +36,7 @@ class InferenceSystem(Constants):
                  model_path=None, using_exist_model=False):
         self.stock_symbol = stock_symbol
         conf = SparkConf()
-        conf.setAppName("{}_{}".format(self.__class__.__name__, stock_symbol))
+        conf.setAppName("{}_{}_{}".format(self.__class__.__name__, stock_symbol, training_method))
         self.sc = SparkContext.getOrCreate(conf=conf)
         self.train_data = None
         self.test_data = None
@@ -66,7 +66,7 @@ class InferenceSystem(Constants):
 
         # collect data, will do some preliminary process to stock process
         required_info = {
-            self.PRICE_TYPE: self.STOCK_CLOSE,
+            self.PRICE_TYPE: self.STOCK_ADJUSTED_CLOSED,
             self.STOCK_PRICE: {self.DATA_PERIOD: 5},
             self.STOCK_INDICATOR: [
                 (self.MACD, {self.MACD_FAST_PERIOD: 12, self.MACD_SLOW_PERIOD: 26, self.MACD_TIME_PERIOD: 9}),
@@ -331,14 +331,15 @@ class InferenceSystem(Constants):
             mse, mape, cdc, mad = self.evaluate_model_performance(model, test, test_features)
             self.logger.info("Current MSE is {:.4f}".format(mse))
             self.logger.info("Current MAD is {:.4f}".format(mad))
-            self.logger.info("Current MAPE is {:.4f}%".format(mape))
-            self.logger.info("Current CDC is {:.4f}%".format(cdc))
+            self.logger.info("Current MAPE is {:.4f}%".format(mape * 100))
+            self.logger.info("Current CDC is {:.4f}%".format(cdc * 100))
 
         # if train ratio is at that level, means that target want the model file, not the
+        if self.training_method == self.RANDOM_FOREST:
+            model = self.predict_model['model']
         if test_start_date is None:
-            return self.predict_model['model']
+            return model
 
-        model = self.predict_model['model']
 
         # Data prediction part
         self.logger.info("Start to use the model to predict price")

@@ -52,7 +52,8 @@ class MixInferenceSystem(InferenceSystem):
                  data_folder_path=None, model_path=None, using_exist_model=False, amount_type=None):
         InferenceSystem.__init__(self, stock_symbol=stock_symbol, data_folder_path=data_folder_path,
                                  features=features, output_file_path=output_file_path, model_path=model_path,
-                                 using_exist_model=using_exist_model)
+                                 using_exist_model=using_exist_model, training_method='{}_{}'.format(amount_method,
+                                                                                                     direction_method))
         if direction_method is None:
             self.trend_prediction_method = self.RANDOM_FOREST
         else:
@@ -218,10 +219,10 @@ class MixInferenceSystem(InferenceSystem):
         test_features_label = test_features_rdd.map(lambda t: t[1])
         if self.amount_prediction_method == self.RANDOM_FOREST:
             amount_predict = amount_model.predict(test_features_rdd.map(lambda t: t[0])).map(
-                data_parser.inverse_transform_label).zip(test_features_label)
+                data_parser.inverse_transform_label).map(abs).zip(test_features_label)
         else:
-            amount_predict = test_features_rdd.map(lambda t: (data_parser.inverse_transform_label(
-                amount_model.predict(t[0])), t[1]))
+            amount_predict = test_features_rdd.map(lambda t: (abs(data_parser.inverse_transform_label(
+                amount_model.predict(t[0]))), t[1]))
 
         if self.trend_prediction_method == self.RANDOM_FOREST:
             trend_predict = trend_model.predict(test_features_rdd.map(lambda t: t[0]))
@@ -275,7 +276,7 @@ class MixInferenceSystem(InferenceSystem):
 
         # collect data, will do some preliminary process to stock process
         required_info = {
-            self.PRICE_TYPE: self.STOCK_CLOSE,
+            self.PRICE_TYPE: self.STOCK_ADJUSTED_CLOSED,
             self.STOCK_PRICE: {self.DATA_PERIOD: 1},
             self.STOCK_INDICATOR: [
                 (self.MACD, {self.MACD_FAST_PERIOD: 12, self.MACD_SLOW_PERIOD: 26, self.MACD_TIME_PERIOD: 9}),
@@ -380,16 +381,21 @@ class MixInferenceSystem(InferenceSystem):
                                                       test_features=test_features_x, tomorrow_today=tomorrow_today)
             self.logger.info("Current MSE is {:.4f}".format(mse))
             self.logger.info("Current MAD is {:.4f}".format(mad))
-            self.logger.info("Current MAPE is {:.4f}%".format(mape))
-            self.logger.info("Current CDC is {:.4f}%".format(cdc))
+            self.logger.info("Current MAPE is {:.4f}%".format(mape * 100))
+            self.logger.info("Current CDC is {:.4f}%".format(cdc * 100))
 
         # if train ratio is at that level, means that target want the model file, not the
+        if self.amount_prediction_method == self.RANDOM_FOREST:
+            amount_model = self.amount_model['model']
+        if self.trend_prediction_method == self.RANDOM_FOREST:
+            trend_model = self.trend_model['model']
+
         if test_start_date is None:
-            return self.trend_model['model'], self.amount_model['model']
+            return trend_model, amount_model
 
         # Data prediction part
         self.logger.info("Start to use the model to predict price")
-        predict = self.model_predict(trend_model=self.trend_model['model'], amount_model=self.amount_model['model'],
+        predict = self.model_predict(trend_model=trend_model, amount_model=amount_model,
                                      test_features=all_features, tomorrow_today=tomorrow_today)
 
         self.save_data_to_file(predict, "predict_result.csv", self.SAVE_TYPE_OUTPUT)
