@@ -91,7 +91,7 @@ stock_list = ['0001.HK', '0002.HK', '0003.HK', '0004.HK', '0005.HK', '0006.HK', 
               '1918.HK', '2005.HK', '2362.HK', '2383.HK', '6823.HK']
 
 test = None
-for method in [const.LINEAR_REGRESSION, const.RANDOM_FOREST, const.ARTIFICIAL_NEURAL_NETWORK][2:]:
+for method in [const.LINEAR_REGRESSION, const.RANDOM_FOREST, const.ARTIFICIAL_NEURAL_NETWORK][1:2]:
 
     new_file_path = os.path.join(output_path, method.lower())
     if not os.path.isdir(new_file_path):
