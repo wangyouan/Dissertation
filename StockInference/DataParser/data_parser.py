@@ -48,7 +48,7 @@ def direction(data):
 
 class DataParser(Constants):
     def __init__(self, n_components=None, label_data_type=None):
-        self.first_transformer = get_transformer(1)
+        self.first_transformer = get_transformer(2)
         self.second_transformer = get_transformer(n_components)
         self.third_transformer = get_transformer(1)
         self.label_data_type = label_data_type
