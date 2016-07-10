@@ -17,7 +17,7 @@ from StockInference.constant import Constants
 from __init__ import start_date, end_date, test_ratio, predict_list
 
 const = Constants()
-test_times = 3
+test_times = 1
 
 if len(sys.argv) > 3:
     date_start = sys.argv[1]
