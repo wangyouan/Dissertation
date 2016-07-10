@@ -340,7 +340,6 @@ class InferenceSystem(Constants):
         if test_start_date is None:
             return model
 
-
         # Data prediction part
         self.logger.info("Start to use the model to predict price")
         testing_data = self.sc.parallelize(self.test_data)
