@@ -127,15 +127,14 @@ for amount_method, trend_method in zip(amount_method_list, trend_method_list):
             predict_result = test.predict_historical_data(test_start_date=ratio, start_date=date_start,
                                                           end_date=date_end, iterations=10)
             try:
-                predict_result_rdd = test.sc.parallelize(predict_result)
-                me += get_ME(predict_result_rdd)
-                mse += get_MSE(predict_result_rdd)
-                mape += get_MAPE(predict_result_rdd)
-                mad += get_MAD(predict_result_rdd)
-                rmse += get_RMSE(predict_result_rdd)
-                hmse += get_HMSE(predict_result_rdd)
+                me += get_ME(predict_result)
+                mse += get_MSE(predict_result)
+                mape += get_MAPE(predict_result)
+                mad += get_MAD(predict_result)
+                rmse += get_RMSE(predict_result)
+                hmse += get_HMSE(predict_result)
                 # tie = get_theils_inequality_coefficient(predict_result)
-                cdc += get_CDC_combine(predict_result_rdd)
+                cdc += get_CDC_combine(predict_result)
             except Exception, err:
                 traceback.print_exc()
                 time.sleep(60)

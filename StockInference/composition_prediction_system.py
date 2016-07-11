@@ -196,11 +196,8 @@ class MixInferenceSystem(InferenceSystem):
     def evaluate_model(self, trend_model, amount_model, test_features, tomorrow_today):
         predict = self.model_predict(trend_model=trend_model, amount_model=amount_model, test_features=test_features,
                                      tomorrow_today=tomorrow_today)
-        predict_rdd = self.sc.parallelize(predict)
-        mse = get_MSE(predict_rdd)
-        cdc = get_CDC_combine(predict_rdd)
-        mape = get_MAPE(predict_rdd)
-        mad = get_MAD(predict_rdd)
+        mse = get_MAPE(predict)
+        cdc = get_CDC_combine(predict)
         if cdc > self.trend_model['cdc']:
             self.trend_model['model'] = trend_model
             self.trend_model['cdc'] = cdc
@@ -208,7 +205,7 @@ class MixInferenceSystem(InferenceSystem):
         if mse < self.amount_model['rmse']:
             self.amount_model['rmse'] = mse
             self.amount_model['model'] = amount_model
-        return mse, mape, cdc, mad
+        return mse, cdc
 
     def model_predict(self, trend_model, amount_model, test_features, tomorrow_today):
         amount_type = self.amount_type
@@ -377,10 +374,8 @@ class MixInferenceSystem(InferenceSystem):
             amount_model = self.train_amount_model(model=amount_model, data=amount_train_x, i=i)
 
             self.logger.info("Epoch {} finishes".format(i))
-            mse, mape, cdc, mad = self.evaluate_model(trend_model=trend_model, amount_model=amount_model,
+            mape, cdc = self.evaluate_model(trend_model=trend_model, amount_model=amount_model,
                                                       test_features=test_features_x, tomorrow_today=tomorrow_today)
-            self.logger.info("Current MSE is {:.4f}".format(mse))
-            self.logger.info("Current MAD is {:.4f}".format(mad))
             self.logger.info("Current MAPE is {:.4f}%".format(mape * 100))
             self.logger.info("Current CDC is {:.4f}%".format(cdc * 100))
 

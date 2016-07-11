@@ -56,7 +56,7 @@ class InferenceSystem(Constants):
             self.training_method = training_method
         log4jLogger = self.sc._jvm.org.apache.log4j
         self.logger = log4jLogger.LogManager.getLogger(self.__class__.__name__)
-        self.predict_model = {'model': None, 'mse': float('inf')}
+        self.predict_model = {'model': None, 'cdc': 0}
 
     def get_train_test_data(self, test_start_date, start_date, end_date):
 
@@ -270,7 +270,7 @@ class InferenceSystem(Constants):
             predict = model.predict(testing_data.map(lambda x: x.features))
             predict = testing_data.zip(predict).zip(testing_data_features) \
                 .map(lambda (m, n): (m[0].label, min_max_de_normalize(m[1], n))).cache()
-        return predict
+        return predict.collect()
 
     def randomly_split_data(self, total_data, ratio=0.9):
         train, test = total_data.randomSplit([ratio, 1 - ratio])
@@ -291,15 +291,13 @@ class InferenceSystem(Constants):
         test_data = test_data.zip(test_features).map(
             lambda (d, f): LabeledPoint(label=min_max_de_normalize(d.label, f), features=d.features))
         predict = self.model_prediction(model, testing_data=test_data, testing_data_features=test_features)
-        mse = get_MSE(predict)
         mape = get_MAPE(predict)
         cdc = get_CDC(predict)
-        mad = get_MAD(predict)
-        if mse < self.predict_model['mse']:
+        if self.training_method == self.RANDOM_FOREST and cdc > self.predict_model['cdc']:
             self.predict_model['model'] = model
-            self.predict_model['mse'] = mse
+            self.predict_model['cdc'] = cdc
 
-        return mse, mape, cdc, mad
+        return mape, cdc
 
     def predict_historical_data(self, test_start_date, start_date, end_date, iterations=10):
 
@@ -315,7 +313,7 @@ class InferenceSystem(Constants):
         # Generate training data
         train_features = self.get_train_test_data(test_start_date, start_date=start_date, end_date=end_date)
 
-        training_data = self.sc.parallelize(zip(self.train_data, train_features)).cache()
+        training_data_bc = self.sc.broadcast(zip(self.train_data, train_features))
 
         self.logger.info("Initialize Model")
         if not self.using_exist_model:
@@ -324,15 +322,16 @@ class InferenceSystem(Constants):
         self.logger.info('Start to training model')
         for i in range(iterations):
             self.logger.info("Epoch {} starts".format(i))
-            train, test, test_features = self.randomly_split_data(training_data, ratio=0.8)
+            train, test, test_features = self.randomly_split_data(
+                self.sc.parallelize([0]).flatMap(lambda x: training_data_bc.value), ratio=0.8)
             model = self.model_training(train, model)
             self.logger.info("Epoch {} finishes".format(i))
 
-            mse, mape, cdc, mad = self.evaluate_model_performance(model, test, test_features)
-            self.logger.info("Current MSE is {:.4f}".format(mse))
-            self.logger.info("Current MAD is {:.4f}".format(mad))
+            mape, cdc = self.evaluate_model_performance(model, test, test_features)
             self.logger.info("Current MAPE is {:.4f}%".format(mape * 100))
             self.logger.info("Current CDC is {:.4f}%".format(cdc * 100))
+
+        training_data_bc.unpersist()
 
         # if train ratio is at that level, means that target want the model file, not the
         if self.training_method == self.RANDOM_FOREST:
@@ -342,11 +341,15 @@ class InferenceSystem(Constants):
 
         # Data prediction part
         self.logger.info("Start to use the model to predict price")
-        testing_data = self.sc.parallelize(self.test_data)
-        testing_data_features = self.sc.parallelize(self.test_data_features)
+        testing_data_bc = self.sc.broadcast(self.test_data)
+        testing_data_features_bc = self.sc.broadcast(self.test_data_features)
+        testing_data = self.sc.parallelize([0]).flatMap(lambda x: testing_data_bc.value)
+        testing_data_features = self.sc.parallelize([0]).flatMap(lambda x: testing_data_features_bc.value)
         predict = self.model_prediction(model, testing_data=testing_data, testing_data_features=testing_data_features)
+        testing_data_bc.unpersist()
+        testing_data_features_bc.unpersist()
 
-        self.save_data_to_file(predict.collect(), "predict_result.csv", self.SAVE_TYPE_OUTPUT)
+        self.save_data_to_file(predict, "predict_result.csv", self.SAVE_TYPE_OUTPUT)
         self.save_parameters(model)
 
         return predict
