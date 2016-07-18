@@ -34,7 +34,7 @@ def get_all_data_about_stock(symbol, start_date=None, end_date=None, remove_zero
         data_list.append(('f', data[0]))
     data_list.append(('g', 'd'))
 
-    url = "http://ichart.finance.yahoo.com/table.csv?{}".format(urlencode(data_list))
+    url = "http://chart.finance.yahoo.com/table.csv?{}".format(urlencode(data_list))
     query = Request(url)
     max_try = 3
     current_try = 0

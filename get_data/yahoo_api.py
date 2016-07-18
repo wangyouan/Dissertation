@@ -25,10 +25,10 @@ def get_all_date_about_stock(symbol, start_date=None, end_date=None, save_path='
         date_list.append(('f', date[0]))
     date_list.append(('g', 'd'))
 
-    url = "http://ichart.finance.yahoo.com/table.csv?{}".format(urlencode(date_list))
+    url = "http://chart.finance.yahoo.com/table.csv?{}".format(urlencode(date_list))
     query = Request(url)
     response = urlopen(query)
-    f = open(os.path.join(save_path,'/{}.csv'.format(symbol)), 'w')
+    f = open(os.path.join(save_path,'{}.csv'.format(symbol)), 'w')
     f.write(response.read())
     f.close()
 
@@ -41,11 +41,13 @@ if __name__ == "__main__":
     else:
         save_path = '../data'
     stock_symbol = []
-    for i in range(1, 66):
+    for i in range(1, 3):
         stock_symbol.append("{:04d}.HK".format(i))
     # print stock_symbol
     for symbol in stock_symbol:
         try:
             get_all_date_about_stock(symbol, start_date='2006-03-14', end_date='2016-03-15', save_path=save_path)
         except Exception:
+            import traceback
+            traceback.print_exc()
             print("Get stock {} failed".format(symbol))
