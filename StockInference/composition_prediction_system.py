@@ -375,7 +375,7 @@ class MixInferenceSystem(InferenceSystem):
 
             self.logger.info("Epoch {} finishes".format(i))
             mape, cdc = self.evaluate_model(trend_model=trend_model, amount_model=amount_model,
-                                                      test_features=test_features_x, tomorrow_today=tomorrow_today)
+                                            test_features=test_features_x, tomorrow_today=tomorrow_today)
             self.logger.info("Current MAPE is {:.4f}%".format(mape * 100))
             self.logger.info("Current CDC is {:.4f}%".format(cdc * 100))
 
