@@ -115,7 +115,7 @@ for method in [const.LINEAR_REGRESSION, const.RANDOM_FOREST, const.ARTIFICIAL_NE
             test = InferenceSystem(stock, training_method=method, data_folder_path=data_path, using_exist_model=False,
                                    output_file_path=specific_file_path, model_path=specific_model_path)
             try:
-                predict_result = test.predict_historical_data(ratio, date_start, date_end, iterations=1)
+                predict_result = test.predict_historical_data(ratio, date_start, date_end, iterations=10)
                 me += get_ME(predict_result)
                 mse += get_MSE(predict_result)
                 mape += get_MAPE(predict_result)
