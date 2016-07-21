@@ -91,7 +91,7 @@ stock_list = ['0001.HK', '0002.HK', '0003.HK', '0004.HK', '0005.HK', '0006.HK', 
               '1918.HK', '2005.HK', '2362.HK', '2383.HK', '6823.HK']
 
 test = None
-for method in [const.LINEAR_REGRESSION, const.RANDOM_FOREST, const.ARTIFICIAL_NEURAL_NETWORK][2:]:
+for method in [const.LINEAR_REGRESSION, const.RANDOM_FOREST, const.ARTIFICIAL_NEURAL_NETWORK]:
 
     new_file_path = os.path.join(output_path, method.lower())
     if not os.path.isdir(new_file_path):
@@ -100,7 +100,7 @@ for method in [const.LINEAR_REGRESSION, const.RANDOM_FOREST, const.ARTIFICIAL_NE
     f = open(os.path.join(new_file_path, "stock_info.csv"), 'w')
     f.write('stock,MSE,MAPE,MAD,RMSE,CDC,HMSE,ME\n')
     # for stock in stock_list[:10]:
-    for stock in predict_list[:1]:
+    for stock in predict_list:
         me = 0.0
         mse = 0.0
         mape = 0.0
