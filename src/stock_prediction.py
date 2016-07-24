@@ -99,7 +99,7 @@ for method in [const.LINEAR_REGRESSION, const.RANDOM_FOREST, const.ARTIFICIAL_NE
 
     f = open(os.path.join(new_file_path, "stock_info.csv"), 'w')
     f.write('stock,MSE,MAPE,MAD,RMSE,CDC,HMSE,ME\n')
-    # for stock in stock_list[:10]:
+    # for stock in ['0836.HK']:
     for stock in predict_list:
         me = 0.0
         mse = 0.0

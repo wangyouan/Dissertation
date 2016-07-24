@@ -221,6 +221,11 @@ class BaseClass(Constants):
         self.set_start_date(self._date_list[0])
         self.set_end_date(self._date_list[-1])
 
+    # TODO: use dataframe to reconstruct data collection module
+    def save_historical_stock_data(self, data):
+        save_path = os.path.join(self._data_file_path, 'stock_price')
+        if not os.path.isdir(save_path):
+            os.makedirs(save_path)
 
 if __name__ == "__main__":
     from data_collect import DataCollect

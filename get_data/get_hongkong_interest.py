@@ -12,8 +12,8 @@ import urllib
 import BeautifulSoup
 from pandas.tseries.offsets import CustomBusinessDay
 
-from StockInference.util.http_get import get
 from StockInference.util.hongkong_calendar import HongKongCalendar
+from stockforecater.util.http_get import get
 
 url = "http://www.hkab.org.hk/hibor/listRates.do?"
 
