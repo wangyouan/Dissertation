@@ -11,7 +11,8 @@ import logging
 
 import pandas as pd
 
-from stockforecater.constant import Constants
+from stockforecaster.constant import Constants
+from stockforecaster.util.date_util import *
 
 
 class BaseClass(Constants):
@@ -25,6 +26,9 @@ class BaseClass(Constants):
         if not os.path.isdir(self._data_dir_path):
             os.makedirs(self._data_dir_path)
         self._stock_symbol = stock_symbol
+        self._start_date = None
+        self._end_date = None
+        self._is_adjusted = False
 
     def _save_data_to_file(self, data_df, file_name, data_type):
         if data_type in {self.STOCK_PRICE, self.TECHNICAL_INDICATOR}:
@@ -38,11 +42,11 @@ class BaseClass(Constants):
         if os.path.isfile(save_path):
             df = pd.read_csv(save_path)
             new_df = pd.concat([data_df, df], axis=0, ignore_index=True)
-            new_df = new_df.drop_duplicates(['Date']).sort(['Date']).reset_index()
+            new_df = new_df.drop_duplicates(['Date']).sort(['Date']).reset_index(drop=True)
             if new_df.shape[0] != df.shape[0]:
-                new_df.to_csv(save_path)
+                new_df.to_pickle(save_path)
         else:
-            data_df.to_csv(save_path)
+            data_df.to_pickle(save_path)
 
     def _load_data_from_file(self, data_type, file_name):
         if data_type in {self.STOCK_PRICE, self.TECHNICAL_INDICATOR}:
@@ -54,6 +58,30 @@ class BaseClass(Constants):
 
         save_path = os.path.join(save_dir, file_name)
         if os.path.isfile(save_path):
-            return pd.read_csv(save_path)
+            return pd.read_pickle(save_path)
         else:
             return None
+
+    def set_start_date(self, detail_date):
+        if isinstance(detail_date, str):
+            detail_date = str2datetime(detail_date)
+
+        self._start_date = detail_date
+
+    def set_end_date(self, detail_date):
+        if isinstance(detail_date, str):
+            detail_date = str2datetime(detail_date)
+
+        self._end_date = detail_date
+
+    def get_start_date(self):
+        return self._start_date
+
+    def get_end_date(self):
+        return self._end_date
+
+    def set_is_adjusted(self, is_adjusted):
+        self._is_adjusted = is_adjusted
+
+    def get_is_adjusted(self):
+        return self._is_adjusted

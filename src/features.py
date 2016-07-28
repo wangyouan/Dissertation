@@ -12,7 +12,7 @@ const = Constants()
 
 
 features = {
-    const.PRICE_TYPE: const.STOCK_CLOSE,
+    const.PRICE_TYPE: const.STOCK_ADJUSTED_CLOSED,
     const.STOCK_PRICE: {const.DATA_PERIOD: 5},
     const.STOCK_INDICATOR: [
         (const.MACD, {

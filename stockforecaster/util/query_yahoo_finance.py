@@ -11,7 +11,7 @@ from StringIO import StringIO
 
 import pandas as pd
 
-from stockforecater.util.http_method import get
+from stockforecaster.util.http_method import get
 
 
 def get_yahoo_finance_data(symbol, start_date=None, end_date=None, remove_zero_volume=True):
@@ -43,9 +43,13 @@ def get_yahoo_finance_data(symbol, start_date=None, end_date=None, remove_zero_v
     stock_data = StringIO(stock_info)
     stock_df = pd.read_csv(stock_data)
     stock_df['Date'] = stock_df['Date'].apply(lambda x: datetime.datetime.strptime(x, '%Y-%m-%d'))
-    stock_df = stock_df.sort(['Date'])
+    stock_df = stock_df.sort_values(by=['Date'])
 
     if not remove_zero_volume:
         return stock_df
 
-    return stock_df[stock_df['Volume'] > 0]
+    return stock_df[stock_df['Volume'] > 0].reset_index(drop=True)
+
+if __name__ == '__main__':
+    df = get_yahoo_finance_data('0001.HK')
+    df.to_pickle('0001.HK')

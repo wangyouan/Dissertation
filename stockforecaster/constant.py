@@ -10,15 +10,16 @@
 class Constants(object):
 
     PRICE_TYPE = "price type"
+    DATE = "Date"
 
     # information used in stock price info
     STOCK_PRICE = "stock_price"
-    STOCK_HIGH = "high"
-    STOCK_LOW = "low"
-    STOCK_OPEN = "open"
-    STOCK_CLOSE = "close"
-    STOCK_VOLUME = "volume"
-    STOCK_ADJUSTED_CLOSED = "adj_closed"
+    STOCK_HIGH = "High"
+    STOCK_LOW = "Low"
+    STOCK_OPEN = "Open"
+    STOCK_CLOSE = "Close"
+    STOCK_VOLUME = "Volume"
+    STOCK_ADJUSTED_CLOSED = "Adj Close"
     DATA_PERIOD = "data_period"
 
     # information for indicators info
