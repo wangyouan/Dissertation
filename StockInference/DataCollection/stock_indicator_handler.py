@@ -10,13 +10,11 @@ import numpy as np
 from talib import abstract
 
 from StockInference.DataCollection.base_class import BaseClass
-from StockInference.util.get_history_stock_price import get_all_data_about_stock
-from StockInference.util.date_parser import get_ahead_date
 
 
 class StockIndicatorHandler(BaseClass):
     def __init__(self, logger=None):
-        BaseClass.__init__(self, logger=None)
+        BaseClass.__init__(self, logger=logger)
 
     def handle_indicator(self, required_info):
         indicator_data = np.array([])

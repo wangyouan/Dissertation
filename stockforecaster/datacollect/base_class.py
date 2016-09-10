@@ -39,14 +39,7 @@ class BaseClass(Constants):
             save_dir = self._data_dir_path
 
         save_path = os.path.join(save_dir, file_name)
-        if os.path.isfile(save_path):
-            df = pd.read_csv(save_path)
-            new_df = pd.concat([data_df, df], axis=0, ignore_index=True)
-            new_df = new_df.drop_duplicates(['Date']).sort(['Date']).reset_index(drop=True)
-            if new_df.shape[0] != df.shape[0]:
-                new_df.to_pickle(save_path)
-        else:
-            data_df.to_pickle(save_path)
+        data_df.to_pickle(save_path)
 
     def _load_data_from_file(self, data_type, file_name):
         if data_type in {self.STOCK_PRICE, self.TECHNICAL_INDICATOR}:
