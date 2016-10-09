@@ -16,6 +16,19 @@ from stockforecaster.util.query_yahoo_finance import get_yahoo_finance_data
 class DataCollect(BaseClass):
     def __init__(self, stock_symbol, logger=None, data_path=None):
         BaseClass.__init__(self, logger=logger, data_dir_path=data_path, stock_symbol=stock_symbol)
+        self._bond_label_dict_us = {
+            self.US10Y_BOND: "^TNX",
+            self.US30Y_BOND: "^TYX",
+            self.FXI: "FXI",
+        }
+        self._bond_label_dict_hk = {
+            self.HSI: "^HSI",
+            self.IC: "2801.HK",
+            self.IA: "2829.HK",
+            self.IA300: "2846.HK",
+            self.IMSCI: "3010.HK",
+            self.SHSE: '000001.SS',
+        }
 
     def get_required_data(self, required_info, start_date, end_date):
         self.logger.info("Start to collect data")
@@ -113,6 +126,19 @@ class DataCollect(BaseClass):
                 data_df = self._load_data_from_file(self.HIBOR, '{}.p'.format(self.HIBOR))
                 data_df = self.check_fundamental_data_integrity(data_df, self.HIBOR)
                 fund_df[fundamental_info_type] = data_df[fundamental_info_type]
+
+            # TODO: Finish bond part. Then query would be finished
+            elif fundamental_info_type in self._bond_label_dict_hk:
+                data_df = self._load_data_from_file(self.BOND, '{}.p'.format(fundamental_info_type))
+                data_df = self.check_fundamental_data_integrity(data_df, self.BOND, fundamental_info_type)
+                fund_df[fundamental_info_type] = data_df[self.STOCK_CLOSE]
+
+            elif fundamental_info_type in self._bond_label_dict_us:
+                pass
+
+            else:
+                self.logger.warn('Unknown data type {}'.format(fundamental_info_type))
+                raise ValueError('Unknown data type {}'.format(fundamental_info_type))
 
         return fund_df
 

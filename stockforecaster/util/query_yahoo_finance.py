@@ -51,5 +51,5 @@ def get_yahoo_finance_data(symbol, start_date=None, end_date=None, remove_zero_v
         return stock_df
 
 if __name__ == '__main__':
-    df = get_yahoo_finance_data('0001.HK')
+    df = get_yahoo_finance_data('FXI')
     df.to_pickle('0001.HK')

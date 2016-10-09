@@ -8,7 +8,6 @@
 
 
 class Constants(object):
-
     PRICE_TYPE = "price type"
     DATE = "Date"
 
@@ -32,24 +31,25 @@ class Constants(object):
     MACD_TIME_PERIOD = "MACD time period"
 
     # For moving average info
-    SMA = "SMA" # "simple moving average"
-    EMA = "EMA" # "Exponential moving average"
-    ROC = "ROC" # "Rate of change"
-    RSI = "RSI" # "Relative strength index"
+    SMA = "SMA"  # "simple moving average"
+    EMA = "EMA"  # "Exponential moving average"
+    ROC = "ROC"  # "Rate of change"
+    RSI = "RSI"  # "Relative strength index"
 
     # Fundamental Analysis
     FUNDAMENTAL_ANALYSIS = "fundamental analysis"
 
-    # Bond, index and ETF related
-    US10Y_BOND = "CBOE Interest Rate 10 Year T No" # Symbol ^TNX
-    US30Y_BOND = "Treasury Yield 30 Years" # Symbol ^TYX
-    HSI = "Hang Seng Index" # ^HSI
+    # Bond, index and ETF
+    BOND = "Bond"
+    US10Y_BOND = "CBOE Interest Rate 10 Year T No"  # Symbol ^TNX
+    US30Y_BOND = "Treasury Yield 30 Years"  # Symbol ^TYX
+    HSI = "Hang Seng Index"  # ^HSI
     FXI = "iShares China Large-Cap"
-    IC = "2801.HK" # iShares China
-    IA = "iShares CSI A-Share Financials" # 2829.HK
-    IA300 = "iShares CSI 300 A-Share" # 2846.HK
-    IMSCI = "iShares MSCI AC Asia ex Japan" # 3010.HK
-    SHSE = "000001.SS" # Shanghai stock exchange market
+    IC = "2801.HK"  # iShares China
+    IA = "iShares CSI A-Share Financials"  # 2829.HK
+    IA300 = "iShares CSI 300 A-Share"  # 2846.HK
+    IMSCI = "iShares MSCI AC Asia ex Japan"  # 3010.HK
+    SHSE = "000001.SS"  # Shanghai stock exchange market
 
     # Normalization method
     MIN_MAX = "Min-Max Normalization"
@@ -73,11 +73,11 @@ class Constants(object):
 
     # Used in currency exchange
     CURRENCY_EXCHANGE = 'CURRENCY_EXCHANGE'
-    HKD = "HKD" # "Hong Kong Dollar"
-    AUD = "AUD" # "Australian Dollar"
-    USD = "USD" #"United States Dollar"
-    CNY = "CNY" # "China Yuan"
-    EUR = "EUR" # "European Euro"
+    HKD = "HKD"  # "Hong Kong Dollar"
+    AUD = "AUD"  # "Australian Dollar"
+    USD = "USD"  # "United States Dollar"
+    CNY = "CNY"  # "China Yuan"
+    EUR = "EUR"  # "European Euro"
 
     FROM = "from"
     TO = "to"
@@ -105,7 +105,7 @@ class Constants(object):
     ONE_YEAR = "12 Months"
 
     UNITED_STATES = "United States"
-    HONG_KONG="Hong Kong"
+    HONG_KONG = "Hong Kong"
 
     # parameters used in data saving
     SAVE_TYPE_MODEL = "model"
