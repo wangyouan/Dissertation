@@ -13,8 +13,7 @@ import pandas as pd
 
 from stockforecaster.constant import Constants
 from stockforecaster.util.date_util import *
-from stockforecaster.util.query_yahoo_finance import get_yahoo_finance_data
-from stockforecaster.util.get_hibor import get_hk_interest_rate
+from stockforecaster.util.query_information import get_hk_interest_rate, get_yahoo_finance_data, query_quandl_data
 
 
 class BaseClass(Constants):
@@ -94,14 +93,29 @@ class BaseClass(Constants):
     def get_is_adjusted(self):
         return self._is_adjusted
 
-    def query_HIBOR_rate(self, current_date_df):
-        changed = False
-        for detail_date in self._required_date_list:
-            if detail_date not in current_date_df.index:
-                current_date_df.loc[detail_date] = get_hk_interest_rate(detail_date)
-                changed = True
+    def check_fundamental_data_integrity(self, data_df, data_type, curr_from=None, curr_to=None):
+        self.logger.info('Start to check the integrity of target data type {}'.format(data_type))
+        file_name = self.HIBOR
+        set_current = set(data_df.index)
+        set_require = set(self._required_date_list)
+        diff = set_require.difference(set_current)
+        if diff:
 
-        if changed:
-            self._save_data_to_file(current_date_df, 'HIBOR.p', self.HIBOR)
+            self.logger.info('Data need to be updated')
+            if data_type == self.HIBOR:
+                file_name = self.HIBOR
+                for miss_date in diff:
+                    data_df.loc[miss_date] = get_hk_interest_rate(miss_date)
 
-        return current_date_df
+            elif data_type == self.CURRENCY_EXCHANGE:
+                file_name = '{}2{}'.format(curr_from, curr_to)
+                file_name_dict = {"{}2{}".format(self.EUR, self.HKD): 'ECB/EURHKD',
+                                  "{}2{}".format(self.USD, self.HKD): 'FRED/DEXHKUS',
+                                  "{}2{}".format(self.AUD, self.HKD): 'RBA/FXRHKD',
+                                  }
+                miss_df = query_quandl_data(file_name_dict[file_name], min(diff), max(diff))
+                data_df = pd.concat([data_df, miss_df], axis=0).drop_duplicates().sort_index()
+
+            self._save_data_to_file(data_df, '{}.p'.format(file_name), data_type)
+
+        return data_df

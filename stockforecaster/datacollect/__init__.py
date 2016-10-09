@@ -100,13 +100,18 @@ class DataCollect(BaseClass):
 
             # this is used to get currency exchange rate
             if isinstance(fundamental_info_type, dict):
-                pass
+                exchange_name = '{}2{}'.format(fundamental_info_type[self.FROM], fundamental_info_type[self.TO])
+                data_df = self._load_data_from_file(self.CURRENCY_EXCHANGE, '{}.p'.format(exchange_name))
+                data_df = self.check_fundamental_data_integrity(data_df, self.CURRENCY_EXCHANGE,
+                                                                fundamental_info_type[self.FROM],
+                                                                fundamental_info_type[self.TO])
+                fund_df[exchange_name] = data_df[data_df.keys()[0]]
 
             # this branch is about HIBOR rate
             elif fundamental_info_type in {self.ONE_MONTH, self.ONE_WEEK, self.ONE_YEAR, self.HALF_YEAR,
                                            self.THREE_MONTHS, self.OVER_NIGHT}:
-                data_df = self._load_data_from_file(self.HIBOR, 'HIBOR.p')
-                self.query_HIBOR_rate(data_df)
+                data_df = self._load_data_from_file(self.HIBOR, '{}.p'.format(self.HIBOR))
+                data_df = self.check_fundamental_data_integrity(data_df, self.HIBOR)
                 fund_df[fundamental_info_type] = data_df[fundamental_info_type]
 
         return fund_df

@@ -72,6 +72,7 @@ class Constants(object):
     FA_NORMALIZATION = "Normalization"
 
     # Used in currency exchange
+    CURRENCY_EXCHANGE = 'CURRENCY_EXCHANGE'
     HKD = "HKD" # "Hong Kong Dollar"
     AUD = "AUD" # "Australian Dollar"
     USD = "USD" #"United States Dollar"
