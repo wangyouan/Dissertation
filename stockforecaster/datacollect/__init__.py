@@ -26,8 +26,13 @@ class DataCollect(BaseClass):
         stock_price = self.load_historical_stock_price(self.get_start_date(), self.get_end_date(),
                                                        self.get_is_adjusted())
 
+        self._required_date_list = stock_price.index
+
         if self.TECHNICAL_INDICATOR in required_info:
             indicator_df = self.get_indicator(required_info[self.TECHNICAL_INDICATOR])
+
+        if self.FUNDAMENTAL_ANALYSIS in required_info:
+            fundamental_df = self.get_fundamental_info(required_info[self.FUNDAMENTAL_ANALYSIS])
 
     def load_historical_stock_price(self, start_date=None, end_date=None, adjusted=None):
 
@@ -36,7 +41,8 @@ class DataCollect(BaseClass):
 
         # when no date is specified, then will return all data that could be downloaded from Yahoo finance
         if start_date is None and end_date is None:
-            period_result = get_yahoo_finance_data(self._stock_symbol, remove_zero_volume=True)
+            # period_result = get_yahoo_finance_data(self._stock_symbol, remove_zero_volume=True)
+            period_result = self._load_data_from_file(self.STOCK_PRICE, self._stock_symbol)
         else:
             self.logger.info('Start to load historical stock price data')
             data_df = self._load_data_from_file(self.STOCK_PRICE, self._stock_symbol)
@@ -64,21 +70,46 @@ class DataCollect(BaseClass):
             period_result[self.STOCK_CLOSE] = period_result[self.STOCK_ADJUSTED_CLOSED]
         return period_result
 
-    def get_indicator(self, indicator_list, start_date=None, end_date=None, adjusted=None):
+    def get_indicator(self, indicator_list, start_date=None, end_date=None):
         if start_date is None:
             start_date = self.get_start_date()
 
         if end_date is None:
             end_date = self.get_end_date()
 
-        if adjusted is None:
-            adjusted = self.get_is_adjusted()
-
         info_df = pd.DataFrame()
         for info in indicator_list:
             info_df = pd.concat([info_df, self._handle_indicator_information(info[0], info[1])], axis=1)
 
+        info_df = info_df[info_df.index >= start_date]
+        info_df = info_df[info_df.index <= end_date]
+
         return info_df
+
+    def get_fundamental_info(self, fundamental_info_list, start_date=None, end_date=None):
+
+        fund_df = pd.DataFrame()
+
+        if start_date is None:
+            start_date = self.get_start_date()
+
+        if end_date is None:
+            end_date = self.get_end_date()
+
+        for fundamental_info_type in fundamental_info_list:
+
+            # this is used to get currency exchange rate
+            if isinstance(fundamental_info_type, dict):
+                pass
+
+            # this branch is about HIBOR rate
+            elif fundamental_info_type in {self.ONE_MONTH, self.ONE_WEEK, self.ONE_YEAR, self.HALF_YEAR,
+                                           self.THREE_MONTHS, self.OVER_NIGHT}:
+                data_df = self._load_data_from_file(self.HIBOR, 'HIBOR.p')
+                self.query_HIBOR_rate(data_df)
+                fund_df[fundamental_info_type] = data_df[fundamental_info_type]
+
+        return fund_df
 
     def _handle_indicator_information(self, indicator_name, parameters):
         stock_price_df = self.load_historical_stock_price()
@@ -95,3 +126,23 @@ class DataCollect(BaseClass):
             stock_price_df['high'] = stock_price_df[self.STOCK_HIGH]
             stock_price_df['low'] = stock_price_df[self.STOCK_LOW]
             stock_price_df['volume'] = stock_price_df[self.STOCK_VOLUME]
+
+        if indicator_name == self.SMA:
+            return abstract.SMA(stock_price_df, timeperiod=parameters)
+
+        elif indicator_name == self.EMA:
+            return abstract.EMA(stock_price_df, timeperiod=parameters)
+
+        elif indicator_name == self.MACD:
+            return abstract.MACD(stock_price_df, parameters[self.MACD_FAST_PERIOD], parameters[self.MACD_SLOW_PERIOD],
+                                 parameters[self.MACD_TIME_PERIOD])
+
+        elif indicator_name == self.ROC:
+            return abstract.ROC(stock_price_df, timeperiod=parameters)
+
+        elif indicator_name == self.RSI:
+            return abstract.RSI(stock_price_df, timeperiod=parameters)
+
+        else:
+            self.logger.warn("Unknown indicator name {}".format(indicator_name))
+            raise Exception("Unknown indicator name {}".format(indicator_name))

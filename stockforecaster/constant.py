@@ -94,6 +94,7 @@ class Constants(object):
     STANDARD_SCALE = "Standard Scaler"
 
     # The following are used in in HKAB HKD Interest Settlement Rates
+    HIBOR = 'HIBOR'
     OVER_NIGHT = "Overnight"
     ONE_WEEK = "1 Week"
     ONE_MONTH = "1 Month"
