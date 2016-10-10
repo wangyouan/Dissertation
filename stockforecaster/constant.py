@@ -83,6 +83,7 @@ class Constants(object):
     TO = "to"
 
     GOLDEN_PRICE = "gold price in CNY"
+    TYPE_GOLDEN_PRICE = 'GoldenPrice'
 
     ARTIFICIAL_NEURAL_NETWORK = "Artificial_Neural_Network"
     RANDOM_FOREST = "Random_Forest"

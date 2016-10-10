@@ -70,16 +70,20 @@ def get_yahoo_finance_data(symbol, start_date=None, end_date=None, remove_zero_v
     :return: a list of stock price as [date, open, high, low, close]
     """
     data_list = [('s', symbol)]
+    if hasattr(start_date, 'split'):
+        start_date = str2datetime(start_date)
+
+    if hasattr(end_date, 'split'):
+        end_date = str2datetime(end_date)
+
     if start_date:
-        data = start_date.split('-')
-        data_list.append(('a', int(data[1]) - 1))
-        data_list.append(('b', data[2]))
-        data_list.append(('c', data[0]))
+        data_list.append(('a', start_date.month - 1))
+        data_list.append(('b', start_date.day))
+        data_list.append(('c', start_date.year))
     if end_date:
-        data = end_date.split('-')
-        data_list.append(('d', int(data[1]) - 1))
-        data_list.append(('e', data[2]))
-        data_list.append(('f', data[0]))
+        data_list.append(('d', end_date.month - 1))
+        data_list.append(('e', end_date.day))
+        data_list.append(('f', end_date.year))
     data_list.append(('g', 'd'))
     data_list.append(('ignore', '.csv'))
 
@@ -117,7 +121,7 @@ def query_quandl_data(query_info, start_date=None, end_date=None, transform=None
 
 
 if __name__ == '__main__':
-    data_df = query_quandl_data('RBA/FXRHKD')
-    print data_df.keys()
-    print query_quandl_data('FRED/DEXHKUS').keys()
-    print query_quandl_data('ECB/EURHKD').keys()
+    # data_df = query_quandl_data('RBA/FXRHKD')
+    # print data_df.keys()
+    # print query_quandl_data('FRED/DEXHKUS').keys()
+    print query_quandl_data('WGC/GOLD_DAILY_CNY').keys()

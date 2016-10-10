@@ -53,6 +53,8 @@ class HongKongCalendar(AbstractHolidayCalendar):
 
 
 if __name__ == "__main__":
-    cal = HongKongCalendar(2006, 2007)
-    a = cal.holidays()
-    print
+    cal = HongKongCalendar(2000, 2017)
+    import pickle
+
+    with open('hk_cal.p', 'w') as f:
+        pickle.dump(cal, f)

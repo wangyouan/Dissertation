@@ -9,7 +9,7 @@
 from BeautifulSoup import BeautifulSoup
 
 from StockInference.util.date_parser import string_to_datetime
-from stockforecaster.util.http_get import get
+from StockInference.util.http_get import get
 
 
 def get_hk_interest_rate(detail_date):
