@@ -10,6 +10,9 @@
 class Constants(object):
     PRICE_TYPE = "price type"
     DATE = "Date"
+    DIRECTION_PREDICTION = 'Direction'
+    AMOUNT_PREDICTION = 'Amount'
+    TARGET_PRICE = 'Target'
 
     # information used in stock price info
     STOCK_PRICE = "stock_price"
