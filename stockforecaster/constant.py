@@ -13,6 +13,10 @@ class Constants(object):
     DIRECTION_PREDICTION = 'Direction'
     AMOUNT_PREDICTION = 'Amount'
     TARGET_PRICE = 'Target'
+    CHANGE_DIRECTION = 'ChangeDirection'
+    CHANGE_AMOUNT = 'ChangeAmount'
+    SPARK = 'Spark'
+    TENSOR_FLOW = 'TensorFlow'
 
     # information used in stock price info
     STOCK_PRICE = "stock_price"

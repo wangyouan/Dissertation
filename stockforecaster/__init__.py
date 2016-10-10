@@ -11,7 +11,7 @@ import logging
 import numpy as np
 import pandas as pd
 from pyspark import SparkContext, SparkConf
-from sklearn.preprocessing import StandardScaler, MinMaxScaler
+from sklearn.preprocessing import MinMaxScaler
 
 from stockforecaster.constant import Constants
 from stockforecaster.datacollect import DataCollect
@@ -33,7 +33,7 @@ class StockForecaster(Constants):
 
         self._train_system = train_system
 
-        if train_system == 'Spark':
+        if train_system == self.SPARK:
             conf = SparkConf()
             conf.setAppName("{}_{}_{}".format(self.__class__.__name__, stock_symbol, train_method))
             self._sc = SparkContext.getOrCreate(conf=conf)
@@ -57,6 +57,8 @@ class StockForecaster(Constants):
         test = input_data[input_data.index > test_start_data]
 
         tomorrow_price = input_data[self.STOCK_CLOSE].shift(-1)
+        change_amount = tomorrow_price - input_data[self.STOCK_CLOSE]
+        change_direction = change_amount.apply(lambda x: np.nan if np.isnan(x) else 1 if x > 0 else -1 if x < 0 else 0)
         train_mean = train.mean()
 
         # Replace NaN with mean value
@@ -72,8 +74,14 @@ class StockForecaster(Constants):
         test = pd.DataFrame(test_tran, index=test.index, columns=test.keys())
 
         # add tomorrow price info
-        train[self.TARGET_PRICE] = tomorrow_price[tomorrow_price.index <= test_start_data]
-        test[self.TARGET_PRICE] = tomorrow_price[tomorrow_price.index > test_start_data]
+        if not isinstance(self._training_method, dict):
+            train[self.TARGET_PRICE] = tomorrow_price[tomorrow_price.index <= test_start_data]
+            test[self.TARGET_PRICE] = tomorrow_price[tomorrow_price.index > test_start_data]
+        else:
+            train[self.CHANGE_AMOUNT] = change_amount[change_amount.index <= test_start_data]
+            test[self.CHANGE_AMOUNT] = change_amount[change_amount.index > test_start_data]
+            train[self.CHANGE_DIRECTION] = change_direction[change_direction.index <= test_start_data]
+            test[self.CHANGE_DIRECTION] = change_direction[change_direction.index > test_start_data]
 
         return train, test
 
