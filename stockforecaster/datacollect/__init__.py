@@ -43,8 +43,8 @@ class DataCollect(BaseClass):
 
         if self.FUNDAMENTAL_ANALYSIS in required_info:
             fundamental_df = self.get_fundamental_info(required_info[self.FUNDAMENTAL_ANALYSIS])
-            fundamental_df.to_pickle('fund_df.p')
-            result_df.to_pickle('result_df.p')
+            # fundamental_df.to_pickle('fund_df.p')
+            # result_df.to_pickle('result_df.p')
             result_df = pd.merge(result_df, fundamental_df, how='left', left_index=True, right_index=True)
 
         # print datetime.datetime.today() - end_time
