@@ -16,6 +16,9 @@ from pyspark.ml.regression import LinearRegression, RandomForestRegressor
 from pyspark.ml.classification import LogisticRegression, RandomForestClassifier, MultilayerPerceptronClassifier
 
 from sklearn.preprocessing import MinMaxScaler
+from sklearn.neural_network import MLPRegressor
+from regression import CustomRegression
+from regression.model import MassRegressionModel
 
 from stockforecaster.constant import Constants
 from stockforecaster.datacollect import DataCollect
@@ -50,7 +53,20 @@ class StockForecaster(Constants):
         self._data_collect = DataCollect(stock_symbol, logger=logger, data_path=data_path)
 
     def _predict_stock_price(self, model, features):
-        pass
+        if self._train_system == self.SPARK:
+            return self._predict_stock_price_spark(model=model, features=features)
+
+    def _predict_stock_price_spark(self, model, features):
+        df = self._prepare_data_spark(features)
+        if isinstance(model, dict):
+            df = model[self.CHANGE_DIRECTION].transform(df)
+            df = model[self.CHANGE_AMOUNT].transform(df)
+        else:
+            df = model.transorm(df)
+
+        pdf = df.toPandas()
+        pdf['Date'] = features.index
+        return pdf.set_index('Date')
 
     def _train_model(self, features, label):
         if self._train_system == self.SPARK:
@@ -63,33 +79,40 @@ class StockForecaster(Constants):
 
     def _train_model_spark(self, data):
         df = self._prepare_data_spark(data)
+        input_num = len(data.keys()) - 2
         if isinstance(self._train_method, dict):
             model = {self.CHANGE_AMOUNT: None,
                      self.CHANGE_DIRECTION: None}
 
             if self._train_method[self.CHANGE_AMOUNT] == self.LINEAR_REGRESSION:
-                lr = LinearRegression(featuresCol="features", labelCol=self.CHANGE_AMOUNT, maxIter=10000)
+                lr = LinearRegression(featuresCol="features", labelCol=self.CHANGE_AMOUNT, maxIter=10000,
+                                      predictionCol='AmountPrediction')
                 model[self.CHANGE_AMOUNT] = lr.fit(df)
             elif self._train_method[self.CHANGE_AMOUNT] == self.RANDOM_FOREST:
                 rfr = RandomForestRegressor(featuresCol="features", labelCol=self.CHANGE_AMOUNT, numTrees=40,
-                                            maxDepth=20)
+                                            maxDepth=20, predictionCol='AmountPrediction')
                 model[self.CHANGE_AMOUNT] = rfr.fit(df)
+            elif self._train_method == self.ARTIFICIAL_NEURAL_NETWORK:
+                ann = CustomRegression(MLPRegressor(hidden_layer_sizes=(input_num / 3 * 2, input_num / 3),
+                                                    learning_rate_init=0.0001, max_iter=1000))
+                model = ann.fit(df.select('features').rdd, df.select(self.CHANGE_AMOUNT).rdd)
             else:
                 self.logger.warn('Unsupported training method {}'.format(self._train_method))
                 raise ValueError('Unsupported training method {}'.format(self._train_method))
 
             if self._train_method[self.CHANGE_DIRECTION] == self.LOGISTIC_REGRESSION:
-                lr = LogisticRegression(featuresCol="features", labelCol=self.CHANGE_DIRECTION, maxIter=10000)
+                lr = LogisticRegression(featuresCol="features", labelCol=self.CHANGE_DIRECTION, maxIter=10000,
+                                        predictionCol='DirPrediction')
                 model[self.CHANGE_DIRECTION] = lr.fit(df)
             elif self._train_method[self.CHANGE_DIRECTION] == self.RANDOM_FOREST:
                 rfc = RandomForestClassifier(featuresCol="features", labelCol=self.CHANGE_DIRECTION, numTrees=40,
-                                             maxDepth=20)
+                                             maxDepth=20, predictionCol='DirPrediction')
                 model[self.CHANGE_DIRECTION] = rfc.fit(df)
 
             elif self._train_method[self.CHANGE_DIRECTION] == self.ARTIFICIAL_NEURAL_NETWORK:
-                input_num = len(data.keys()) - 2
                 mlpc = MultilayerPerceptronClassifier(featuresCol="features", labelCol=self.CHANGE_DIRECTION,
-                                                      layers=[input_num, input_num / 3 * 2, input_num / 3, 1])
+                                                      layers=[input_num, input_num / 3 * 2, input_num / 3, 1],
+                                                      predictionCol='DirPrediction')
                 model[self.CHANGE_DIRECTION] = mlpc.fit(df)
 
             else:
@@ -104,6 +127,12 @@ class StockForecaster(Constants):
                 rfr = RandomForestRegressor(featuresCol="features", labelCol=self.TARGET_PRICE, numTrees=40,
                                             maxDepth=20)
                 model = rfr.fit(df)
+
+            elif self._train_method == self.ARTIFICIAL_NEURAL_NETWORK:
+                ann = CustomRegression(MLPRegressor(hidden_layer_sizes=(input_num / 3 * 2, input_num / 3),
+                                                    learning_rate_init=0.0001, max_iter=1000))
+                model = ann.fit(df.select('features').rdd, df.select(self.TARGET_PRICE).rdd)
+
             else:
                 self.logger.warn('Unsupported training method {}'.format(self._train_method))
                 raise ValueError('Unsupported training method {}'.format(self._train_method))
@@ -118,7 +147,8 @@ class StockForecaster(Constants):
                 data[new_key] = data[key]
                 del data[new_key]
 
-        keys = list(set(data.keys()).difference({self.CHANGE_AMOUNT, self.CHANGE_DIRECTION, self.TARGET_PRICE}))
+        keys = list(set(data.keys()).difference({self.CHANGE_AMOUNT, self.CHANGE_DIRECTION, self.TARGET_PRICE,
+                                                 self.TODAY_PRICE}))
 
         df = self._spark.createDataFrame(data)
         ass = VectorAssembler(inputCols=keys, outputCol="features")
@@ -130,7 +160,8 @@ class StockForecaster(Constants):
         test = input_data[input_data.index > test_start_data]
 
         tomorrow_price = input_data[self.STOCK_CLOSE].shift(-1)
-        change_amount = tomorrow_price - input_data[self.STOCK_CLOSE]
+        today_price = input_data[self.STOCK_CLOSE]
+        change_amount = tomorrow_price - today_price
         change_direction = change_amount.apply(lambda x: np.nan if np.isnan(x) else x >= 0)
         train_mean = train.mean()
 
@@ -150,11 +181,15 @@ class StockForecaster(Constants):
         if not isinstance(self._train_method, dict):
             train[self.TARGET_PRICE] = tomorrow_price[tomorrow_price.index <= test_start_data]
             test[self.TARGET_PRICE] = tomorrow_price[tomorrow_price.index > test_start_data]
+
         else:
             train[self.CHANGE_AMOUNT] = change_amount[change_amount.index <= test_start_data]
             test[self.CHANGE_AMOUNT] = change_amount[change_amount.index > test_start_data]
             train[self.CHANGE_DIRECTION] = change_direction[change_direction.index <= test_start_data]
             test[self.CHANGE_DIRECTION] = change_direction[change_direction.index > test_start_data]
+
+        train[self.TODAY_PRICE] = today_price[today_price.index <= test_start_data]
+        test[self.TODAY_PRICE] = today_price[today_price.index > test_start_data]
 
         return train, test
 

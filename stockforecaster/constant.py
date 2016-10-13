@@ -13,6 +13,7 @@ class Constants(object):
     DIRECTION_PREDICTION = 'Direction'
     AMOUNT_PREDICTION = 'Amount'
     TARGET_PRICE = 'Target'
+    TODAY_PRICE = 'TodayPrice'
     CHANGE_DIRECTION = 'ChangeDirection'
     CHANGE_AMOUNT = 'ChangeAmount'
     SPARK = 'Spark'
