@@ -143,3 +143,6 @@ output/
 
 password.txt
 models/
+
+*.p
+*.csv
