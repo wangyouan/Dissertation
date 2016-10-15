@@ -22,10 +22,12 @@ from sklearn.pipeline import Pipeline
 
 from stockforecaster.constant import Constants
 from stockforecaster.datacollect import DataCollect
+from stockforecaster.neural_network import KerasNeuralNetworkSpark
 
 LINEAR_REGRESSION_ITERATION_TIMES = 100000
 RANDOM_FOREST_TREE_NUMBER = 30
 RANDOM_FOREST_DEPTH = 20
+WORKER_NUMBERS = 2
 
 
 class StockForecaster(Constants):
@@ -85,6 +87,9 @@ class StockForecaster(Constants):
 
     def _train_model_spark(self, data):
         df = self._prepare_data_spark(data)
+        input_num = len(data.keys().difference({self.CHANGE_AMOUNT, self.CHANGE_DIRECTION, self.TARGET_PRICE,
+                                                self.TODAY_PRICE}))
+        ann_layers = [input_num, input_num / 3 * 2, input_num / 3, 2]
         if isinstance(self._train_method, dict):
             model = {self.CHANGE_AMOUNT: None,
                      self.CHANGE_DIRECTION: None}
@@ -99,10 +104,14 @@ class StockForecaster(Constants):
                                             numTrees=RANDOM_FOREST_TREE_NUMBER,
                                             maxDepth=RANDOM_FOREST_DEPTH, predictionCol='AmountPrediction')
                 model[self.CHANGE_AMOUNT] = rfr.fit(df)
-            # elif self._train_method == self.ARTIFICIAL_NEURAL_NETWORK:
-            #     ann = CustomRegression(MLPRegressor(hidden_layer_sizes=(input_num / 3 * 2, input_num / 3),
-            #                                         learning_rate_init=0.0001, max_iter=1000))
-            #     model = ann.fit(df.select('features').rdd, df.select(self.CHANGE_AMOUNT).rdd)
+            elif self._train_method[self.CHANGE_AMOUNT] == self.ARTIFICIAL_NEURAL_NETWORK:
+                ann_layers[-1] = 1
+                model[self.CHANGE_AMOUNT] = KerasNeuralNetworkSpark(layers=ann_layers, spark=self._spark,
+                                                                    num_workers=WORKER_NUMBERS, epoch=100,
+                                                                    featuresCol="features", labelCol=self.CHANGE_AMOUNT,
+                                                                    predictionCol='AmountPrediction'
+                                                                    )
+                model[self.CHANGE_AMOUNT].fit(df)
             else:
                 self.logger.warn('Unsupported training method {}'.format(self._train_method))
                 raise ValueError('Unsupported training method {}'.format(self._train_method))
@@ -119,10 +128,9 @@ class StockForecaster(Constants):
                 model[self.CHANGE_DIRECTION] = rfc.fit(df)
 
             elif self._train_method[self.CHANGE_DIRECTION] == self.ARTIFICIAL_NEURAL_NETWORK:
-                input_num = len(data.keys().difference({self.CHANGE_AMOUNT, self.CHANGE_DIRECTION, self.TARGET_PRICE,
-                                                        self.TODAY_PRICE}))
+                ann_layers[-1] = 2
                 mlpc = MultilayerPerceptronClassifier(featuresCol="features", labelCol=self.CHANGE_DIRECTION,
-                                                      layers=[input_num, input_num / 3 * 2, input_num / 3, 2],
+                                                      layers=ann_layers,
                                                       predictionCol='DirPrediction')
                 model[self.CHANGE_DIRECTION] = mlpc.fit(df)
 
@@ -132,19 +140,23 @@ class StockForecaster(Constants):
 
         else:
             if self._train_method == self.LINEAR_REGRESSION:
-                lr = LinearRegression(featuresCol="features", labelCol=self.TARGET_PRICE,
+                lr = LinearRegression(featuresCol="features", labelCol=self.TARGET_PRICE, predictionCol='prediction',
                                       maxIter=LINEAR_REGRESSION_ITERATION_TIMES)
                 model = lr.fit(df)
             elif self._train_method == self.RANDOM_FOREST:
                 rfr = RandomForestRegressor(featuresCol="features", labelCol=self.TARGET_PRICE,
-                                            numTrees=RANDOM_FOREST_TREE_NUMBER,
+                                            predictionCol='prediction', numTrees=RANDOM_FOREST_TREE_NUMBER,
                                             maxDepth=RANDOM_FOREST_DEPTH)
                 model = rfr.fit(df)
 
-            # elif self._train_method == self.ARTIFICIAL_NEURAL_NETWORK:
-            #     ann = CustomRegression(MLPRegressor(hidden_layer_sizes=(input_num / 3 * 2, input_num / 3),
-            #                                         learning_rate_init=0.0001, max_iter=1000))
-            #     model = ann.fit(df.select('features').rdd, df.select(self.TARGET_PRICE).rdd)
+            elif self._train_method == self.ARTIFICIAL_NEURAL_NETWORK:
+                ann_layers[-1] = 1
+                model = KerasNeuralNetworkSpark(layers=ann_layers, spark=self._spark,
+                                                num_workers=WORKER_NUMBERS, epoch=100,
+                                                featuresCol="features", labelCol=self.TARGET_PRICE,
+                                                predictionCol='prediction'
+                                                )
+                model.fit(df)
 
             else:
                 self.logger.warn('Unsupported training method {}'.format(self._train_method))
@@ -153,6 +165,7 @@ class StockForecaster(Constants):
         return model
 
     def _prepare_data_spark(self, data):
+        """ Prepare data for spark format, output data will have the feature format and other useful information """
 
         keys = list(data.keys().difference({self.CHANGE_AMOUNT, self.CHANGE_DIRECTION, self.TARGET_PRICE,
                                             self.TODAY_PRICE}))
@@ -264,7 +277,7 @@ class StockForecaster(Constants):
 
         else:
 
-            transformer = MinMaxScaler(feature_range=(0, 1))
+            transformer = MinMaxScaler(feature_range=(-1, 1))
             label[self.TARGET_PRICE] = transformer.fit_transform(train[self.TARGET_PRICE].values.reshape(-1, 1))
             del train[self.TARGET_PRICE]
 
