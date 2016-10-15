@@ -10,30 +10,31 @@ import logging
 
 import numpy as np
 import pandas as pd
+
 from pyspark.sql import SparkSession
 from pyspark.ml.feature import VectorAssembler
 from pyspark.ml.regression import LinearRegression, RandomForestRegressor
 from pyspark.ml.classification import LogisticRegression, RandomForestClassifier, MultilayerPerceptronClassifier
 
-from sklearn.preprocessing import MinMaxScaler
-from sklearn.neural_network import MLPRegressor
-from regression import CustomRegression
+from sklearn.preprocessing import MinMaxScaler, StandardScaler
+from sklearn.decomposition import PCA
+from sklearn.pipeline import Pipeline
 
 from stockforecaster.constant import Constants
 from stockforecaster.datacollect import DataCollect
 
 LINEAR_REGRESSION_ITERATION_TIMES = 100000
-RANDOM_FOREST_TREE_NUMBER = 100
-RANDOM_FOREST_DEPTH = 30
+RANDOM_FOREST_TREE_NUMBER = 30
+RANDOM_FOREST_DEPTH = 20
 
 
 class StockForecaster(Constants):
-    def __init__(self, stock_symbol, data_path=None, train_method=None, train_system='Spark'):
+    def __init__(self, stock_symbol, data_path=None, train_method=None, train_system='Spark', using_percentage=True):
         if train_method is None:
             self._train_method = self.RANDOM_FOREST
         elif isinstance(train_method, list) or isinstance(train_method, tuple):
-            self._train_method = {self.DIRECTION_PREDICTION: train_method[0],
-                                  self.AMOUNT_PREDICTION: train_method[1]}
+            self._train_method = {self.CHANGE_DIRECTION: train_method[0],
+                                  self.CHANGE_AMOUNT: train_method[1]}
         elif isinstance(train_method, dict):
             self._train_method = train_method
         else:
@@ -42,6 +43,8 @@ class StockForecaster(Constants):
         self._stock_symbol = stock_symbol
 
         self._train_system = train_system
+
+        self._using_percentage = using_percentage
 
         if train_system == self.SPARK:
             name = "{}_{}_{}".format(self.__class__.__name__, stock_symbol, train_method)
@@ -82,7 +85,6 @@ class StockForecaster(Constants):
 
     def _train_model_spark(self, data):
         df = self._prepare_data_spark(data)
-        input_num = len(data.keys()) - 2
         if isinstance(self._train_method, dict):
             model = {self.CHANGE_AMOUNT: None,
                      self.CHANGE_DIRECTION: None}
@@ -97,10 +99,10 @@ class StockForecaster(Constants):
                                             numTrees=RANDOM_FOREST_TREE_NUMBER,
                                             maxDepth=RANDOM_FOREST_DEPTH, predictionCol='AmountPrediction')
                 model[self.CHANGE_AMOUNT] = rfr.fit(df)
-            elif self._train_method == self.ARTIFICIAL_NEURAL_NETWORK:
-                ann = CustomRegression(MLPRegressor(hidden_layer_sizes=(input_num / 3 * 2, input_num / 3),
-                                                    learning_rate_init=0.0001, max_iter=1000))
-                model = ann.fit(df.select('features').rdd, df.select(self.CHANGE_AMOUNT).rdd)
+            # elif self._train_method == self.ARTIFICIAL_NEURAL_NETWORK:
+            #     ann = CustomRegression(MLPRegressor(hidden_layer_sizes=(input_num / 3 * 2, input_num / 3),
+            #                                         learning_rate_init=0.0001, max_iter=1000))
+            #     model = ann.fit(df.select('features').rdd, df.select(self.CHANGE_AMOUNT).rdd)
             else:
                 self.logger.warn('Unsupported training method {}'.format(self._train_method))
                 raise ValueError('Unsupported training method {}'.format(self._train_method))
@@ -117,8 +119,10 @@ class StockForecaster(Constants):
                 model[self.CHANGE_DIRECTION] = rfc.fit(df)
 
             elif self._train_method[self.CHANGE_DIRECTION] == self.ARTIFICIAL_NEURAL_NETWORK:
+                input_num = len(data.keys().difference({self.CHANGE_AMOUNT, self.CHANGE_DIRECTION, self.TARGET_PRICE,
+                                                        self.TODAY_PRICE}))
                 mlpc = MultilayerPerceptronClassifier(featuresCol="features", labelCol=self.CHANGE_DIRECTION,
-                                                      layers=[input_num, input_num / 3 * 2, input_num / 3, 1],
+                                                      layers=[input_num, input_num / 3 * 2, input_num / 3, 2],
                                                       predictionCol='DirPrediction')
                 model[self.CHANGE_DIRECTION] = mlpc.fit(df)
 
@@ -137,10 +141,10 @@ class StockForecaster(Constants):
                                             maxDepth=RANDOM_FOREST_DEPTH)
                 model = rfr.fit(df)
 
-            elif self._train_method == self.ARTIFICIAL_NEURAL_NETWORK:
-                ann = CustomRegression(MLPRegressor(hidden_layer_sizes=(input_num / 3 * 2, input_num / 3),
-                                                    learning_rate_init=0.0001, max_iter=1000))
-                model = ann.fit(df.select('features').rdd, df.select(self.TARGET_PRICE).rdd)
+            # elif self._train_method == self.ARTIFICIAL_NEURAL_NETWORK:
+            #     ann = CustomRegression(MLPRegressor(hidden_layer_sizes=(input_num / 3 * 2, input_num / 3),
+            #                                         learning_rate_init=0.0001, max_iter=1000))
+            #     model = ann.fit(df.select('features').rdd, df.select(self.TARGET_PRICE).rdd)
 
             else:
                 self.logger.warn('Unsupported training method {}'.format(self._train_method))
@@ -149,29 +153,30 @@ class StockForecaster(Constants):
         return model
 
     def _prepare_data_spark(self, data):
-        keys = data.keys()
-        for key in keys:
-            if '.' in key:
-                new_key = key.replace('.', '')
-                data[new_key] = data[key]
-                del data[key]
 
-        keys = list(set(data.keys()).difference({self.CHANGE_AMOUNT, self.CHANGE_DIRECTION, self.TARGET_PRICE,
-                                                 self.TODAY_PRICE}))
+        keys = list(data.keys().difference({self.CHANGE_AMOUNT, self.CHANGE_DIRECTION, self.TARGET_PRICE,
+                                            self.TODAY_PRICE}))
 
         df = self._spark.createDataFrame(data)
         ass = VectorAssembler(inputCols=keys, outputCol="features")
         output = ass.transform(df)
+        # output.select('features', 'ChangeDirection', 'ChangeAmount').write.save('test.parquet')
         return output
 
-    def _process_data(self, input_data, test_start_data):
-        train = input_data[input_data.index <= test_start_data]
-        test = input_data[input_data.index > test_start_data]
+    def _process_data(self, input_data, test_start_date):
+        train = input_data[input_data.index <= test_start_date]
+        test = input_data[input_data.index > test_start_date]
 
         tomorrow_price = input_data[self.STOCK_CLOSE].shift(-1)
         today_price = input_data[self.STOCK_CLOSE]
         change_amount = tomorrow_price - today_price
-        change_direction = change_amount.apply(lambda x: np.nan if np.isnan(x) else x >= 0)
+        change_direction = change_amount.apply(lambda x: np.nan if np.isnan(x) else int(x >= 0))
+
+        # using change percentage as change direction
+        if self._using_percentage:
+            change_amount = change_amount.apply(abs) / today_price
+        else:
+            change_amount = change_amount.apply(abs)
         train_mean = train.mean()
 
         # Replace NaN with mean value
@@ -180,24 +185,27 @@ class StockForecaster(Constants):
             test.loc[:, key] = test[key].replace(np.nan, train_mean[key])
 
         # do normalization
-        transformer = MinMaxScaler(feature_range=(-1, 1))
-        train_tran = transformer.fit_transform(train)
-        test_tran = transformer.transform(test)
-        train = pd.DataFrame(train_tran, index=train.index, columns=train.keys())
-        test = pd.DataFrame(test_tran, index=test.index, columns=test.keys())
+        pipe = Pipeline([('Standard', StandardScaler()),
+                         ('PCA', PCA()),
+                         ('MinMax', MinMaxScaler(feature_range=(-1, 1)))
+                         ])
+        train_tran = pipe.fit_transform(train)
+        test_tran = pipe.transform(test)
+        train = pd.DataFrame(train_tran, index=train.index, columns=map(str, range(train_tran.shape[1])))
+        test = pd.DataFrame(test_tran, index=test.index, columns=map(str, range(test_tran.shape[1])))
 
         # add tomorrow price info
-        train[self.TARGET_PRICE] = tomorrow_price[tomorrow_price.index <= test_start_data]
-        test[self.TARGET_PRICE] = tomorrow_price[tomorrow_price.index > test_start_data]
+        train[self.TARGET_PRICE] = tomorrow_price[tomorrow_price.index <= test_start_date]
+        test[self.TARGET_PRICE] = tomorrow_price[tomorrow_price.index > test_start_date]
 
         if isinstance(self._train_method, dict):
-            train[self.CHANGE_AMOUNT] = change_amount[change_amount.index <= test_start_data]
-            test[self.CHANGE_AMOUNT] = change_amount[change_amount.index > test_start_data]
-            train[self.CHANGE_DIRECTION] = change_direction[change_direction.index <= test_start_data]
-            test[self.CHANGE_DIRECTION] = change_direction[change_direction.index > test_start_data]
+            train[self.CHANGE_AMOUNT] = change_amount[change_amount.index <= test_start_date]
+            test[self.CHANGE_AMOUNT] = change_amount[change_amount.index > test_start_date]
+            train[self.CHANGE_DIRECTION] = change_direction[change_direction.index <= test_start_date]
+            test[self.CHANGE_DIRECTION] = change_direction[change_direction.index > test_start_date]
 
-        train[self.TODAY_PRICE] = today_price[today_price.index <= test_start_data]
-        test[self.TODAY_PRICE] = today_price[today_price.index > test_start_data]
+        train[self.TODAY_PRICE] = today_price[today_price.index <= test_start_date]
+        test[self.TODAY_PRICE] = today_price[today_price.index > test_start_date]
 
         test = test.dropna(how='any')
 
@@ -237,30 +245,28 @@ class StockForecaster(Constants):
                                                     end_date=end_date)
 
         train, test = self._process_data(data, test_start_date)
-
-        transformer = MinMaxScaler(feature_range=(-1, 1))
         label = pd.DataFrame(index=train.index)
         # label_test = pd.DataFrame(index=test.index)
 
         # prepare result label
         if isinstance(self._train_method, dict):
-            amount = train[self.CHANGE_AMOUNT].values.reshape(-1, 1)
+
+            if not self._using_percentage:
+                transformer = MinMaxScaler(feature_range=(-1, 1))
+                amount = train[self.CHANGE_AMOUNT].values.reshape(-1, 1)
+                label[self.CHANGE_AMOUNT] = transformer.fit_transform(amount)
+            else:
+                transformer = None
+                label[self.CHANGE_AMOUNT] = train[self.CHANGE_AMOUNT]
             label[self.CHANGE_DIRECTION] = train[self.CHANGE_DIRECTION]
             del train[self.CHANGE_AMOUNT]
             del train[self.CHANGE_DIRECTION]
-            label[self.CHANGE_AMOUNT] = transformer.fit_transform(amount)
-
-            # label_test[self.CHANGE_DIRECTION] = test[self.CHANGE_DIRECTION]
-            # label_test[self.CHANGE_AMOUNT] = test[self.CHANGE_AMOUNT]
-            # del test[self.CHANGE_DIRECTION]
-            # del test[self.CHANGE_AMOUNT]
 
         else:
+
+            transformer = MinMaxScaler(feature_range=(0, 1))
             label[self.TARGET_PRICE] = transformer.fit_transform(train[self.TARGET_PRICE].values.reshape(-1, 1))
             del train[self.TARGET_PRICE]
-
-            # label_test[self.TARGET_PRICE] = test[self.TARGET_PRICE]
-            # del test[self.TARGET_PRICE]
 
         model = self._train_model(train, label)
 
@@ -271,17 +277,26 @@ class StockForecaster(Constants):
             today = row[self.TODAY_PRICE]
             change_amount = row['AmountPrediction']
             direction = row['DirPrediction']
-            if direction == 1:
-                return today + change_amount
+            if self._using_percentage:
+                if direction == 1:
+                    return today * (1 + change_amount)
+                else:
+                    return today * (1 - change_amount)
             else:
-                return today - change_amount
+                if direction == 1:
+                    return today + change_amount
+                else:
+                    return today - change_amount
 
         if isinstance(self._train_method, dict):
-            result['AmountPrediction'] = transformer.inverse_transform(result['AmountPrediction'].values.reshape(-1, 1))
+            if not self._using_percentage:
+                result['AmountPrediction'] = transformer.inverse_transform(result['AmountPrediction']
+                                                                           .values.reshape(-1, 1))
 
             result['prediction'] = result.apply(reconstruct_price, axis=1)
 
         else:
-            result['prediction'] = transformer.inverse_transform(result['prediction'].values.reshape(-1, 1))
+            if not self._using_percentage:
+                result['prediction'] = transformer.inverse_transform(result['prediction'].values.reshape(-1, 1))
 
         return result
