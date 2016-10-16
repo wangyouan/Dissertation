@@ -34,10 +34,10 @@ class SparkTrainingSystem(Constants):
             features[self.TARGET_PRICE] = label[self.TARGET_PRICE]
         return self._train_model_spark(data=features)
 
-    def predict(self, data):
-        return self._predict_stock_price_spark(data)
+    def predict(self, features):
+        return self._predict(features)
 
-    def _predict_stock_price_spark(self, features):
+    def _predict(self, features):
         df = self._prepare_data_spark(features)
         if isinstance(self._model, dict):
             df = self._model[self.CHANGE_DIRECTION].transform(df)

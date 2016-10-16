@@ -17,7 +17,7 @@ class Constants(object):
     CHANGE_DIRECTION = 'ChangeDirection'
     CHANGE_AMOUNT = 'ChangeAmount'
     SPARK = 'Spark'
-    TENSOR_FLOW = 'TensorFlow'
+    TENSORFLOW = 'TensorFlow'
 
     # information used in stock price info
     STOCK_PRICE = "stock_price"

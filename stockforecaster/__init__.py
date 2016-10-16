@@ -19,7 +19,8 @@ from pyspark.sql import SparkSession
 from stockforecaster.constant import Constants
 from stockforecaster.datacollect import DataCollect
 from stockforecaster.regression_method.neural_network_regression_spark import KerasNeuralNetworkSpark
-from stockforecaster.prediction_system.train_with_spark import SparkTrainingSystem
+from stockforecaster.prediction_system.spark_train_system import SparkTrainingSystem
+from stockforecaster.prediction_system.tensorflow_train_system import TensorFlowTrainingSystem
 
 LINEAR_REGRESSION_ITERATION_TIMES = 100000
 RANDOM_FOREST_TREE_NUMBER = 30
@@ -41,8 +42,6 @@ class StockForecaster(Constants):
 
         self._stock_symbol = stock_symbol
 
-        self._train_system = train_system
-
         self._using_percentage = using_percentage
 
         self._predict_system = None
@@ -54,9 +53,13 @@ class StockForecaster(Constants):
             logger = spark._jvm.org.apache.log4j.LogManager
             self.logger = logger.getLogger(self.__class__.__name__)
             self._predict_system = SparkTrainingSystem(spark, self._train_method)
-        else:
+
+        elif train_system == self.TENSORFLOW:
+            self._predict_system = TensorFlowTrainingSystem(self._train_method)
             logger = logging
             self.logger = logging.getLogger(self.__class__.__name__)
+        else:
+            raise ValueError('Unknown training system {}'.format(train_system))
 
         self._data_collect = DataCollect(stock_symbol, logger=logger, data_path=data_path)
 
