@@ -18,11 +18,11 @@ data_path = '/Users/warn/PycharmProjects/Dissertation/data'
 
 if __name__ == '__main__':
     sf = SF(stock_symbol=stock_symbol, data_path=data_path,
-            train_method={
-                SF.CHANGE_DIRECTION: SF.RANDOM_FOREST,
-                SF.CHANGE_AMOUNT: SF.ARTIFICIAL_NEURAL_NETWORK
-            },
-            # train_method=SF.RANDOM_FOREST,
+            # train_method={
+            #     SF.CHANGE_DIRECTION: SF.RANDOM_FOREST,
+            #     SF.CHANGE_AMOUNT: SF.ARTIFICIAL_NEURAL_NETWORK
+            # },
+            train_method=SF.RANDOM_FOREST,
             train_system=SF.SPARK, using_percentage=True)
 
     result = sf.main_process(start_date=start_date, end_date=end_date, test_start_date=test_date)

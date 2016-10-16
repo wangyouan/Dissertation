@@ -7,10 +7,6 @@
 # Date: 15/10/2016
 
 import numpy as np
-import pandas as pd
-
-from pyspark.sql.functions import udf
-from pyspark.sql.types import FloatType
 
 from keras.models import Sequential
 from keras.layers.core import Dense

@@ -10,19 +10,16 @@ import logging
 
 import numpy as np
 import pandas as pd
-
-from pyspark.sql import SparkSession
-from pyspark.ml.feature import VectorAssembler
-from pyspark.ml.regression import LinearRegression, RandomForestRegressor
-from pyspark.ml.classification import LogisticRegression, RandomForestClassifier, MultilayerPerceptronClassifier
-
-from sklearn.preprocessing import MinMaxScaler, StandardScaler
 from sklearn.decomposition import PCA
 from sklearn.pipeline import Pipeline
+from sklearn.preprocessing import MinMaxScaler, StandardScaler
+
+from pyspark.sql import SparkSession
 
 from stockforecaster.constant import Constants
 from stockforecaster.datacollect import DataCollect
-from stockforecaster.neural_network import KerasNeuralNetworkSpark
+from stockforecaster.regression_method.neural_network_regression_spark import KerasNeuralNetworkSpark
+from stockforecaster.prediction_system.train_with_spark import SparkTrainingSystem
 
 LINEAR_REGRESSION_ITERATION_TIMES = 100000
 RANDOM_FOREST_TREE_NUMBER = 30
@@ -48,133 +45,20 @@ class StockForecaster(Constants):
 
         self._using_percentage = using_percentage
 
+        self._predict_system = None
+
         if train_system == self.SPARK:
             name = "{}_{}_{}".format(self.__class__.__name__, stock_symbol, train_method)
-            self._spark = SparkSession.builder.appName(name).getOrCreate()
+            spark = SparkSession.builder.appName(name).getOrCreate()
 
-            logger = self._spark._jvm.org.apache.log4j.LogManager
+            logger = spark._jvm.org.apache.log4j.LogManager
             self.logger = logger.getLogger(self.__class__.__name__)
+            self._predict_system = SparkTrainingSystem(spark, self._train_method)
         else:
             logger = logging
             self.logger = logging.getLogger(self.__class__.__name__)
 
         self._data_collect = DataCollect(stock_symbol, logger=logger, data_path=data_path)
-
-    def _predict_stock_price(self, model, features):
-        if self._train_system == self.SPARK:
-            return self._predict_stock_price_spark(model=model, features=features)
-
-    def _predict_stock_price_spark(self, model, features):
-        df = self._prepare_data_spark(features)
-        if isinstance(model, dict):
-            df = model[self.CHANGE_DIRECTION].transform(df)
-            df = model[self.CHANGE_AMOUNT].transform(df)
-        else:
-            df = model.transform(df)
-
-        pdf = df.toPandas()
-        pdf['Date'] = features.index
-        return pdf.set_index('Date')
-
-    def _train_model(self, features, label):
-        if self._train_system == self.SPARK:
-            if isinstance(self._train_method, dict):
-                features[self.CHANGE_AMOUNT] = label[self.CHANGE_AMOUNT]
-                features[self.CHANGE_DIRECTION] = label[self.CHANGE_DIRECTION]
-            else:
-                features[self.TARGET_PRICE] = label[self.TARGET_PRICE]
-            return self._train_model_spark(data=features)
-
-    def _train_model_spark(self, data):
-        df = self._prepare_data_spark(data)
-        input_num = len(data.keys().difference({self.CHANGE_AMOUNT, self.CHANGE_DIRECTION, self.TARGET_PRICE,
-                                                self.TODAY_PRICE}))
-        ann_layers = [input_num, input_num / 3 * 2, input_num / 3, 2]
-        if isinstance(self._train_method, dict):
-            model = {self.CHANGE_AMOUNT: None,
-                     self.CHANGE_DIRECTION: None}
-
-            if self._train_method[self.CHANGE_AMOUNT] == self.LINEAR_REGRESSION:
-                lr = LinearRegression(featuresCol="features", labelCol=self.CHANGE_AMOUNT,
-                                      maxIter=LINEAR_REGRESSION_ITERATION_TIMES,
-                                      predictionCol='AmountPrediction')
-                model[self.CHANGE_AMOUNT] = lr.fit(df)
-            elif self._train_method[self.CHANGE_AMOUNT] == self.RANDOM_FOREST:
-                rfr = RandomForestRegressor(featuresCol="features", labelCol=self.CHANGE_AMOUNT,
-                                            numTrees=RANDOM_FOREST_TREE_NUMBER,
-                                            maxDepth=RANDOM_FOREST_DEPTH, predictionCol='AmountPrediction')
-                model[self.CHANGE_AMOUNT] = rfr.fit(df)
-            elif self._train_method[self.CHANGE_AMOUNT] == self.ARTIFICIAL_NEURAL_NETWORK:
-                ann_layers[-1] = 1
-                model[self.CHANGE_AMOUNT] = KerasNeuralNetworkSpark(layers=ann_layers, spark=self._spark,
-                                                                    num_workers=WORKER_NUMBERS, epoch=100,
-                                                                    featuresCol="features", labelCol=self.CHANGE_AMOUNT,
-                                                                    predictionCol='AmountPrediction'
-                                                                    )
-                model[self.CHANGE_AMOUNT].fit(df)
-            else:
-                self.logger.warn('Unsupported training method {}'.format(self._train_method))
-                raise ValueError('Unsupported training method {}'.format(self._train_method))
-
-            if self._train_method[self.CHANGE_DIRECTION] == self.LOGISTIC_REGRESSION:
-                lr = LogisticRegression(featuresCol="features", labelCol=self.CHANGE_DIRECTION,
-                                        maxIter=LINEAR_REGRESSION_ITERATION_TIMES,
-                                        predictionCol='DirPrediction')
-                model[self.CHANGE_DIRECTION] = lr.fit(df)
-            elif self._train_method[self.CHANGE_DIRECTION] == self.RANDOM_FOREST:
-                rfc = RandomForestClassifier(featuresCol="features", labelCol=self.CHANGE_DIRECTION,
-                                             numTrees=RANDOM_FOREST_TREE_NUMBER,
-                                             maxDepth=RANDOM_FOREST_DEPTH, predictionCol='DirPrediction')
-                model[self.CHANGE_DIRECTION] = rfc.fit(df)
-
-            elif self._train_method[self.CHANGE_DIRECTION] == self.ARTIFICIAL_NEURAL_NETWORK:
-                ann_layers[-1] = 2
-                mlpc = MultilayerPerceptronClassifier(featuresCol="features", labelCol=self.CHANGE_DIRECTION,
-                                                      layers=ann_layers,
-                                                      predictionCol='DirPrediction')
-                model[self.CHANGE_DIRECTION] = mlpc.fit(df)
-
-            else:
-                self.logger.warn('Unsupported training method {}'.format(self._train_method))
-                raise ValueError('Unsupported training method {}'.format(self._train_method))
-
-        else:
-            if self._train_method == self.LINEAR_REGRESSION:
-                lr = LinearRegression(featuresCol="features", labelCol=self.TARGET_PRICE, predictionCol='prediction',
-                                      maxIter=LINEAR_REGRESSION_ITERATION_TIMES)
-                model = lr.fit(df)
-            elif self._train_method == self.RANDOM_FOREST:
-                rfr = RandomForestRegressor(featuresCol="features", labelCol=self.TARGET_PRICE,
-                                            predictionCol='prediction', numTrees=RANDOM_FOREST_TREE_NUMBER,
-                                            maxDepth=RANDOM_FOREST_DEPTH)
-                model = rfr.fit(df)
-
-            elif self._train_method == self.ARTIFICIAL_NEURAL_NETWORK:
-                ann_layers[-1] = 1
-                model = KerasNeuralNetworkSpark(layers=ann_layers, spark=self._spark,
-                                                num_workers=WORKER_NUMBERS, epoch=100,
-                                                featuresCol="features", labelCol=self.TARGET_PRICE,
-                                                predictionCol='prediction'
-                                                )
-                model.fit(df)
-
-            else:
-                self.logger.warn('Unsupported training method {}'.format(self._train_method))
-                raise ValueError('Unsupported training method {}'.format(self._train_method))
-
-        return model
-
-    def _prepare_data_spark(self, data):
-        """ Prepare data for spark format, output data will have the feature format and other useful information """
-
-        keys = list(data.keys().difference({self.CHANGE_AMOUNT, self.CHANGE_DIRECTION, self.TARGET_PRICE,
-                                            self.TODAY_PRICE}))
-
-        df = self._spark.createDataFrame(data)
-        ass = VectorAssembler(inputCols=keys, outputCol="features")
-        output = ass.transform(df)
-        # output.select('features', 'ChangeDirection', 'ChangeAmount').write.save('test.parquet')
-        return output
 
     def _process_data(self, input_data, test_start_date):
         train = input_data[input_data.index <= test_start_date]
@@ -281,9 +165,9 @@ class StockForecaster(Constants):
             label[self.TARGET_PRICE] = transformer.fit_transform(train[self.TARGET_PRICE].values.reshape(-1, 1))
             del train[self.TARGET_PRICE]
 
-        model = self._train_model(train, label)
+        self._predict_system.train(train, label)
 
-        result = self._predict_stock_price(model=model, features=test)
+        result = self._predict_system.predict(test)
 
         # restore prediction price to ordinary mode
         def reconstruct_price(row):
