@@ -19,7 +19,7 @@ done
 #fi
 
 #git pull origin dev
-python package.py bdist_egg
+python package_inference.py bdist_egg
 
 echo "Build success, clean processing files"
 
