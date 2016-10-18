@@ -8,4 +8,4 @@ spark-submit --master local[${WORKER_NUM}] \
     --driver-memory	1g \
     --executor-memory 1g \
     --conf "spark.driver.extraJavaOptions=-Dlog4j.configuration=file:./logs/log4j.properties" \
-    src/stockforecaster/test_current_code
+    src/stockforecaster/test_current_code.py
