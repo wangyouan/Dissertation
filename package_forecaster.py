@@ -22,7 +22,9 @@ setup(
         'scikit-learn',
         'numpy',
         'pandas',
-        'quandl'
+        'quandl',
+        'keras',
+        'elephas'
     ],
     classifiers=[
         "Programming Language :: Python :: 2.7"
