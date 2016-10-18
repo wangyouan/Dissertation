@@ -6,6 +6,9 @@
 # Author: Mark Wang
 # Date: 14/10/2016
 
+
+import os
+
 from stockforecaster import StockForecaster as SF
 from stockforecaster.util.evaluate_func import calculate_mean_squared_error, \
     calculate_success_direction_prediction_rate, calculate_mean_absolute_percentage_error
@@ -14,7 +17,10 @@ stock_symbol = '0018.HK'
 start_date = '2013-01-06'
 end_date = '2016-01-06'
 test_date = '2015-01-06'
-data_path = '/Users/warn/PycharmProjects/Dissertation/data'
+if os.uname()[1] == 'ewin3011':
+    data_path = '/home/wangzg/Documents/WangYouan/.dissertation/Dissertation/data'
+else:
+    data_path = '/Users/warn/PycharmProjects/Dissertation/data'
 
 if __name__ == '__main__':
     sf = SF(stock_symbol=stock_symbol, data_path=data_path,
