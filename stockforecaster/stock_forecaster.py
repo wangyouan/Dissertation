@@ -21,11 +21,6 @@ from stockforecaster.datacollect import DataCollect
 from stockforecaster.prediction_system.spark_train_system import SparkTrainingSystem
 from stockforecaster.prediction_system.tensorflow_train_system import TensorFlowTrainingSystem
 
-LINEAR_REGRESSION_ITERATION_TIMES = 100000
-RANDOM_FOREST_TREE_NUMBER = 30
-RANDOM_FOREST_DEPTH = 20
-WORKER_NUMBERS = 2
-
 
 class StockForecaster(Constants):
     def __init__(self, stock_symbol, data_path=None, train_method=None, train_system='Spark', using_percentage=True):

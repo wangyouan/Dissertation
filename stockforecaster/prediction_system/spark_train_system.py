@@ -13,11 +13,6 @@ from pyspark.ml.regression import LinearRegression, RandomForestRegressor
 from stockforecaster.constant import Constants
 from stockforecaster.regression_method.neural_network_regression_spark import KerasNeuralNetworkSpark
 
-LINEAR_REGRESSION_ITERATION_TIMES = 100000
-RANDOM_FOREST_TREE_NUMBER = 30
-RANDOM_FOREST_DEPTH = 20
-WORKER_NUMBERS = 2
-
 
 class SparkTrainingSystem(Constants):
     def __init__(self, spark, training_method):
@@ -60,18 +55,21 @@ class SparkTrainingSystem(Constants):
 
             if self._train_method[self.CHANGE_AMOUNT] == self.LINEAR_REGRESSION:
                 lr = LinearRegression(featuresCol="features", labelCol=self.CHANGE_AMOUNT,
-                                      maxIter=LINEAR_REGRESSION_ITERATION_TIMES,
+                                      maxIter=self.linear_regression_training_times,
+                                      regParam=self.linear_regression_regularization_parameter,
                                       predictionCol='AmountPrediction')
                 self._model[self.CHANGE_AMOUNT] = lr.fit(df)
             elif self._train_method[self.CHANGE_AMOUNT] == self.RANDOM_FOREST:
                 rfr = RandomForestRegressor(featuresCol="features", labelCol=self.CHANGE_AMOUNT,
-                                            numTrees=RANDOM_FOREST_TREE_NUMBER,
-                                            maxDepth=RANDOM_FOREST_DEPTH, predictionCol='AmountPrediction')
+                                            numTrees=self.random_forest_tree_number,
+                                            maxDepth=self.random_forest_tree_max_depth,
+                                            predictionCol='AmountPrediction')
                 self._model[self.CHANGE_AMOUNT] = rfr.fit(df)
             elif self._train_method[self.CHANGE_AMOUNT] == self.ARTIFICIAL_NEURAL_NETWORK:
                 ann_layers[-1] = 1
                 self._model[self.CHANGE_AMOUNT] = KerasNeuralNetworkSpark(layers=ann_layers, spark=self._spark,
-                                                                          num_workers=WORKER_NUMBERS, epoch=100,
+                                                                          num_workers=self.spark_worker_numbers,
+                                                                          epoch=self.ann_epoch_number,
                                                                           featuresCol="features",
                                                                           labelCol=self.CHANGE_AMOUNT,
                                                                           predictionCol='AmountPrediction'
@@ -83,18 +81,21 @@ class SparkTrainingSystem(Constants):
 
             if self._train_method[self.CHANGE_DIRECTION] == self.LOGISTIC_REGRESSION:
                 lr = LogisticRegression(featuresCol="features", labelCol=self.CHANGE_DIRECTION,
-                                        maxIter=LINEAR_REGRESSION_ITERATION_TIMES,
+                                        maxIter=self.logistic_regression_training_times,
+                                        regParam=self.linear_regression_regularization_parameter,
                                         predictionCol='DirPrediction')
                 self._model[self.CHANGE_DIRECTION] = lr.fit(df)
             elif self._train_method[self.CHANGE_DIRECTION] == self.RANDOM_FOREST:
                 rfc = RandomForestClassifier(featuresCol="features", labelCol=self.CHANGE_DIRECTION,
-                                             numTrees=RANDOM_FOREST_TREE_NUMBER,
-                                             maxDepth=RANDOM_FOREST_DEPTH, predictionCol='DirPrediction')
+                                             numTrees=self.random_forest_tree_number,
+                                             maxDepth=self.random_forest_tree_max_depth,
+                                             predictionCol='DirPrediction')
                 self._model[self.CHANGE_DIRECTION] = rfc.fit(df)
 
             elif self._train_method[self.CHANGE_DIRECTION] == self.ARTIFICIAL_NEURAL_NETWORK:
                 ann_layers[-1] = 2
-                mlpc = MultilayerPerceptronClassifier(featuresCol="features", labelCol=self.CHANGE_DIRECTION,
+                mlpc = MultilayerPerceptronClassifier(featuresCol="features",
+                                                      labelCol=self.CHANGE_DIRECTION,
                                                       layers=ann_layers,
                                                       predictionCol='DirPrediction')
                 self._model[self.CHANGE_DIRECTION] = mlpc.fit(df)
@@ -106,18 +107,20 @@ class SparkTrainingSystem(Constants):
         else:
             if self._train_method == self.LINEAR_REGRESSION:
                 lr = LinearRegression(featuresCol="features", labelCol=self.TARGET_PRICE, predictionCol='prediction',
-                                      maxIter=LINEAR_REGRESSION_ITERATION_TIMES)
+                                      regParam=self.linear_regression_regularization_parameter,
+                                      maxIter=self.linear_regression_training_times)
                 self._model = lr.fit(df)
             elif self._train_method == self.RANDOM_FOREST:
                 rfr = RandomForestRegressor(featuresCol="features", labelCol=self.TARGET_PRICE,
-                                            predictionCol='prediction', numTrees=RANDOM_FOREST_TREE_NUMBER,
-                                            maxDepth=RANDOM_FOREST_DEPTH)
+                                            predictionCol='prediction',
+                                            numTrees=self.random_forest_tree_number,
+                                            maxDepth=self.random_forest_tree_max_depth)
                 self._model = rfr.fit(df)
 
             elif self._train_method == self.ARTIFICIAL_NEURAL_NETWORK:
                 ann_layers[-1] = 1
                 self._model = KerasNeuralNetworkSpark(layers=ann_layers, spark=self._spark,
-                                                      num_workers=WORKER_NUMBERS, epoch=100,
+                                                      num_workers=self.spark_worker_numbers, epoch=100,
                                                       featuresCol="features", labelCol=self.TARGET_PRICE,
                                                       predictionCol='prediction'
                                                       )

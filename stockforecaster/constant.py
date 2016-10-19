@@ -6,8 +6,10 @@
 # Author: Mark Wang
 # Date: 30/5/2016
 
+from parameters import Parameters
 
-class Constants(object):
+
+class Constants(Parameters):
     PRICE_TYPE = "price type"
     DATE = "Date"
     DIRECTION_PREDICTION = 'Direction'
