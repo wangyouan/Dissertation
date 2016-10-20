@@ -19,27 +19,36 @@ from elephas import optimizers as elephas_optimizers
 class KerasNeuralNetworkSpark(object):
     def __init__(self, layers, spark, batch_size=64, epoch=10, num_workers=2, predictionCol='prediction',
                  labelCol='target', featuresCol='feature'):
+        self._batch_size = batch_size
+        self._epoch = epoch
+        self._model = None
+        self._spark = spark
+        self._labels = labelCol
+        self._features = featuresCol
+        self._prediction = predictionCol
+        self._layers = layers
+        self._worker_num = num_workers
+        self._build_model()
+
+    def _build_model(self):
         model = Sequential()
+        adam = elephas_optimizers.Adam()
+        layers = self._layers
         model.add(Dense(layers[1], input_dim=layers[0], init='normal', activation='relu'))
         for i in range(2, len(layers) - 1):
             model.add(Dense(layers[i], activation='relu'))
 
         model.add(Dense(layers[-1], activation='sigmoid'))
-        self._batch_size = batch_size
-        self._epoch = epoch
-        adam = elephas_optimizers.Adam()
-        self._model = SparkModel(spark.sparkContext, model,
+        self._model = SparkModel(self._spark.sparkContext, model,
                                  optimizer=adam,
                                  frequency='epoch',
                                  mode='asynchronous',
                                  master_loss='mse',
-                                 num_workers=num_workers)
-        self._spark = spark
-        self._labels = labelCol
-        self._features = featuresCol
-        self._prediction = predictionCol
+                                 num_workers=self._worker_num)
 
     def fit(self, df):
+        if hasattr(self._model, 'server'):
+            self._model.server.terminate()
         pdf = df.toPandas()
 
         rdd = to_simple_rdd(self._spark.sparkContext, pdf[self._features], pdf[self._labels])

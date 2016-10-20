@@ -25,3 +25,5 @@ class Parameters(object):
 
     # spark parameters:
     spark_worker_numbers = 2
+    # spark_driver_memory = '1g'
+    # spark_executor_memory = '1g'

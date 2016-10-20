@@ -42,7 +42,8 @@ class StockForecaster(Constants):
 
         if train_system == self.SPARK:
             name = "{}_{}_{}".format(self.__class__.__name__, stock_symbol, train_method)
-            spark = SparkSession.builder.appName(name).getOrCreate()
+            spark = SparkSession.builder.appName(name)\
+                .config('spark.executor.instances', self.spark_worker_numbers).getOrCreate()
 
             logger = spark._jvm.org.apache.log4j.LogManager
             self.logger = logger.getLogger(self.__class__.__name__)
@@ -190,7 +191,6 @@ class StockForecaster(Constants):
             result['prediction'] = result.apply(reconstruct_price, axis=1)
 
         else:
-            if not self._using_percentage:
-                result['prediction'] = transformer.inverse_transform(result['prediction'].values.reshape(-1, 1))
+            result['prediction'] = transformer.inverse_transform(result['prediction'].values.reshape(-1, 1))
 
         return result
