@@ -20,6 +20,8 @@ end_date = '2016-01-06'
 test_date = '2015-01-06'
 if os.uname()[1] == 'ewin3011':
     data_path = '/home/wangzg/Documents/WangYouan/.dissertation/Dissertation/data'
+elif os.uname()[1] == 'Master':
+    data_path = '/home/hadoop/Projects/Dissertation/data'
 else:
     data_path = '/Users/warn/PycharmProjects/Dissertation/data'
 
