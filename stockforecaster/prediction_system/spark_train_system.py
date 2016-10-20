@@ -50,6 +50,8 @@ class SparkTrainingSystem(Constants):
                                                 self.TODAY_PRICE}))
         ann_layers = [input_num, input_num / 3 * 2, input_num / 3, 2]
         if isinstance(self._train_method, dict):
+            if self._model is not None and self._train_method[self.CHANGE_AMOUNT] == self.ARTIFICIAL_NEURAL_NETWORK:
+                self._model[self.CHANGE_AMOUNT].stop_server()
             self._model = {self.CHANGE_AMOUNT: None,
                            self.CHANGE_DIRECTION: None}
 
@@ -119,6 +121,8 @@ class SparkTrainingSystem(Constants):
 
             elif self._train_method == self.ARTIFICIAL_NEURAL_NETWORK:
                 ann_layers[-1] = 1
+                if self._model is not None:
+                    self._model.stop_server()
                 self._model = KerasNeuralNetworkSpark(layers=ann_layers, spark=self._spark,
                                                       num_workers=self.spark_worker_numbers, epoch=100,
                                                       featuresCol="features", labelCol=self.TARGET_PRICE,

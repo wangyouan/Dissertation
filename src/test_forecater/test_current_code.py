@@ -37,7 +37,7 @@ if __name__ == '__main__':
 
     train_method = SF.ARTIFICIAL_NEURAL_NETWORK
 
-    for window_size in [None, 1, 3, 6][3:4]:
+    for window_size in [None, 1, 3, 6]:
         print 'test_result_window_size_{}.csv'.format(window_size)
 
         result = predict_stock_price_spark(stock_symbol=stock_symbol, data_path=data_path,

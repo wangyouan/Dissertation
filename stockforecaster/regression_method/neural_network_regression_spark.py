@@ -73,3 +73,7 @@ class KerasNeuralNetworkSpark(object):
         new_df = self._spark.createDataFrame(pdf)
         # df.join(new_df)
         return new_df
+
+    def stop_server(self):
+        if hasattr(self._model, 'server'):
+            self._model.server.terminate()
