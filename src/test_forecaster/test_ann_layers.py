@@ -76,4 +76,4 @@ if __name__ == '__main__':
                          'stock': stock,
                          'time': time.time() - start_time}
 
-    df.to_csv('result/layar_3_2.csv', index=False)
+    df.to_csv(os.path.join(root_path, 'result', 'layer_3.csv'), index=False)
