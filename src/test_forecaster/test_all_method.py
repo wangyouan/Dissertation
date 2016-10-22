@@ -64,7 +64,7 @@ if __name__ == '__main__':
                                                    "{}_{}".format(short_name_dict[train_method[SF.CHANGE_DIRECTION]],
                                                                   short_name_dict[train_method[SF.CHANGE_AMOUNT]]))
             else:
-                current_result_path = os.path.join(result_path, window_size, short_name_dict[train_method])
+                current_result_path = os.path.join(result_path, str(window_size), short_name_dict[train_method])
             if not os.path.isdir(current_result_path):
                 os.makedirs(current_result_path)
 
