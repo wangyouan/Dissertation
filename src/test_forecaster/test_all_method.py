@@ -60,7 +60,7 @@ if __name__ == '__main__':
              SF.CHANGE_DIRECTION: SF.ARTIFICIAL_NEURAL_NETWORK},
             SF.ARTIFICIAL_NEURAL_NETWORK, SF.LINEAR_REGRESSION, SF.RANDOM_FOREST,
         ]:
-            # print train_method
+            print train_method
             if isinstance(train_method, dict):
                 current_result_path = os.path.join(result_path, str(window_size),
                                                    "{}_{}".format(short_name_dict[train_method[SF.CHANGE_DIRECTION]],
@@ -68,7 +68,7 @@ if __name__ == '__main__':
             else:
                 current_result_path = os.path.join(result_path, str(window_size), short_name_dict[train_method])
 
-            # print current_result_path
+            print current_result_path
             if not os.path.isdir(current_result_path):
                 os.makedirs(current_result_path)
 
