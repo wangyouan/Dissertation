@@ -7,6 +7,7 @@
 # Date: 22/10/2016
 
 import os
+import time
 
 import pandas as pd
 
@@ -20,6 +21,7 @@ start_date = '2014-01-06'
 end_date = '2016-01-06'
 test_date = '2015-01-06'
 window_size = 3
+worker_number = 4
 if os.uname()[1] == 'ewin3011':
     root_path = '/home/wangzg/Documents/WangYouan/.dissertation/Dissertation'
 elif os.uname()[1] == 'Master':
@@ -44,22 +46,34 @@ short_name_dict = {SF.ARTIFICIAL_NEURAL_NETWORK: 'ann',
 if __name__ == '__main__':
     train_method = SF.ARTIFICIAL_NEURAL_NETWORK
 
-    df = pd.DataFrame(columns=['stock', 'sdpr', 'mse', 'mape'])
+    df = pd.DataFrame(columns=['stock', 'sdpr', 'mse', 'mape', 'time'])
 
     for i in range(len(hsi_stock_list)):
+        start_time = time.time()
         stock = hsi_stock_list[i]
         print 'start to get stock', stock
         save_file_name = '{}_{}_{}.csv'.format(stock[:4], short_name_dict.get(train_method), window_size)
 
-        result = predict_stock_price_spark(stock_symbol=stock, data_path=data_path, worker_num=4,
-                                           train_method=train_method, start_date=start_date, end_date=end_date,
-                                           test_date=test_date, window_size=window_size)
-        result.to_csv(os.path.join(root_path, 'result', save_file_name))
+        try:
 
-        df.loc[i] = {'sdpr': calculate_success_direction_prediction_rate(result, SF.TODAY_PRICE, 'prediction',
-                                                                         SF.TARGET_PRICE),
-                     'mse': calculate_mean_squared_error(result, 'prediction', SF.TARGET_PRICE),
-                     'mape': calculate_mean_absolute_percentage_error(result, 'prediction', SF.TARGET_PRICE),
-                     'stock': stock}
+            result = predict_stock_price_spark(stock_symbol=stock, data_path=data_path, worker_num=worker_number,
+                                               train_method=train_method, start_date=start_date, end_date=end_date,
+                                               test_date=test_date, window_size=window_size)
+        except Exception, err:
+            import traceback
 
-    df.to_csv('result/layar_3.csv', index=False)
+            traceback.print_exc()
+            print stock
+            break
+
+        else:
+            result[['Target', 'TodayPrice', 'prediction']].to_csv(os.path.join(root_path, 'result', save_file_name))
+
+            df.loc[i] = {'sdpr': calculate_success_direction_prediction_rate(result, SF.TODAY_PRICE, 'prediction',
+                                                                             SF.TARGET_PRICE),
+                         'mse': calculate_mean_squared_error(result, 'prediction', SF.TARGET_PRICE),
+                         'mape': calculate_mean_absolute_percentage_error(result, 'prediction', SF.TARGET_PRICE),
+                         'stock': stock,
+                         'time': time.time() - start_time}
+
+    df.to_csv('result/layar_3_2.csv', index=False)

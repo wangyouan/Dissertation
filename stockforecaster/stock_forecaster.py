@@ -108,7 +108,7 @@ class StockForecaster(Constants):
 
     def main_process(self, start_date, end_date, test_start_date):
         required_info = {
-            self.PRICE_TYPE: self.STOCK_CLOSE,
+            self.PRICE_TYPE: self.STOCK_ADJUSTED_CLOSED,
             self.STOCK_PRICE: {self.DATA_PERIOD: 1},
             self.TECHNICAL_INDICATOR: [
                 (self.MACD, {self.MACD_FAST_PERIOD: 12, self.MACD_SLOW_PERIOD: 26, self.MACD_TIME_PERIOD: 9}),
