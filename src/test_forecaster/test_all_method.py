@@ -76,7 +76,7 @@ if __name__ == '__main__':
                 start_time = time.time()
                 stock = hsi_stock_list[i]
                 print 'start to get stock', stock
-                save_file_name = '{}_{}_{}.csv'.format(stock[:4], short_name_dict.get(train_method), window_size)
+                save_file_name = '{}.csv'.format(stock[:4])
 
                 try:
 
