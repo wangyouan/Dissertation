@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-WORKER_NUM=10
+WORKER_NUM=5
 PACKAGE_NAME=stockforecaster-0.1-py2.7.egg
 
 spark-submit --master local[${WORKER_NUM}] \
@@ -8,4 +8,4 @@ spark-submit --master local[${WORKER_NUM}] \
     --driver-memory	1g \
     --executor-memory 1g \
     --conf "spark.driver.extraJavaOptions=-Dlog4j.configuration=file:./logs/log4j.properties" \
-    src/test_forecaster/test_current_code.py
+    src/test_forecaster/test_ann_layers.py
