@@ -30,6 +30,7 @@ else:
     root_path = '/Users/warn/PycharmProjects/Dissertation'
 
 data_path = os.path.join(root_path, 'data')
+result_path = os.path.join(root_path, 'result')
 
 hsi_stock_list = ['0001.HK', '0002.HK', '0003.HK', '0004.HK', '0005.HK', '0006.HK', '0011.HK', '0012.HK', '0016.HK',
                   '0017.HK', '0019.HK', '0023.HK', '0027.HK', '0066.HK', '0083.HK', '0101.HK', '0135.HK', '0144.HK',
@@ -48,6 +49,10 @@ if __name__ == '__main__':
 
     df = pd.DataFrame(columns=['stock', 'sdpr', 'mse', 'mape', 'time'])
 
+    current_result_path = os.path.join(result_path, window_size, short_name_dict[train_method])
+    if not os.path.isdir(current_result_path):
+        os.makedirs(current_result_path)
+
     for i in range(len(hsi_stock_list)):
         start_time = time.time()
         stock = hsi_stock_list[i]
@@ -56,8 +61,10 @@ if __name__ == '__main__':
 
         try:
 
-            result = predict_stock_price_spark(stock_symbol=stock, data_path=data_path, worker_num=worker_number,
-                                               train_method=train_method, start_date=start_date, end_date=end_date,
+            result = predict_stock_price_spark(stock_symbol=stock, data_path=data_path,
+                                               worker_num=worker_number,
+                                               train_method=train_method, start_date=start_date,
+                                               end_date=end_date,
                                                test_date=test_date, window_size=window_size)
         except Exception, err:
             import traceback
@@ -67,13 +74,15 @@ if __name__ == '__main__':
             break
 
         else:
-            result[['Target', 'TodayPrice', 'prediction']].to_csv(os.path.join(root_path, 'result', save_file_name))
+            result[['Target', 'TodayPrice', 'prediction']].to_csv(
+                os.path.join(current_result_path, save_file_name))
 
-            df.loc[i] = {'sdpr': calculate_success_direction_prediction_rate(result, SF.TODAY_PRICE, 'prediction',
-                                                                             SF.TARGET_PRICE),
-                         'mse': calculate_mean_squared_error(result, 'prediction', SF.TARGET_PRICE),
-                         'mape': calculate_mean_absolute_percentage_error(result, 'prediction', SF.TARGET_PRICE),
-                         'stock': stock,
-                         'time': time.time() - start_time}
+            df.loc[i] = {
+                'sdpr': calculate_success_direction_prediction_rate(result, SF.TODAY_PRICE, 'prediction',
+                                                                    SF.TARGET_PRICE),
+                'mse': calculate_mean_squared_error(result, 'prediction', SF.TARGET_PRICE),
+                'mape': calculate_mean_absolute_percentage_error(result, 'prediction', SF.TARGET_PRICE),
+                'stock': stock,
+                'time': time.time() - start_time}
 
-    df.to_csv(os.path.join(root_path, 'result', 'layer_3.csv'), index=False)
+    df.to_csv(os.path.join(current_result_path, 'statistics.csv'), index=False)

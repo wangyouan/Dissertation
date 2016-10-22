@@ -75,5 +75,5 @@ class KerasNeuralNetworkSpark(object):
         return new_df
 
     def stop_server(self):
-        if hasattr(self._model, 'server'):
+        if hasattr(self._model, 'server') and hasattr(self._model.server, 'terminate'):
             self._model.server.terminate()
