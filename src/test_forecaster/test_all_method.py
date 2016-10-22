@@ -60,7 +60,7 @@ if __name__ == '__main__':
                               SF.CHANGE_DIRECTION: SF.ARTIFICIAL_NEURAL_NETWORK}
                              ]:
             if isinstance(train_method, dict):
-                current_result_path = os.path.join(result_path, window_size,
+                current_result_path = os.path.join(result_path, str(window_size),
                                                    "{}_{}".format(short_name_dict[train_method[SF.CHANGE_DIRECTION]],
                                                                   short_name_dict[train_method[SF.CHANGE_AMOUNT]]))
             else:
