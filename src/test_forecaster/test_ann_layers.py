@@ -49,9 +49,9 @@ if __name__ == '__main__':
 
     df = pd.DataFrame(columns=['stock', 'sdpr', 'mse', 'mape', 'time'])
 
-    current_result_path = os.path.join(result_path, window_size, short_name_dict[train_method])
-    if not os.path.isdir(current_result_path):
-        os.makedirs(current_result_path)
+    # current_result_path = os.path.join(result_path, window_size, short_name_dict[train_method])
+    # if not os.path.isdir(current_result_path):
+    #     os.makedirs(current_result_path)
 
     for i in range(len(hsi_stock_list)):
         start_time = time.time()
@@ -75,7 +75,7 @@ if __name__ == '__main__':
 
         else:
             result[['Target', 'TodayPrice', 'prediction']].to_csv(
-                os.path.join(current_result_path, save_file_name))
+                os.path.join(result_path, save_file_name))
 
             df.loc[i] = {
                 'sdpr': calculate_success_direction_prediction_rate(result, SF.TODAY_PRICE, 'prediction',
@@ -85,4 +85,4 @@ if __name__ == '__main__':
                 'stock': stock,
                 'time': time.time() - start_time}
 
-    df.to_csv(os.path.join(current_result_path, 'statistics.csv'), index=False)
+    df.to_csv(os.path.join(result_path, 'statistics.csv'), index=False)
