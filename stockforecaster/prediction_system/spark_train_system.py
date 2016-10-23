@@ -51,7 +51,7 @@ class SparkTrainingSystem(Constants):
         ann_layers = [input_num,
                       # input_num / 3 * 2,
                       # input_num / 3,
-                      input_num / 2 + 1,
+                      input_num + 1,
                       2]
         if isinstance(self._train_method, dict):
             if self._model is not None and self._train_method[self.CHANGE_AMOUNT] == self.ARTIFICIAL_NEURAL_NETWORK:

@@ -22,7 +22,7 @@ end_date = '2016-01-06'
 test_date = '2015-01-06'
 window_size = 3
 worker_number = 4
-using_percent = False
+using_percent = True
 if os.uname()[1] == 'ewin3011':
     root_path = '/home/wangzg/Documents/WangYouan/.dissertation/Dissertation'
 elif os.uname()[1] == 'Master':
