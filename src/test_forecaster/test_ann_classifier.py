@@ -2,9 +2,9 @@
 # -*- coding: utf-8 -*-
 
 # Project: Dissertation
-# File name: test_ann_layers
+# File name: test_ann_classifier
 # Author: Mark Wang
-# Date: 22/10/2016
+# Date: 23/10/2016
 
 import os
 import time
@@ -22,6 +22,7 @@ end_date = '2016-01-06'
 test_date = '2015-01-06'
 window_size = 3
 worker_number = 4
+using_percent = False
 if os.uname()[1] == 'ewin3011':
     root_path = '/home/wangzg/Documents/WangYouan/.dissertation/Dissertation'
 elif os.uname()[1] == 'Master':
@@ -45,11 +46,12 @@ short_name_dict = {SF.ARTIFICIAL_NEURAL_NETWORK: 'ann',
                    SF.RANDOM_FOREST: 'rt'}
 
 if __name__ == '__main__':
-    train_method = SF.ARTIFICIAL_NEURAL_NETWORK
+    train_method = {SF.CHANGE_AMOUNT: SF.ARTIFICIAL_NEURAL_NETWORK,
+                    SF.CHANGE_DIRECTION: SF.ARTIFICIAL_NEURAL_NETWORK}
 
     df = pd.DataFrame(columns=['stock', 'sdpr', 'mse', 'mape', 'time'])
 
-    current_result_path = os.path.join(result_path, window_size, short_name_dict[train_method])
+    current_result_path = os.path.join(result_path, window_size, short_name_dict[train_method[SF.CHANGE_DIRECTION]])
     if not os.path.isdir(current_result_path):
         os.makedirs(current_result_path)
 
@@ -57,12 +59,12 @@ if __name__ == '__main__':
         start_time = time.time()
         stock = hsi_stock_list[i]
         print 'start to get stock', stock
-        save_file_name = '{}_{}_{}.csv'.format(stock[:4], short_name_dict.get(train_method), window_size)
+        save_file_name = '{}.csv'.format(stock[:4])
 
         try:
 
             result = predict_stock_price_spark(stock_symbol=stock, data_path=data_path,
-                                               worker_num=worker_number,
+                                               worker_num=worker_number, using_percentage=using_percent,
                                                train_method=train_method, start_date=start_date,
                                                end_date=end_date,
                                                test_date=test_date, window_size=window_size)
