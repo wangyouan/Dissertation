@@ -51,20 +51,24 @@ if __name__ == '__main__':
 
     for window_size in [None, 1, 3, 6]:
 
-        for train_method in [SF.ARTIFICIAL_NEURAL_NETWORK, SF.LINEAR_REGRESSION, SF.RANDOM_FOREST,
-                             {SF.CHANGE_AMOUNT: SF.ARTIFICIAL_NEURAL_NETWORK,
-                              SF.CHANGE_DIRECTION: SF.LOGISTIC_REGRESSION},
-                             {SF.CHANGE_AMOUNT: SF.LINEAR_REGRESSION,
-                              SF.CHANGE_DIRECTION: SF.RANDOM_FOREST},
-                             {SF.CHANGE_AMOUNT: SF.RANDOM_FOREST,
-                              SF.CHANGE_DIRECTION: SF.ARTIFICIAL_NEURAL_NETWORK}
-                             ]:
+        for train_method in [
+            {SF.CHANGE_AMOUNT: SF.ARTIFICIAL_NEURAL_NETWORK,
+             SF.CHANGE_DIRECTION: SF.LOGISTIC_REGRESSION},
+            {SF.CHANGE_AMOUNT: SF.LINEAR_REGRESSION,
+             SF.CHANGE_DIRECTION: SF.RANDOM_FOREST},
+            {SF.CHANGE_AMOUNT: SF.RANDOM_FOREST,
+             SF.CHANGE_DIRECTION: SF.ARTIFICIAL_NEURAL_NETWORK},
+            SF.ARTIFICIAL_NEURAL_NETWORK, SF.LINEAR_REGRESSION, SF.RANDOM_FOREST,
+        ]:
+            # print train_method
             if isinstance(train_method, dict):
                 current_result_path = os.path.join(result_path, str(window_size),
                                                    "{}_{}".format(short_name_dict[train_method[SF.CHANGE_DIRECTION]],
                                                                   short_name_dict[train_method[SF.CHANGE_AMOUNT]]))
             else:
                 current_result_path = os.path.join(result_path, str(window_size), short_name_dict[train_method])
+
+            print current_result_path
             if not os.path.isdir(current_result_path):
                 os.makedirs(current_result_path)
 
@@ -72,7 +76,7 @@ if __name__ == '__main__':
                 start_time = time.time()
                 stock = hsi_stock_list[i]
                 print 'start to get stock', stock
-                save_file_name = '{}_{}_{}.csv'.format(stock[:4], short_name_dict.get(train_method), window_size)
+                save_file_name = '{}.csv'.format(stock[:4])
 
                 try:
 
