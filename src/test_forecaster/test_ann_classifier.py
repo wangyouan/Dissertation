@@ -51,7 +51,7 @@ if __name__ == '__main__':
 
     df = pd.DataFrame(columns=['stock', 'sdpr', 'mse', 'mape', 'time'])
 
-    current_result_path = os.path.join(result_path, window_size, short_name_dict[train_method[SF.CHANGE_DIRECTION]])
+    current_result_path = os.path.join(result_path, short_name_dict[train_method[SF.CHANGE_DIRECTION]])
     if not os.path.isdir(current_result_path):
         os.makedirs(current_result_path)
 
