@@ -46,7 +46,7 @@ short_name_dict = {SF.ARTIFICIAL_NEURAL_NETWORK: 'ann',
                    SF.RANDOM_FOREST: 'rt'}
 
 if __name__ == '__main__':
-    train_method = {SF.CHANGE_AMOUNT: SF.ARTIFICIAL_NEURAL_NETWORK,
+    train_method = {SF.CHANGE_AMOUNT: SF.LINEAR_REGRESSION,
                     SF.CHANGE_DIRECTION: SF.ARTIFICIAL_NEURAL_NETWORK}
 
     df = pd.DataFrame(columns=['stock', 'sdpr', 'mse', 'mape', 'time'])
