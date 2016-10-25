@@ -25,6 +25,8 @@ if os.uname()[1] == 'ewin3011':
     root_path = '/home/wangzg/Documents/WangYouan/.dissertation/Dissertation'
 elif os.uname()[1] == 'Master':
     root_path = '/home/hadoop/Projects/Dissertation'
+elif os.uname()[1].startswith('warn-Inspiron'):
+    root_path = '/home/warn/PythonProjects/Dissertation'
 else:
     root_path = '/Users/warn/PycharmProjects/Dissertation'
 
@@ -44,7 +46,7 @@ short_name_dict = {SF.ARTIFICIAL_NEURAL_NETWORK: 'ann',
                    SF.RANDOM_FOREST: 'rt'}
 
 if __name__ == '__main__':
-    using_per = False
+    using_per = True
 
     df = pd.DataFrame(columns=['stock', 'sdpr', 'mse', 'mape', 'time'])
 
