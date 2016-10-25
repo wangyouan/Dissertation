@@ -16,7 +16,7 @@ from stockforecaster import StockForecaster as SF
 from stockforecaster.util.evaluate_func import calculate_mean_squared_error, \
     calculate_success_direction_prediction_rate, calculate_mean_absolute_percentage_error
 
-start_date = '2014-01-06'
+start_date = '2013-01-06'
 end_date = '2016-01-06'
 test_date = '2015-01-06'
 window_size = 3
@@ -50,44 +50,45 @@ if __name__ == '__main__':
 
     df = pd.DataFrame(columns=['stock', 'sdpr', 'mse', 'mape', 'time'])
 
-    for direction_method in [SF.ARTIFICIAL_NEURAL_NETWORK, SF.RANDOM_FOREST, SF.LOGISTIC_REGRESSION]:
-        train_method = {SF.CHANGE_AMOUNT: SF.LINEAR_REGRESSION,
-                        SF.CHANGE_DIRECTION: direction_method}
+    for using_per in [True, False]:
+        for direction_method in [SF.ARTIFICIAL_NEURAL_NETWORK, SF.RANDOM_FOREST, SF.LOGISTIC_REGRESSION]:
+            train_method = {SF.CHANGE_AMOUNT: SF.LINEAR_REGRESSION,
+                            SF.CHANGE_DIRECTION: direction_method}
 
-        current_path = os.path.join(result_path, '{}_{}'.format(short_name_dict.get(direction_method), using_per))
-        stock_path = os.path.join(current_path, 'stock')
-        if not os.path.isdir(stock_path):
-            os.makedirs(stock_path)
+            current_path = os.path.join(result_path, '{}_{}'.format(short_name_dict.get(direction_method), using_per))
+            stock_path = os.path.join(current_path, 'stock')
+            if not os.path.isdir(stock_path):
+                os.makedirs(stock_path)
 
-        for i in range(len(hsi_stock_list)):
-            start_time = time.time()
-            stock = hsi_stock_list[i]
-            print 'start to get stock', stock
-            save_file_name = '{}.csv'.format(stock[:4])
+            for i in range(len(hsi_stock_list)):
+                start_time = time.time()
+                stock = hsi_stock_list[i]
+                print 'start to get stock', stock
+                save_file_name = '{}.csv'.format(stock[:4])
 
-            try:
+                try:
 
-                result = predict_stock_price_spark(stock_symbol=stock, data_path=data_path,
-                                                   worker_num=worker_number,
-                                                   train_method=train_method, start_date=start_date,
-                                                   end_date=end_date, using_percentage=using_per,
-                                                   test_date=test_date, window_size=window_size)
-            except Exception, err:
-                import traceback
+                    result = predict_stock_price_spark(stock_symbol=stock, data_path=data_path,
+                                                       worker_num=worker_number,
+                                                       train_method=train_method, start_date=start_date,
+                                                       end_date=end_date, using_percentage=using_per,
+                                                       test_date=test_date, window_size=window_size)
+                except Exception, err:
+                    import traceback
 
-                traceback.print_exc()
-                print stock
-                break
+                    traceback.print_exc()
+                    print stock
+                    break
 
-            else:
-                result.to_csv(os.path.join(stock_path, save_file_name))
+                else:
+                    result.to_csv(os.path.join(stock_path, save_file_name))
 
-                df.loc[i] = {
-                    'sdpr': calculate_success_direction_prediction_rate(result, SF.TODAY_PRICE, 'prediction',
-                                                                        SF.TARGET_PRICE),
-                    'mse': calculate_mean_squared_error(result, 'prediction', SF.TARGET_PRICE),
-                    'mape': calculate_mean_absolute_percentage_error(result, 'prediction', SF.TARGET_PRICE),
-                    'stock': stock,
-                    'time': time.time() - start_time}
+                    df.loc[i] = {
+                        'sdpr': calculate_success_direction_prediction_rate(result, SF.TODAY_PRICE, 'prediction',
+                                                                            SF.TARGET_PRICE),
+                        'mse': calculate_mean_squared_error(result, 'prediction', SF.TARGET_PRICE),
+                        'mape': calculate_mean_absolute_percentage_error(result, 'prediction', SF.TARGET_PRICE),
+                        'stock': stock,
+                        'time': time.time() - start_time}
 
-        df.to_csv(os.path.join(current_path, 'statistics.csv'), index=False)
+            df.to_csv(os.path.join(current_path, 'statistics.csv'), index=False)
