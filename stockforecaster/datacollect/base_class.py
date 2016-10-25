@@ -128,6 +128,9 @@ class BaseClass(Constants):
             self.logger.debug('Start date is {}, end date is {}'.format(min(diff), max(diff)))
             if data_type == self.HIBOR:
                 file_name = self.HIBOR
+                if data_df.empty:
+                    data_df = pd.DataFrame(
+                        columns=['12 Months', '3 Months', 'Overnight', '1 Week', '6 Months', '1 Month', '2 Months'])
                 for miss_date in diff:
                     data_df.loc[miss_date] = get_hk_interest_rate(miss_date)
 
