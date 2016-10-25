@@ -170,7 +170,9 @@ class StockForecaster(Constants):
         # restore prediction price to ordinary mode
         def reconstruct_price(row):
             today = row[self.TODAY_PRICE]
-            change_amount = row['AmountPrediction']
+
+            # test using raw data
+            change_amount = abs(row['AmountPrediction'])
             direction = row['DirPrediction']
             if self._using_percentage:
                 if direction == 1:

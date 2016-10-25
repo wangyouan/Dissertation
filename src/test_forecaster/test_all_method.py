@@ -17,7 +17,7 @@ from stockforecaster.util.evaluate_func import calculate_mean_squared_error, \
     calculate_success_direction_prediction_rate, calculate_mean_absolute_percentage_error
 
 stock_symbol = '0011.HK'
-start_date = '2014-01-06'
+start_date = '2013-01-06'
 end_date = '2016-01-06'
 test_date = '2015-01-06'
 window_size = 3
@@ -49,7 +49,7 @@ if __name__ == '__main__':
 
     df = pd.DataFrame(columns=['stock', 'sdpr', 'mse', 'mape', 'time'])
 
-    for window_size in [None, 1, 3, 6]:
+    for window_size in [None, 3, 6]:
 
         for train_method in [
             {SF.CHANGE_AMOUNT: SF.ARTIFICIAL_NEURAL_NETWORK,
