@@ -16,7 +16,7 @@ from stockforecaster import StockForecaster as SF
 from stockforecaster.util.evaluate_func import calculate_mean_squared_error, \
     calculate_success_direction_prediction_rate, calculate_mean_absolute_percentage_error
 
-start_date = '2014-01-06'
+start_date = '2013-07-06'
 end_date = '2016-01-06'
 test_date = '2015-01-06'
 window_size = 1
