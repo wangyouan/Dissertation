@@ -16,10 +16,10 @@ from stockforecaster import StockForecaster as SF
 from stockforecaster.util.evaluate_func import calculate_mean_squared_error, \
     calculate_success_direction_prediction_rate, calculate_mean_absolute_percentage_error
 
-start_date = '2013-07-06'
+start_date = '2014-01-06'
 end_date = '2016-01-06'
 test_date = '2015-01-06'
-window_size = 3
+window_size = 1
 worker_number = 2
 if os.uname()[1] == 'ewin3011':
     root_path = '/home/wangzg/Documents/WangYouan/.dissertation/Dissertation'
@@ -48,10 +48,9 @@ short_name_dict = {SF.ARTIFICIAL_NEURAL_NETWORK: 'ann',
 if __name__ == '__main__':
     using_per = True
 
-    df = pd.DataFrame(columns=['stock', 'sdpr', 'mse', 'mape', 'time'])
-
     for using_per in [True, False]:
         for direction_method in [SF.ARTIFICIAL_NEURAL_NETWORK, SF.RANDOM_FOREST, SF.LOGISTIC_REGRESSION]:
+            df = pd.DataFrame(columns=['stock', 'sdpr', 'mse', 'mape', 'time'])
             train_method = {SF.CHANGE_AMOUNT: SF.LINEAR_REGRESSION,
                             SF.CHANGE_DIRECTION: direction_method}
 
