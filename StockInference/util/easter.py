@@ -4,7 +4,104 @@
 # File Name: easter
 # Created by warn on 10/27/16
 
-from pandas.tseries.offsets import DateOffset, apply_wraps, easter, datetime, tslib, date, _is_normalized
+from datetime import date, datetime, timedelta
+from pandas.compat import range
+from pandas import compat
+import numpy as np
+
+from pandas.types.generic import ABCSeries, ABCDatetimeIndex, ABCPeriod
+from pandas.tseries.tools import to_datetime, normalize_date
+from pandas.core.common import AbstractMethodError
+
+# import after tools, dateutil check
+from dateutil.relativedelta import relativedelta, weekday
+from dateutil.easter import easter
+import pandas.tslib as tslib
+from pandas.tslib import Timestamp, OutOfBoundsDatetime, Timedelta
+
+from pandas.tseries.offsets import Tick, DateOffset, Nano
+
+import functools
+import operator
+
+
+def as_timestamp(obj):
+    if isinstance(obj, Timestamp):
+        return obj
+    try:
+        return Timestamp(obj)
+    except (OutOfBoundsDatetime):
+        pass
+    return obj
+
+
+def as_datetime(obj):
+    f = getattr(obj, 'to_pydatetime', None)
+    if f is not None:
+        obj = f()
+    return obj
+
+
+def _is_normalized(dt):
+    if (dt.hour != 0 or dt.minute != 0 or dt.second != 0 or
+            dt.microsecond != 0 or getattr(dt, 'nanosecond', 0) != 0):
+        return False
+    return True
+
+
+def apply_wraps(func):
+    @functools.wraps(func)
+    def wrapper(self, other):
+        if other is tslib.NaT:
+            return tslib.NaT
+        elif isinstance(other, (timedelta, Tick, DateOffset)):
+            # timedelta path
+            return func(self, other)
+        elif isinstance(other, (np.datetime64, datetime, date)):
+            other = as_timestamp(other)
+
+        tz = getattr(other, 'tzinfo', None)
+        nano = getattr(other, 'nanosecond', 0)
+
+        try:
+            if self._adjust_dst and isinstance(other, Timestamp):
+                other = other.tz_localize(None)
+
+            result = func(self, other)
+            if self._adjust_dst:
+                result = tslib._localize_pydatetime(result, tz)
+
+            result = Timestamp(result)
+            if self.normalize:
+                result = result.normalize()
+
+            # nanosecond may be deleted depending on offset process
+            if not self.normalize and nano != 0:
+                if not isinstance(self, Nano) and result.nanosecond != nano:
+                    if result.tz is not None:
+                        # convert to UTC
+                        value = tslib.tz_convert_single(
+                            result.value, 'UTC', result.tz)
+                    else:
+                        value = result.value
+                    result = Timestamp(value + nano)
+
+            if tz is not None and result.tzinfo is None:
+                result = tslib._localize_pydatetime(result, tz)
+
+        except OutOfBoundsDatetime:
+            result = func(self, as_datetime(other))
+
+            if self.normalize:
+                # normalize_date returns normal datetime
+                result = normalize_date(result)
+
+            if tz is not None and result.tzinfo is None:
+                result = tslib._localize_pydatetime(result, tz)
+
+        return result
+
+    return wrapper
 
 
 class Easter(DateOffset):
