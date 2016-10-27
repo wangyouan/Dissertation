@@ -10,8 +10,10 @@ from pandas import DateOffset, DatetimeIndex, Series, Timestamp
 from pandas.compat import add_metaclass
 from datetime import datetime, timedelta
 from dateutil.relativedelta import MO, TU, WE, TH, FR, SA, SU  # noqa
-from pandas.tseries.offsets import Easter, Day
+from pandas.tseries.offsets import Day
 import numpy as np
+
+from StockInference.util.easter import Easter
 
 
 def next_monday(dt):
@@ -285,12 +287,12 @@ class Holiday(object):
             else:
                 offsets = self.offset
             for offset in offsets:
-
                 # if we are adding a non-vectorized value
                 # ignore the PerformanceWarnings:
                 with warnings.catch_warnings(record=True):
                     dates += offset
         return dates
+
 
 holiday_calendars = {}
 
@@ -316,7 +318,6 @@ def get_calendar(name):
 
 
 class HolidayCalendarMetaClass(type):
-
     def __new__(cls, clsname, bases, attrs):
         calendar_class = super(HolidayCalendarMetaClass, cls).__new__(
             cls, clsname, bases, attrs)
@@ -395,7 +396,7 @@ class AbstractHolidayCalendar(object):
         # If we don't have a cache or the dates are outside the prior cache, we
         # get them again
         if (self._cache is None or start < self._cache[0] or
-                end > self._cache[1]):
+                    end > self._cache[1]):
             for rule in self.rules:
                 rule_holidays = rule.dates(start, end, return_name=True)
 
@@ -466,6 +467,7 @@ class AbstractHolidayCalendar(object):
             self.rules = holidays
         else:
             return holidays
+
 
 USMemorialDay = Holiday('MemorialDay', month=5, day=31,
                         offset=DateOffset(weekday=MO(-1)))
