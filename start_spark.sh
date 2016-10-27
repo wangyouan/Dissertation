@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-start_date="2013-01-06"
+start_date="2013-07-06"
 end_date="2015-01-06"
 test_ratio="2014-01-06"
 
