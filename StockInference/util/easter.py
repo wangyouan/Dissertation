@@ -5,24 +5,18 @@
 # Created by warn on 10/27/16
 
 from datetime import date, datetime, timedelta
-from pandas.compat import range
-from pandas import compat
 import numpy as np
 
-from pandas.types.generic import ABCSeries, ABCDatetimeIndex, ABCPeriod
-from pandas.tseries.tools import to_datetime, normalize_date
-from pandas.core.common import AbstractMethodError
+from pandas.tseries.tools import normalize_date
 
 # import after tools, dateutil check
-from dateutil.relativedelta import relativedelta, weekday
 from dateutil.easter import easter
 import pandas.tslib as tslib
-from pandas.tslib import Timestamp, OutOfBoundsDatetime, Timedelta
+from pandas.tslib import Timestamp, OutOfBoundsDatetime
 
 from pandas.tseries.offsets import Tick, DateOffset, Nano
 
 import functools
-import operator
 
 
 def as_timestamp(obj):
