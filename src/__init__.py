@@ -7,7 +7,7 @@
 # Date: 9/5/2016
 
 
-start_date = "2012-01-06"
+start_date = "2013-01-06"
 end_date = "2016-01-06"
 test_ratio = "2015-01-06"
 

@@ -15,7 +15,7 @@ import traceback
 from StockInference.composition_prediction_system import MixInferenceSystem
 from StockInference.util.data_parse import *
 from StockInference.constant import Constants
-from __init__ import start_date, end_date, test_ratio, predict_list
+from __init__ import start_date, end_date, test_ratio
 
 const = Constants()
 test_times = 1
@@ -109,7 +109,7 @@ for amount_method, trend_method in zip(amount_method_list, trend_method_list):
     f.write('stock,MSE,MAPE,MAD,RMSE,CDC,HMSE,ME,test_time\n')
     # for stock in stock_list[:10]:
     start_time = time.time()
-    for stock in predict_list:
+    for stock in stock_list:
         me = 0.0
         mse = 0.0
         mape = 0.0
