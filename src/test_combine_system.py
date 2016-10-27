@@ -86,16 +86,15 @@ if sys.platform == 'darwin':
 
 if not os.path.isdir(data_path):
     os.makedirs(data_path)
-stock_list = ['0001.HK', '0002.HK', '0003.HK', '0004.HK', '0005.HK', '0006.HK', '0007.HK', '0008.HK', '0009.HK',
-              '0010.HK', '0011.HK', '0012.HK', '0013.HK', '0014.HK', '0015.HK', '0016.HK', '0017.HK', '0018.HK',
-              '0019.HK', '0020.HK', '0021.HK', '0022.HK', '0023.HK', '0024.HK', '0025.HK', '0026.HK', '0027.HK',
-              '0028.HK', '0029.HK', '0030.HK', '0031.HK', '0032.HK', '0700.HK', '0034.HK', '0035.HK', '0688.HK',
-              '0068.HK', '0038.HK', '0039.HK', '0040.HK', '0041.HK', '0042.HK', '0043.HK', '0044.HK', '0045.HK',
-              '0046.HK', '0088.HK', '0050.HK', '0051.HK', '0052.HK', '0053.HK', '0054.HK', '0168.HK', '0056.HK',
-              '0057.HK', '0058.HK', '0059.HK', '0060.HK', '0888.HK', '0062.HK', '0063.HK', '0064.HK', '0065.HK',
-              '0066.HK', '1123.HK']
+stock_list = ['0001.HK', '0002.HK', '0003.HK', '0004.HK', '0005.HK', '0006.HK', '0011.HK', '0012.HK', '0016.HK',
+              '0017.HK', '0019.HK', '0023.HK', '0027.HK', '0066.HK', '0083.HK', '0101.HK', '0135.HK', '0144.HK',
+              '0151.HK', '0267.HK', '0293.HK', '0386.HK', '0388.HK', '0494.HK', '0688.HK', '0700.HK', '0762.HK',
+              '0823.HK', '0836.HK', '0857.HK', '0883.HK', '0939.HK', '0941.HK', '0992.HK', '1038.HK', '1044.HK',
+              '1088.HK', '1109.HK', '1299.HK', '1398.HK', '1880.HK', '1928.HK', '2018.HK', '2318.HK', '2319.HK',
+              '2388.HK', '2628.HK', '3328.HK', '3988.HK', '6823.HK']
 
-amount_method_list = [const.ARTIFICIAL_NEURAL_NETWORK, const.LINEAR_REGRESSION, const.RANDOM_FOREST]
+# amount_method_list = [const.ARTIFICIAL_NEURAL_NETWORK, const.LINEAR_REGRESSION, const.RANDOM_FOREST]
+amount_method_list = [const.LINEAR_REGRESSION, const.LINEAR_REGRESSION, const.LINEAR_REGRESSION]
 trend_method_list = [const.SVM, const.RANDOM_FOREST, const.LOGISTIC_REGRESSION]
 
 test = None
@@ -107,8 +106,9 @@ for amount_method, trend_method in zip(amount_method_list, trend_method_list):
         os.makedirs(new_file_path)
 
     f = open(os.path.join(new_file_path, "stock_info.csv"), 'w')
-    f.write('stock,MSE,MAPE,MAD,RMSE,CDC,HMSE,ME\n')
+    f.write('stock,MSE,MAPE,MAD,RMSE,CDC,HMSE,ME,test_time\n')
     # for stock in stock_list[:10]:
+    start_time = time.time()
     for stock in predict_list:
         me = 0.0
         mse = 0.0
@@ -139,9 +139,9 @@ for amount_method, trend_method in zip(amount_method_list, trend_method_list):
                 traceback.print_exc()
                 time.sleep(60)
 
-        f.write('{},{},{},{},{},{},{},{}\n'.format(stock, mse / test_times, mape / test_times, mad / test_times,
-                                                   rmse / test_times, cdc / test_times, hmse / test_times,
-                                                   me / test_times))
+        f.write('{},{},{},{},{},{},{},{}.{}\n'.format(stock, mse / test_times, mape / test_times, mad / test_times,
+                                                      rmse / test_times, cdc / test_times, hmse / test_times,
+                                                      me / test_times, time.time() - start_time))
 
     f.close()
 
