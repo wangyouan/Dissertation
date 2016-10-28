@@ -9,7 +9,7 @@
 import urllib2
 
 from BeautifulSoup import BeautifulSoup
-from pandas.tseries.holiday import AbstractHolidayCalendar, Holiday
+from StockInference.util.holiday import AbstractHolidayCalendar, Holiday
 
 
 class HongKongCalendar(AbstractHolidayCalendar):

@@ -9,9 +9,9 @@
 import datetime
 
 from pandas.tseries.offsets import CustomBusinessDay
-from pandas.tseries.holiday import USFederalHolidayCalendar
 
 from StockInference.util.hongkong_calendar import HongKongCalendar
+from StockInference.util.holiday import USFederalHolidayCalendar
 
 calendar = HongKongCalendar(start_year=2006, end_year=2016)
 custom_business_day = CustomBusinessDay(calendar=calendar)
