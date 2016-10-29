@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-WORKER_NUM=5
+WORKER_NUM=10
 PACKAGE_NAME=stockforecaster-0.1-py2.7.egg
 
 spark-submit --master local[${WORKER_NUM}] \

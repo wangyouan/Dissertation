@@ -19,7 +19,7 @@ from stockforecaster.util.evaluate_func import calculate_mean_squared_error, \
 start_date = '2013-07-06'
 end_date = '2016-01-06'
 test_date = '2015-01-06'
-window_size = 6
+window_size = None
 worker_number = 2
 if os.uname()[1] == 'ewin3011':
     root_path = '/home/wangzg/Documents/WangYouan/.dissertation/Dissertation'
