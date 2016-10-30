@@ -20,7 +20,7 @@ start_date = '2013-07-06'
 end_date = '2016-01-06'
 test_date = '2015-01-06'
 window_size = 3
-worker_number = 4
+worker_number = 3
 if os.uname()[1] == 'ewin3011':
     root_path = '/home/wangzg/Documents/WangYouan/.dissertation/Dissertation'
 elif os.uname()[1] == 'Master':
@@ -46,7 +46,7 @@ short_name_dict = {SF.ARTIFICIAL_NEURAL_NETWORK: 'ann',
 if __name__ == '__main__':
     train_method = SF.ARTIFICIAL_NEURAL_NETWORK
 
-    for window_size in [None, 3, 6][:1]:
+    for window_size in [None, 3, 6]:
 
         for train_method in [
             {SF.CHANGE_AMOUNT: SF.ARTIFICIAL_NEURAL_NETWORK,
