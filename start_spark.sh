@@ -6,7 +6,7 @@ test_ratio="2014-01-06"
 
 rm -rf output/*
 
-spark-submit --master "spark://Master:7077" \
+spark-submit --master "local[*]" \
     --py-files dist/StockInference-0.3-py2.7.egg,src/__init__.py \
     --driver-memory	1g \
     --executor-memory 1g \
