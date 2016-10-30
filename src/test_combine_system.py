@@ -139,7 +139,7 @@ for amount_method, trend_method in zip(amount_method_list, trend_method_list):
                 traceback.print_exc()
                 time.sleep(60)
 
-        f.write('{},{},{},{},{},{},{},{}.{}\n'.format(stock, mse / test_times, mape / test_times, mad / test_times,
+        f.write('{},{},{},{},{},{},{},{},{}\n'.format(stock, mse / test_times, mape / test_times, mad / test_times,
                                                       rmse / test_times, cdc / test_times, hmse / test_times,
                                                       me / test_times, time.time() - start_time))
 
