@@ -46,8 +46,6 @@ short_name_dict = {SF.ARTIFICIAL_NEURAL_NETWORK: 'ann',
 if __name__ == '__main__':
     train_method = SF.ARTIFICIAL_NEURAL_NETWORK
 
-    df = pd.DataFrame(columns=['stock', 'sdpr', 'mse', 'mape', 'time'])
-
     for window_size in [None, 3, 6][:1]:
 
         for train_method in [
@@ -59,6 +57,8 @@ if __name__ == '__main__':
              SF.CHANGE_DIRECTION: SF.ARTIFICIAL_NEURAL_NETWORK},
             SF.ARTIFICIAL_NEURAL_NETWORK, SF.LINEAR_REGRESSION, SF.RANDOM_FOREST,
         ]:
+            df = pd.DataFrame(columns=['stock', 'sdpr', 'mse', 'mape', 'time'])
+
             # print train_method
             if isinstance(train_method, dict):
                 current_result_path = os.path.join(result_path, str(window_size),

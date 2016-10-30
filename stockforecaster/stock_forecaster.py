@@ -110,8 +110,8 @@ class StockForecaster(Constants):
         for key in tech_key_set:
             if key.startswith('EMA') or key.startswith('SMA') or key.startswith('MACD'):
                 tran = MinMaxScaler(feature_range=(-0.9, 0.9))
-                train[key] = tran.fit_transform(tech_train[key])
-                test[key] = tran.transform(tech_test[key])
+                train[key] = tran.fit_transform(tech_train[key].values.reshape((-1, 1)))
+                test[key] = tran.transform(tech_test[key].values.reshape((-1, 1)))
 
             else:
                 train[key] = tech_train[key] / 100
