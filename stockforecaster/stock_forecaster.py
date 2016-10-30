@@ -6,6 +6,7 @@
 # Author: Mark Wang
 # Date: 18/10/2016
 
+import re
 import logging
 
 import numpy as np
@@ -23,7 +24,8 @@ from stockforecaster.prediction_system.tensorflow_train_system import TensorFlow
 
 
 class StockForecaster(Constants):
-    def __init__(self, stock_symbol, data_path=None, train_method=None, train_system='Spark', using_percentage=True):
+    def __init__(self, stock_symbol, data_path=None, train_method=None, train_system='Spark', using_percentage=True,
+                 worker_num=2):
         if train_method is None:
             self._train_method = self.RANDOM_FOREST
         elif isinstance(train_method, list) or isinstance(train_method, tuple):
@@ -41,8 +43,9 @@ class StockForecaster(Constants):
         self._predict_system = None
 
         if train_system == self.SPARK:
+            self.spark_worker_numbers = worker_num
             name = "{}_{}_{}".format(self.__class__.__name__, stock_symbol, train_method)
-            spark = SparkSession.builder.appName(name)\
+            spark = SparkSession.builder.master('local[%s]' % self.spark_worker_numbers).appName(name) \
                 .config('spark.executor.instances', self.spark_worker_numbers).getOrCreate()
 
             logger = spark._jvm.org.apache.log4j.LogManager
@@ -65,7 +68,7 @@ class StockForecaster(Constants):
         tomorrow_price = input_data[self.STOCK_CLOSE].shift(-1)
         today_price = input_data[self.STOCK_CLOSE]
         change_amount = tomorrow_price - today_price
-        change_direction = change_amount.apply(lambda x: np.nan if np.isnan(x) else int(x >= 0))
+        change_direction = change_amount.apply(lambda x: np.nan if np.isnan(x) else int(x > 0))
 
         # using change percentage as change direction
         if self._using_percentage:
@@ -74,20 +77,45 @@ class StockForecaster(Constants):
             change_amount = change_amount.apply(abs)
         train_mean = train.mean()
 
+        key_set = train.keys()
+
+        tech_train = pd.DataFrame()
+        tech_test = pd.DataFrame()
+
+        pattern = r'MACD|SMA|EMA|ROC|RSI'
+
         # Replace NaN with mean value
-        for key in train.keys():
+        for key in key_set:
             train.loc[:, key] = train[key].replace(np.nan, train_mean[key])
             test.loc[:, key] = test[key].replace(np.nan, train_mean[key])
+
+            if re.findall(pattern=pattern, string=key):
+                tech_test[key] = test[key]
+                tech_train[key] = train[key]
+                del test[key]
+                del train[key]
 
         # do normalization
         pipe = Pipeline([('Standard', StandardScaler()),
                          ('PCA', PCA()),
-                         ('MinMax', MinMaxScaler(feature_range=(-1, 1)))
+                         ('MinMax', MinMaxScaler(feature_range=(-0.9, 0.9)))
                          ])
         train_tran = pipe.fit_transform(train)
         test_tran = pipe.transform(test)
         train = pd.DataFrame(train_tran, index=train.index, columns=map(str, range(train_tran.shape[1])))
         test = pd.DataFrame(test_tran, index=test.index, columns=map(str, range(test_tran.shape[1])))
+
+        tech_key_set = tech_test.keys()
+
+        for key in tech_key_set:
+            if key.startswith('EMA') or key.startswith('SMA') or key.startswith('MACD'):
+                tran = MinMaxScaler(feature_range=(-0.9, 0.9))
+                train[key] = tran.fit_transform(tech_train[key])
+                test[key] = tran.transform(tech_test[key])
+
+            else:
+                train[key] = tech_train[key] / 100
+                test[key] = tech_test[key] / 100
 
         # add tomorrow price info
         train[self.TARGET_PRICE] = tomorrow_price[tomorrow_price.index <= test_start_date]
@@ -147,7 +175,7 @@ class StockForecaster(Constants):
         if isinstance(self._train_method, dict):
 
             if not self._using_percentage:
-                transformer = MinMaxScaler(feature_range=(-1, 1))
+                transformer = MinMaxScaler(feature_range=(-0.9, 0.9))
                 amount = train[self.CHANGE_AMOUNT].values.reshape(-1, 1)
                 label[self.CHANGE_AMOUNT] = transformer.fit_transform(amount)
             else:
@@ -159,7 +187,7 @@ class StockForecaster(Constants):
 
         else:
 
-            transformer = MinMaxScaler(feature_range=(-1, 1))
+            transformer = MinMaxScaler(feature_range=(-0.9, 0.9))
             label[self.TARGET_PRICE] = transformer.fit_transform(train[self.TARGET_PRICE].values.reshape(-1, 1))
             del train[self.TARGET_PRICE]
 

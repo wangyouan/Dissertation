@@ -32,10 +32,8 @@ def predict_stock_price_spark(stock_symbol, data_path, train_method, start_date,
     :return: prediction result
     """
     sf = SF(stock_symbol=stock_symbol, data_path=data_path,
-            train_method=train_method,
+            train_method=train_method, worker_num=worker_num,
             train_system=SF.SPARK, using_percentage=using_percentage)
-
-    sf.spark_worker_numbers = worker_num
 
     if window_size is None:
         return sf.main_process(start_date=start_date, end_date=end_date, test_start_date=test_date)
