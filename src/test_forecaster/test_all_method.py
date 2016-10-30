@@ -46,7 +46,6 @@ short_name_dict = {SF.ARTIFICIAL_NEURAL_NETWORK: 'ann',
                    SF.RANDOM_FOREST: 'rt'}
 
 if __name__ == '__main__':
-    train_method = SF.ARTIFICIAL_NEURAL_NETWORK
 
     for window_size in [None, 3, 6]:
 
