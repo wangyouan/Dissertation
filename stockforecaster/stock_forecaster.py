@@ -82,7 +82,7 @@ class StockForecaster(Constants):
         tech_train = pd.DataFrame()
         tech_test = pd.DataFrame()
 
-        pattern = r'MACD|SMA|EMA|ROC|RSI|PPO'
+        pattern = r'MACD|SMA|EMA|ROC|RSI|PPO|ADX'
 
         # Replace NaN with mean value
         for key in key_set:
