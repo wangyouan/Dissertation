@@ -58,18 +58,29 @@ if __name__ == '__main__':
             SF.ARTIFICIAL_NEURAL_NETWORK, SF.LINEAR_REGRESSION, SF.RANDOM_FOREST,
         ]:
             df = pd.DataFrame(columns=['stock', 'sdpr', 'mse', 'mape', 'time'])
+            df1 = pd.DataFrame(columns=['stock', 'sdpr', 'mse', 'mape', 'time'])
 
             # print train_method
             if isinstance(train_method, dict):
                 current_result_path = os.path.join(result_path, str(window_size),
                                                    "{}_{}".format(short_name_dict[train_method[SF.CHANGE_DIRECTION]],
                                                                   short_name_dict[train_method[SF.CHANGE_AMOUNT]]))
+
+                current_result_path1 = os.path.join(result_path, str(window_size),
+                                                    "{}_{}_True"
+                                                    .format(short_name_dict[train_method[SF.CHANGE_DIRECTION]],
+                                                            short_name_dict[train_method[SF.CHANGE_AMOUNT]]))
             else:
                 current_result_path = os.path.join(result_path, str(window_size), short_name_dict[train_method])
+
+                current_result_path1 = current_result_path
 
             print current_result_path
             if not os.path.isdir(current_result_path):
                 os.makedirs(current_result_path)
+
+            if not os.path.isdir(current_result_path1):
+                os.makedirs(current_result_path1)
 
             for i in range(len(hsi_stock_list)):
                 start_time = time.time()
@@ -103,4 +114,36 @@ if __name__ == '__main__':
                         'stock': stock,
                         'time': time.time() - start_time}
 
+                if not isinstance(train_method, dict):
+                    continue
+
+                start_time = time.time()
+                try:
+
+                    result = predict_stock_price_spark(stock_symbol=stock, data_path=data_path,
+                                                       worker_num=worker_number,
+                                                       train_method=train_method, start_date=start_date,
+                                                       end_date=end_date, using_percentage=True,
+                                                       test_date=test_date, window_size=window_size)
+                except Exception, err:
+                    import traceback
+
+                    traceback.print_exc()
+                    print stock
+                    break
+
+                else:
+                    result[['Target', 'TodayPrice', 'prediction']].to_csv(
+                        os.path.join(current_result_path1, save_file_name))
+
+                    df1.loc[i] = {
+                        'sdpr': calculate_success_direction_prediction_rate(result, SF.TODAY_PRICE, 'prediction',
+                                                                            SF.TARGET_PRICE),
+                        'mse': calculate_mean_squared_error(result, 'prediction', SF.TARGET_PRICE),
+                        'mape': calculate_mean_absolute_percentage_error(result, 'prediction', SF.TARGET_PRICE),
+                        'stock': stock,
+                        'time': time.time() - start_time}
+
             df.to_csv(os.path.join(current_result_path, 'statistics.csv'), index=False)
+            if not df1.empty:
+                df.to_csv(os.path.join(current_result_path1, 'statistics.csv'), index=False)

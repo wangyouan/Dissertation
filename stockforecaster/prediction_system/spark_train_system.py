@@ -152,3 +152,6 @@ class SparkTrainingSystem(Constants):
         output = ass.transform(df)
         # output.select('features', 'ChangeDirection', 'ChangeAmount').write.save('test.parquet')
         return output
+
+    def stop(self):
+        self._spark.stop()

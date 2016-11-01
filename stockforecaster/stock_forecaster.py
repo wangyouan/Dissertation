@@ -223,3 +223,6 @@ class StockForecaster(Constants):
             result['prediction'] = transformer.inverse_transform(result['prediction'].values.reshape(-1, 1))
 
         return result
+
+    def stop_server(self):
+        self._predict_system.stop()
