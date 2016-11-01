@@ -98,7 +98,7 @@ class StockForecaster(Constants):
         # do normalization
         pipe = Pipeline([('Standard', StandardScaler()),
                          ('PCA', PCA()),
-                         ('MinMax', MinMaxScaler(feature_range=(-0.9, 0.9)))
+                         ('MinMax', MinMaxScaler(feature_range=self.feature_range))
                          ])
         train_tran = pipe.fit_transform(train)
         test_tran = pipe.transform(test)
@@ -109,7 +109,7 @@ class StockForecaster(Constants):
 
         for key in tech_key_set:
             if key.startswith('EMA') or key.startswith('SMA') or key.startswith('MACD'):
-                tran = MinMaxScaler(feature_range=(-0.9, 0.9))
+                tran = MinMaxScaler(feature_range=self.feature_range)
                 train[key] = tran.fit_transform(tech_train[key].values.reshape((-1, 1)))
                 test[key] = tran.transform(tech_test[key].values.reshape((-1, 1)))
 
@@ -175,7 +175,7 @@ class StockForecaster(Constants):
         if isinstance(self._train_method, dict):
 
             if not self._using_percentage:
-                transformer = MinMaxScaler(feature_range=(-0.9, 0.9))
+                transformer = MinMaxScaler(feature_range=self.feature_range)
                 amount = train[self.CHANGE_AMOUNT].values.reshape(-1, 1)
                 label[self.CHANGE_AMOUNT] = transformer.fit_transform(amount)
             else:
@@ -187,7 +187,7 @@ class StockForecaster(Constants):
 
         else:
 
-            transformer = MinMaxScaler(feature_range=(-0.9, 0.9))
+            transformer = MinMaxScaler(feature_range=self.feature_range)
             label[self.TARGET_PRICE] = transformer.fit_transform(train[self.TARGET_PRICE].values.reshape(-1, 1))
             del train[self.TARGET_PRICE]
 
