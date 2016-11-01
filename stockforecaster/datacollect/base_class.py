@@ -12,7 +12,7 @@ import pickle
 
 import pandas as pd
 from pandas.tseries.offsets import CustomBusinessDay
-from pandas.tseries.holiday import AbstractHolidayCalendar, Holiday
+from pandas.tseries.holiday import AbstractHolidayCalendar
 
 from stockforecaster.constant import Constants
 from stockforecaster.util.date_util import *

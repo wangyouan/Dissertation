@@ -182,6 +182,8 @@ class DataCollect(BaseClass):
             stock_price_df['low'] = stock_price_df[self.STOCK_LOW]
             stock_price_df['volume'] = stock_price_df[self.STOCK_VOLUME]
 
+        stock_price_df.to_pickle('test.p')
+
         if indicator_name == self.SMA:
             return abstract.SMA(stock_price_df, timeperiod=parameters)
 
@@ -193,11 +195,17 @@ class DataCollect(BaseClass):
                                       parameters[self.MACD_SLOW_PERIOD], parameters[self.MACD_TIME_PERIOD])
             return result_df['macd']
 
+        elif indicator_name == self.PPO:
+            return abstract.PPO(stock_price_df, parameters[self.PPO_FAST_PERIOD], parameters[self.PPO_SLOW_PERIOD]) / 100
+
         elif indicator_name == self.ROC:
-            return abstract.ROC(stock_price_df, timeperiod=parameters)
+            return abstract.ROC(stock_price_df, timeperiod=parameters) / 100
 
         elif indicator_name == self.RSI:
-            return abstract.RSI(stock_price_df, timeperiod=parameters)
+            return abstract.RSI(stock_price_df, timeperiod=parameters) / 100
+
+        elif indicator_name == self.ADX:
+            return abstract.ADX(stock_price_df, timeperiod=parameters) / 100
 
         else:
             self.logger.warn("Unknown indicator name {}".format(indicator_name))

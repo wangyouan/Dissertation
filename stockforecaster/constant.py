@@ -40,11 +40,16 @@ class Constants(Parameters):
     MACD_FAST_PERIOD = "MACD fast period"
     MACD_TIME_PERIOD = "MACD time period"
 
+    PPO = "PPO"  # "Percentage Price Oscillator"
+    PPO_SLOW_PERIOD = "PPO slow period"
+    PPO_FAST_PERIOD = "PPO fast period"
+
     # For moving average info
     SMA = "SMA"  # "simple moving average"
     EMA = "EMA"  # "Exponential moving average"
     ROC = "ROC"  # "Rate of change"
     RSI = "RSI"  # "Relative strength index"
+    ADX = 'ADX'  # "Average Directional Index"
 
     # Fundamental Analysis
     FUNDAMENTAL_ANALYSIS = "fundamental analysis"

@@ -82,7 +82,7 @@ class StockForecaster(Constants):
         tech_train = pd.DataFrame()
         tech_test = pd.DataFrame()
 
-        pattern = r'MACD|SMA|EMA|ROC|RSI'
+        pattern = r'MACD|SMA|EMA|ROC|RSI|PPO'
 
         # Replace NaN with mean value
         for key in key_set:
@@ -113,10 +113,6 @@ class StockForecaster(Constants):
                 train[key] = tran.fit_transform(tech_train[key].values.reshape((-1, 1)))
                 test[key] = tran.transform(tech_test[key].values.reshape((-1, 1)))
 
-            else:
-                train[key] = tech_train[key] / 100
-                test[key] = tech_test[key] / 100
-
         # add tomorrow price info
         train[self.TARGET_PRICE] = tomorrow_price[tomorrow_price.index <= test_start_date]
         test[self.TARGET_PRICE] = tomorrow_price[tomorrow_price.index > test_start_date]
@@ -139,8 +135,10 @@ class StockForecaster(Constants):
             self.PRICE_TYPE: self.STOCK_ADJUSTED_CLOSED,
             self.STOCK_PRICE: {self.DATA_PERIOD: 1},
             self.TECHNICAL_INDICATOR: [
-                (self.MACD, {self.MACD_FAST_PERIOD: 12, self.MACD_SLOW_PERIOD: 26, self.MACD_TIME_PERIOD: 9}),
-                (self.MACD, {self.MACD_FAST_PERIOD: 7, self.MACD_SLOW_PERIOD: 14, self.MACD_TIME_PERIOD: 9}),
+                # (self.MACD, {self.MACD_FAST_PERIOD: 12, self.MACD_SLOW_PERIOD: 26, self.MACD_TIME_PERIOD: 9}),
+                (self.PPO, {self.PPO_FAST_PERIOD: 12, self.PPO_SLOW_PERIOD: 26}),
+                (self.PPO, {self.PPO_FAST_PERIOD: 7, self.PPO_SLOW_PERIOD: 14}),
+                # (self.MACD, {self.MACD_FAST_PERIOD: 7, self.MACD_SLOW_PERIOD: 14, self.MACD_TIME_PERIOD: 9}),
                 (self.SMA, 3),
                 (self.SMA, 13),
                 (self.SMA, 21),
@@ -151,6 +149,7 @@ class StockForecaster(Constants):
                 (self.ROC, 21),
                 (self.RSI, 9),
                 (self.RSI, 14),
+                (self.ADX, 14),
                 (self.RSI, 21),
             ],
             self.FUNDAMENTAL_ANALYSIS: [
