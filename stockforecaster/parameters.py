@@ -22,7 +22,7 @@ class Parameters(object):
 
     # neural network
     ann_epoch_number = 100
-    feature_range = (0, 1)
+    feature_range = (-1, 1)
 
     # spark parameters:
     spark_worker_numbers = 2
