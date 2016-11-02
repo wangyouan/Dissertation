@@ -20,3 +20,6 @@ class TensorFlowTrainingSystem(Constants):
 
     def predict(self, features):
         pass
+
+    def stop(self):
+        pass

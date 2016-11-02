@@ -62,6 +62,7 @@ class StockForecaster(Constants):
             raise ValueError('Unknown training system {}'.format(train_system))
 
         self._data_collect = DataCollect(stock_symbol, logger=logger, data_path=data_path)
+        self.logger.info('Prediction symbol is {}'.format(stock_symbol))
 
     def _process_data(self, input_data, test_start_date):
         train = input_data[input_data.index <= test_start_date]
