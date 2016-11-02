@@ -66,12 +66,11 @@ if __name__ == '__main__':
 
             # print train_method
             if isinstance(train_method, dict):
-                current_result_path = os.path.join(path, str(window_size),
+                current_result_path = os.path.join(path,
                                                    "{}_{}".format(short_name_dict[train_method[SF.CHANGE_DIRECTION]],
                                                                   short_name_dict[train_method[SF.CHANGE_AMOUNT]]))
 
-                current_result_path1 = os.path.join(path, str(window_size),
-                                                    "{}_{}_True"
+                current_result_path1 = os.path.join(path, "{}_{}_True"
                                                     .format(short_name_dict[train_method[SF.CHANGE_DIRECTION]],
                                                             short_name_dict[train_method[SF.CHANGE_AMOUNT]]))
             else:
