@@ -47,7 +47,7 @@ short_name_dict = {SF.ARTIFICIAL_NEURAL_NETWORK: 'ann',
 
 if __name__ == '__main__':
 
-    for hidden_nodes_nums in range(5, 33):
+    for hidden_nodes_nums in range(10, 32, 10):
 
         path = os.path.join(result_path, 'hidden', '{}'.format(hidden_nodes_nums))
 
@@ -74,7 +74,7 @@ if __name__ == '__main__':
                                                     .format(short_name_dict[train_method[SF.CHANGE_DIRECTION]],
                                                             short_name_dict[train_method[SF.CHANGE_AMOUNT]]))
             else:
-                current_result_path = os.path.join(path, str(window_size), short_name_dict[train_method])
+                current_result_path = os.path.join(path, short_name_dict[train_method])
 
                 current_result_path1 = current_result_path
 
