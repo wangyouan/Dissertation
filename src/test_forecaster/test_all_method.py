@@ -46,7 +46,7 @@ short_name_dict = {SF.ARTIFICIAL_NEURAL_NETWORK: 'ann',
 
 if __name__ == '__main__':
 
-    for window_size in [None, 3, 6]:
+    for window_size in [None, 3, 6][:1]:
 
         for train_method in [
             {SF.CHANGE_AMOUNT: SF.ARTIFICIAL_NEURAL_NETWORK,
@@ -56,9 +56,7 @@ if __name__ == '__main__':
             {SF.CHANGE_AMOUNT: SF.RANDOM_FOREST,
              SF.CHANGE_DIRECTION: SF.ARTIFICIAL_NEURAL_NETWORK},
             SF.ARTIFICIAL_NEURAL_NETWORK, SF.LINEAR_REGRESSION, SF.RANDOM_FOREST,
-        ]:
-            df = pd.DataFrame(columns=['stock', 'sdpr', 'mse', 'mape', 'time'])
-            df1 = pd.DataFrame(columns=['stock', 'sdpr', 'mse', 'mape', 'time'])
+        ][-1:]:
 
             # print train_method
             if isinstance(train_method, dict):
@@ -78,11 +76,25 @@ if __name__ == '__main__':
             print current_result_path
             if not os.path.isdir(current_result_path):
                 os.makedirs(current_result_path)
+                df = pd.DataFrame(columns=['stock', 'sdpr', 'mse', 'mape', 'time'])
+
+            elif os.path.isfile(os.path.join(current_result_path, 'statistics.csv')):
+                df = pd.read_csv(os.path.join(current_result_path, 'statistics.csv'))
+
+            else:
+                df = pd.DataFrame(columns=['stock', 'sdpr', 'mse', 'mape', 'time'])
 
             if not os.path.isdir(current_result_path1):
                 os.makedirs(current_result_path1)
+                df1 = pd.DataFrame(columns=['stock', 'sdpr', 'mse', 'mape', 'time'])
 
-            for i in range(len(hsi_stock_list)):
+            elif os.path.isfile(os.path.join(current_result_path, 'statistics.csv')):
+                df1 = pd.read_csv(os.path.join(current_result_path1, 'statistics.csv'))
+
+            else:
+                df1 = pd.DataFrame(columns=['stock', 'sdpr', 'mse', 'mape', 'time'])
+
+            for i in range(24, len(hsi_stock_list)):
                 start_time = time.time()
                 stock = hsi_stock_list[i]
                 print 'start to get stock', stock

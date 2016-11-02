@@ -230,4 +230,5 @@ class StockForecaster(Constants):
         return result
 
     def stop_server(self):
+        self.logger.info('Stop server')
         self._predict_system.stop()

@@ -40,7 +40,7 @@ def predict_stock_price_spark(stock_symbol, data_path, train_method, start_date,
             rt_trees_num=rt_trees_num, ann_hidden_nodes=hidden_nodes_num)
 
     if window_size is None:
-        return sf.main_process(start_date=start_date, end_date=end_date, test_start_date=test_date)
+        result = sf.main_process(start_date=start_date, end_date=end_date, test_start_date=test_date)
     else:
         start_date = str2datetime(start_date)
         end_date = str2datetime(end_date)
@@ -71,4 +71,7 @@ def predict_stock_price_spark(stock_symbol, data_path, train_method, start_date,
             tmp_end_time += delta_month
             test_date += delta_month
 
-        return pd.concat(dfs, axis=0).sort_index()
+        result = pd.concat(dfs, axis=0).sort_index()
+
+    sf.stop_server()
+    return result
