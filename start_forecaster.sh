@@ -12,4 +12,4 @@ PACKAGE_NAME=stockforecaster-0.1-py2.7.egg
 #    src/test_forecaster/test_all_method.py
 spark-submit --py-files dist/${PACKAGE_NAME} \
     --conf "spark.driver.extraJavaOptions=-Dlog4j.configuration=file:./logs/log4j.properties" \
-    src/test_forecaster/test_all_method.py
+    src/test_forecaster/test_ann_hidden_nodes_num.py
