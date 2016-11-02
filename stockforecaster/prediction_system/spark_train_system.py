@@ -15,11 +15,12 @@ from stockforecaster.regression_method.neural_network_regression_spark import Ke
 
 
 class SparkTrainingSystem(Constants):
-    def __init__(self, spark, training_method):
+    def __init__(self, spark, training_method, hidden_layer_num=None):
         self._spark = spark
         self._train_method = training_method
         self.logger = spark._jvm.org.apache.log4j.LogManager.getLogger(self.__class__.__name__)
         self._model = None
+        self.ann_hidden_nodes_num = hidden_layer_num
 
     def train(self, features, label):
         if isinstance(self._train_method, dict):

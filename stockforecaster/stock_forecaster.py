@@ -191,6 +191,7 @@ class StockForecaster(Constants):
             label[self.TARGET_PRICE] = transformer.fit_transform(train[self.TARGET_PRICE].values.reshape(-1, 1))
             del train[self.TARGET_PRICE]
 
+        self._predict_system.ann_hidden_nodes_num = self.ann_hidden_nodes_num
         self._predict_system.train(train, label)
 
         result = self._predict_system.predict(test)
