@@ -49,7 +49,7 @@ if __name__ == '__main__':
 
     for hidden_nodes_nums in range(5, 33):
 
-        path = os.path.join(result_path, 'hidden_{}'.format(hidden_nodes_nums))
+        path = os.path.join(result_path, 'hidden', '{}'.format(hidden_nodes_nums))
 
         for train_method in [
             {SF.CHANGE_AMOUNT: SF.ARTIFICIAL_NEURAL_NETWORK,
