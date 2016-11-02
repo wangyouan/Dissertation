@@ -56,6 +56,9 @@ class SparkTrainingSystem(Constants):
                       # input_num / 3,
                       self.ann_hidden_nodes_num,
                       2]
+
+        self.logger.info('layer settings are {}'.format(ann_layers))
+        self.logger.info('training method is {}'.format(self._train_method))
         if isinstance(self._train_method, dict):
             if self._model is not None and self._train_method[self.CHANGE_AMOUNT] == self.ARTIFICIAL_NEURAL_NETWORK:
                 self._model[self.CHANGE_AMOUNT].stop_server()
