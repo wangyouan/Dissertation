@@ -48,10 +48,13 @@ class SparkTrainingSystem(Constants):
         df = self._prepare_data_spark(data)
         input_num = len(data.keys().difference({self.CHANGE_AMOUNT, self.CHANGE_DIRECTION, self.TARGET_PRICE,
                                                 self.TODAY_PRICE}))
+
+        if self.ann_hidden_nodes_num is None:
+            self.ann_hidden_nodes_num = input_num / 2 + 1
         ann_layers = [input_num,
                       # input_num / 3 * 2,
                       # input_num / 3,
-                      input_num / 2 + 1,
+                      self.ann_hidden_nodes_num,
                       2]
         if isinstance(self._train_method, dict):
             if self._model is not None and self._train_method[self.CHANGE_AMOUNT] == self.ARTIFICIAL_NEURAL_NETWORK:

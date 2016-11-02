@@ -82,7 +82,8 @@ class StockForecaster(Constants):
         tech_train = pd.DataFrame()
         tech_test = pd.DataFrame()
 
-        pattern = r'MACD|SMA|EMA|ROC|RSI|PPO|ADX'
+        # pattern = r'MACD|SMA|EMA|ROC|RSI|PPO|ADX'
+        pattern = r'MACD|ROC|RSI|PPO|ADX'
 
         # Replace NaN with mean value
         for key in key_set:
@@ -107,11 +108,11 @@ class StockForecaster(Constants):
 
         tech_key_set = tech_test.keys()
 
-        for key in tech_key_set:
-            if key.startswith('EMA') or key.startswith('SMA') or key.startswith('MACD'):
-                tran = MinMaxScaler(feature_range=self.feature_range)
-                train[key] = tran.fit_transform(tech_train[key].values.reshape((-1, 1)))
-                test[key] = tran.transform(tech_test[key].values.reshape((-1, 1)))
+        # for key in tech_key_set:
+        #     if key.startswith('EMA') or key.startswith('SMA') or key.startswith('MACD'):
+        #         tran = MinMaxScaler(feature_range=self.feature_range)
+        #         train[key] = tran.fit_transform(tech_train[key].values.reshape((-1, 1)))
+        #         test[key] = tran.transform(tech_test[key].values.reshape((-1, 1)))
 
         # add tomorrow price info
         train[self.TARGET_PRICE] = tomorrow_price[tomorrow_price.index <= test_start_date]
