@@ -85,6 +85,7 @@ if __name__ == '__main__':
 
                 try:
 
+                    # TODO: add neural network number and random forest tree number
                     result = predict_stock_price_spark(stock_symbol=stock, data_path=data_path,
                                                        worker_num=worker_number,
                                                        train_method=train_method, start_date=start_date,
