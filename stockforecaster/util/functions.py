@@ -16,7 +16,7 @@ from stockforecaster.util.date_util import str2datetime
 
 
 def predict_stock_price_spark(stock_symbol, data_path, train_method, start_date, end_date, test_date,
-                              using_percentage=True, window_size=None, worker_num=2):
+                              using_percentage=True, window_size=None, worker_num=2, hidden_nodes_num=None):
     """
     given required stock type, return its prediction result.
     :param stock_symbol: target stock symbol
@@ -34,6 +34,8 @@ def predict_stock_price_spark(stock_symbol, data_path, train_method, start_date,
     sf = SF(stock_symbol=stock_symbol, data_path=data_path,
             train_method=train_method, worker_num=worker_num,
             train_system=SF.SPARK, using_percentage=using_percentage)
+
+    sf.ann_hidden_nodes_num = hidden_nodes_num
 
     if window_size is None:
         return sf.main_process(start_date=start_date, end_date=end_date, test_start_date=test_date)
