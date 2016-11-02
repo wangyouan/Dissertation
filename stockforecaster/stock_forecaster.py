@@ -25,7 +25,7 @@ from stockforecaster.prediction_system.tensorflow_train_system import TensorFlow
 
 class StockForecaster(Constants):
     def __init__(self, stock_symbol, data_path=None, train_method=None, train_system='Spark', using_percentage=True,
-                 worker_num=2):
+                 worker_num=2, rt_trees_num=30, ann_hidden_nodes=None):
         if train_method is None:
             self._train_method = self.RANDOM_FOREST
         elif isinstance(train_method, list) or isinstance(train_method, tuple):
@@ -50,10 +50,12 @@ class StockForecaster(Constants):
 
             logger = spark._jvm.org.apache.log4j.LogManager
             self.logger = logger.getLogger(self.__class__.__name__)
-            self._predict_system = SparkTrainingSystem(spark, self._train_method)
+            self._predict_system = SparkTrainingSystem(spark, self._train_method, rt_trees_num=rt_trees_num,
+                                                       hidden_layer_num=ann_hidden_nodes)
 
         elif train_system == self.TENSORFLOW:
-            self._predict_system = TensorFlowTrainingSystem(self._train_method)
+            self._predict_system = TensorFlowTrainingSystem(self._train_method, rt_trees_num=rt_trees_num,
+                                                            hidden_layer_num=ann_hidden_nodes)
             logger = logging
             self.logger = logging.getLogger(self.__class__.__name__)
         else:
@@ -106,7 +108,7 @@ class StockForecaster(Constants):
         train = pd.DataFrame(train_tran, index=train.index, columns=map(str, range(train_tran.shape[1])))
         test = pd.DataFrame(test_tran, index=test.index, columns=map(str, range(test_tran.shape[1])))
 
-        tech_key_set = tech_test.keys()
+        # tech_key_set = tech_test.keys()
 
         # for key in tech_key_set:
         #     if key.startswith('EMA') or key.startswith('SMA') or key.startswith('MACD'):
@@ -191,7 +193,7 @@ class StockForecaster(Constants):
             label[self.TARGET_PRICE] = transformer.fit_transform(train[self.TARGET_PRICE].values.reshape(-1, 1))
             del train[self.TARGET_PRICE]
 
-        self._predict_system.ann_hidden_nodes_num = self.ann_hidden_nodes_num
+        # self._predict_system.ann_hidden_nodes_num = self.ann_hidden_nodes_num
         self._predict_system.train(train, label)
 
         result = self._predict_system.predict(test)

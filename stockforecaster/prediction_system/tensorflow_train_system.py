@@ -12,7 +12,7 @@ from stockforecaster.constant import Constants
 
 
 class TensorFlowTrainingSystem(Constants):
-    def __init__(self, train_method):
+    def __init__(self, train_method, hidden_layer_num=None, rt_trees_num=None):
         self._train_method = train_method
 
     def train(self, features, label):
