@@ -149,4 +149,4 @@ if __name__ == '__main__':
 
             df.to_csv(os.path.join(current_result_path, 'statistics.csv'), index=False)
             if not df1.empty:
-                df.to_csv(os.path.join(current_result_path1, 'statistics.csv'), index=False)
+                df1.to_csv(os.path.join(current_result_path1, 'statistics.csv'), index=False)
