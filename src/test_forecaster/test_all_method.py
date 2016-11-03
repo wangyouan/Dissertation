@@ -46,7 +46,7 @@ short_name_dict = {SF.ARTIFICIAL_NEURAL_NETWORK: 'ann',
 
 if __name__ == '__main__':
 
-    for window_size in [None, 3, 6][:1]:
+    for window_size in [None, 3, 6]:
 
         for train_method in [
             {SF.CHANGE_AMOUNT: SF.ARTIFICIAL_NEURAL_NETWORK,
@@ -56,7 +56,7 @@ if __name__ == '__main__':
             {SF.CHANGE_AMOUNT: SF.RANDOM_FOREST,
              SF.CHANGE_DIRECTION: SF.ARTIFICIAL_NEURAL_NETWORK},
             SF.ARTIFICIAL_NEURAL_NETWORK, SF.LINEAR_REGRESSION, SF.RANDOM_FOREST,
-        ][-1:]:
+        ]:
 
             # print train_method
             if isinstance(train_method, dict):

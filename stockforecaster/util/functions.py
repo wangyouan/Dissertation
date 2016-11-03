@@ -73,5 +73,5 @@ def predict_stock_price_spark(stock_symbol, data_path, train_method, start_date,
 
         result = pd.concat(dfs, axis=0).sort_index()
 
-    sf.stop_server()
+    # sf.stop_server()
     return result
