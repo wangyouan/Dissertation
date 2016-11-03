@@ -35,5 +35,5 @@ def calculate_mean_absolute_percentage_error(df, result_col, target_col):
     actual = df[result_col]
     prediction = df[target_col]
     error = actual - prediction
-    mape = (error.apply(abs) / actual).sum() / float(df.shape[0])
+    mape = (error.apply(abs) / actual).mean()
     return mape

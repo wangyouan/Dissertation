@@ -11,7 +11,7 @@ import os
 
 import pandas as pd
 
-root_path = '/Users/warn/Documents/MSc(CS) Dissertation/Some Data/DataFrame'
+root_path = '/Users/warn/Documents/MSc(CS) Dissertation/Some Data/DataFrame/trees_num'
 
 rt_df = pd.DataFrame(columns=['mse', 'mape', 'cdc', 'time'])
 rt_rt_df = pd.DataFrame(columns=['mse', 'mape', 'cdc', 'time'])
@@ -30,7 +30,7 @@ for directory in os.listdir(root_path):
         tmp_df = tmp_df[tmp_df.index != '^HSI']
         tmp_df['cdc'] = tmp_df['sdpr']
         del tmp_df['sdpr']
-        if x.endswith('True'):
+        if x.endswith('True') or x.endswith('true'):
             rt_rt_true_df.loc[directory] = tmp_df.mean()
 
         elif x.endswith('rt_rt'):

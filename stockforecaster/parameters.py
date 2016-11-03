@@ -17,7 +17,7 @@ class Parameters(object):
     logistic_regression_regularization_parameter = 0.01
 
     # for random forest
-    random_forest_tree_number = 30
+    random_forest_tree_number = 50
     random_forest_tree_max_depth = 20
 
     # neural network
