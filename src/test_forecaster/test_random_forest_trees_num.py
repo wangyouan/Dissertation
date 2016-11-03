@@ -47,7 +47,7 @@ short_name_dict = {SF.ARTIFICIAL_NEURAL_NETWORK: 'ann',
 
 if __name__ == '__main__':
 
-    for rt_trees_num in range(41, 59, 2):
+    for rt_trees_num in [41, 45, 49, 53, 57, 11, 15, 19, 23, 27]:
 
         path = os.path.join(result_path, 'trees_num', '{}'.format(rt_trees_num))
 
