@@ -18,7 +18,6 @@ from stockforecaster import StockForecaster as SF
 from stockforecaster.util.evaluate_func import calculate_mean_squared_error, \
     calculate_success_direction_prediction_rate, calculate_mean_absolute_percentage_error
 
-
 logging.basicConfig(level=logging.INFO, stream=sys.stdout)
 
 end_date = '2016-01-06'
@@ -51,8 +50,11 @@ short_name_dict = {SF.ARTIFICIAL_NEURAL_NETWORK: 'ann',
 
 if __name__ == '__main__':
 
-    for start_date in ['2013-01-06', '2013-04-06', '2013-07-06', '2013-10-06',
-                       '2014-01-06'][2:]:
+    for start_date in [
+        '2012-01-06', '2012-04-06', '2012-07-06', '2012-10-06',
+        # '2013-01-06', '2013-04-06', '2013-07-06', '2013-10-06',
+        # '2014-01-06'
+    ]:
 
         path = os.path.join(result_path, 'start_date', '{}'.format(start_date))
 
@@ -91,7 +93,7 @@ if __name__ == '__main__':
 
                     # TODO: add neural network number and random forest tree number
                     result = predict_stock_price_spark(stock_symbol=stock, data_path=data_path,
-                                                       worker_num=worker_number,
+                                                       worker_num=worker_number, rt_trees_num=50,
                                                        train_method=train_method, start_date=start_date,
                                                        end_date=end_date, using_percentage=False,
                                                        test_date=test_date, window_size=window_size)
