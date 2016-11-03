@@ -47,7 +47,7 @@ short_name_dict = {SF.ARTIFICIAL_NEURAL_NETWORK: 'ann',
 
 if __name__ == '__main__':
 
-    for rt_trees_num in range(10, 101, 10):
+    for rt_trees_num in range(41, 59, 2):
 
         path = os.path.join(result_path, 'trees_num', '{}'.format(rt_trees_num))
 
@@ -71,7 +71,7 @@ if __name__ == '__main__':
                                                    "{}_{}".format(short_name_dict[train_method[SF.CHANGE_DIRECTION]],
                                                                   short_name_dict[train_method[SF.CHANGE_AMOUNT]]))
 
-                current_result_path1 = os.path.join(path, "{}_{}_True"
+                current_result_path1 = os.path.join(path, "{}_{}_true"
                                                     .format(short_name_dict[train_method[SF.CHANGE_DIRECTION]],
                                                             short_name_dict[train_method[SF.CHANGE_AMOUNT]]))
             else:
@@ -150,4 +150,4 @@ if __name__ == '__main__':
 
             df.to_csv(os.path.join(current_result_path, 'statistics.csv'), index=False)
             if not df1.empty:
-                df.to_csv(os.path.join(current_result_path1, 'statistics.csv'), index=False)
+                df1.to_csv(os.path.join(current_result_path1, 'statistics.csv'), index=False)
