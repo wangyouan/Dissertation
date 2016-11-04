@@ -51,7 +51,7 @@ class StockForecaster(Constants):
             logger = spark._jvm.org.apache.log4j.LogManager
             self.logger = logger.getLogger(self.__class__.__name__)
             self._predict_system = SparkTrainingSystem(spark, self._train_method, rt_trees_num=rt_trees_num,
-                                                       hidden_layer_num=ann_hidden_nodes)
+                                                       hidden_layer_num=ann_hidden_nodes, worker_num=worker_num)
 
         elif train_system == self.TENSORFLOW:
             self._predict_system = TensorFlowTrainingSystem(self._train_method, rt_trees_num=rt_trees_num,

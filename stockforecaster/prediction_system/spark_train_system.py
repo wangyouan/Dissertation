@@ -15,7 +15,7 @@ from stockforecaster.regression_method.neural_network_regression_spark import Ke
 
 
 class SparkTrainingSystem(Constants):
-    def __init__(self, spark, training_method, hidden_layer_num=None, rt_trees_num=None):
+    def __init__(self, spark, training_method, hidden_layer_num=None, rt_trees_num=None, worker_num=2):
         self._spark = spark
         self._train_method = training_method
         self.logger = spark._jvm.org.apache.log4j.LogManager.getLogger(self.__class__.__name__)
@@ -23,6 +23,8 @@ class SparkTrainingSystem(Constants):
         self.ann_hidden_nodes_num = hidden_layer_num
         if rt_trees_num is not None:
             self.random_forest_tree_number = rt_trees_num
+
+        self.spark_worker_numbers = worker_num
 
     def train(self, features, label):
         if isinstance(self._train_method, dict):
