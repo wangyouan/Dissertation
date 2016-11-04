@@ -47,7 +47,7 @@ short_name_dict = {SF.ARTIFICIAL_NEURAL_NETWORK: 'ann',
 
 if __name__ == '__main__':
 
-    for hidden_nodes_nums in range(16, 32, 5):
+    for hidden_nodes_nums in [25]:
 
         path = os.path.join(result_path, 'hidden', '{}'.format(hidden_nodes_nums))
 

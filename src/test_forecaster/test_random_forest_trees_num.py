@@ -47,15 +47,15 @@ short_name_dict = {SF.ARTIFICIAL_NEURAL_NETWORK: 'ann',
 
 if __name__ == '__main__':
 
-    for rt_trees_num in [41, 45, 49, 53, 57, 11, 15, 19, 23, 27]:
+    for rt_trees_num in range(10, 101, 10):
 
         path = os.path.join(result_path, 'trees_num', '{}'.format(rt_trees_num))
 
         for train_method in [
             # {SF.CHANGE_AMOUNT: SF.ARTIFICIAL_NEURAL_NETWORK,
             #  SF.CHANGE_DIRECTION: SF.ARTIFICIAL_NEURAL_NETWORK},
-            {SF.CHANGE_AMOUNT: SF.RANDOM_FOREST,
-             SF.CHANGE_DIRECTION: SF.RANDOM_FOREST},
+            # {SF.CHANGE_AMOUNT: SF.RANDOM_FOREST,
+            #  SF.CHANGE_DIRECTION: SF.RANDOM_FOREST},
             # {SF.CHANGE_AMOUNT: SF.RANDOM_FOREST,
             #  SF.CHANGE_DIRECTION: SF.LOGISTIC_REGRESSIONr},
             # SF.ARTIFICIAL_NEURAL_NETWORK,
