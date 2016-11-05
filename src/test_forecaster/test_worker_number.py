@@ -48,7 +48,7 @@ short_name_dict = {SF.ARTIFICIAL_NEURAL_NETWORK: 'ann',
 
 if __name__ == '__main__':
 
-    for worker_number in [2, 4, 6, 8, 10, 12][1:2]:
+    for worker_number in [2, 4, 6, 8, 10, 12][2:3]:
 
         path = os.path.join(result_path, 'worker_num', '{}'.format(worker_number))
 
