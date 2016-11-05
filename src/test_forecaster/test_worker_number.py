@@ -48,19 +48,19 @@ short_name_dict = {SF.ARTIFICIAL_NEURAL_NETWORK: 'ann',
 
 if __name__ == '__main__':
 
-    for worker_number in [2, 4, 6, 8, 10, 12][2:3]:
+    for worker_number in [2, 4, 6, 8, 10, 12][3:4]:
 
         path = os.path.join(result_path, 'worker_num', '{}'.format(worker_number))
 
         for train_method in [
             {SF.CHANGE_AMOUNT: SF.ARTIFICIAL_NEURAL_NETWORK,
              SF.CHANGE_DIRECTION: SF.ARTIFICIAL_NEURAL_NETWORK},
-            # {SF.CHANGE_AMOUNT: SF.LINEAR_REGRESSION,
-            #  SF.CHANGE_DIRECTION: SF.RANDOM_FOREST},
-            # {SF.CHANGE_AMOUNT: SF.RANDOM_FOREST,
-            #  SF.CHANGE_DIRECTION: SF.LOGISTIC_REGRESSION},
+            {SF.CHANGE_AMOUNT: SF.LINEAR_REGRESSION,
+             SF.CHANGE_DIRECTION: SF.RANDOM_FOREST},
+            {SF.CHANGE_AMOUNT: SF.RANDOM_FOREST,
+             SF.CHANGE_DIRECTION: SF.LOGISTIC_REGRESSION},
             SF.ARTIFICIAL_NEURAL_NETWORK,
-            # SF.LINEAR_REGRESSION, SF.RANDOM_FOREST,
+            SF.LINEAR_REGRESSION, SF.RANDOM_FOREST,
         ]:
             df = pd.DataFrame(columns=['stock', 'sdpr', 'mse', 'mape', 'time'])
 
