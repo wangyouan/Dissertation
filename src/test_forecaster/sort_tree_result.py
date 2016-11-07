@@ -45,5 +45,28 @@ def sort_tree_result():
 
 
 def sort_ann_result():
-    root_path = '/Users/warn/Documents/MSc(CS) Dissertation/Some Data/DataFrame/hidden'
+    root_path = '/Users/warn/Documents/MScDissertation/Data/DataFrame/hidden'
+    ann_df = pd.DataFrame(columns=['mse', 'mape', 'cdc', 'time'])
+    ann_ann_df = pd.DataFrame(columns=['mse', 'mape', 'cdc', 'time'])
+    ann_ann_true_df = pd.DataFrame(columns=['mse', 'mape', 'cdc', 'time'])
 
+    for x, y, z in os.walk(root_path):
+        if 'ann' not in y:
+            continue
+
+        df = pd.read_csv(os.path.join(x, 'ann', 'statistics.csv'), index_col=0)
+        df = df[df.index != '^HSI']
+        df['cdc'] = df['sdpr']
+        ann_df.loc[x.split('/')[-1]] = df.mean()
+
+        df = pd.read_csv(os.path.join(x, 'ann_ann', 'statistics.csv'), index_col=0)
+        df = df[df.index != '^HSI']
+        df['cdc'] = df['sdpr']
+        ann_ann_df.loc[x.split('/')[-1]] = df.mean()
+
+        df = pd.read_csv(os.path.join(x, 'ann_ann_True', 'statistics.csv'), index_col=0)
+        df = df[df.index != '^HSI']
+        df['cdc'] = df['sdpr']
+        ann_ann_true_df.loc[x.split('/')[-1]] = df.mean()
+
+    return ann_df, ann_ann_df, ann_ann_true_df
