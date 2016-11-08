@@ -70,3 +70,24 @@ def sort_ann_result():
         ann_ann_true_df.loc[x.split('/')[-1]] = df.mean()
 
     return ann_df, ann_ann_df, ann_ann_true_df
+
+
+def sort_worker_num_result():
+    root_path = '/Users/warn/Documents/MScDissertation/Data/DataFrame/worker_num'
+    keys = ['ann', 'ann_ann', 'lrc', 'lrr_rt', 'rt', 'rt_lrc']
+    df_dict = {}
+    for key in keys:
+        df_dict[key] = pd.DataFrame(columns=['mse', 'mape', 'cdc', 'time'])
+
+    for worker_num in os.listdir(root_path):
+        if 'ann' not in y:
+            continue
+
+        for key in keys:
+            df = pd.read_csv(os.path.join(root_path, worker_num, key, 'statistics.csv'), index_col=0)
+            df = df[df.index != '^HSI']
+
+            df['cdc'] = df['sdpr']
+            df_dict[key].loc[worker_num] = df.mean()
+
+    return df_dict

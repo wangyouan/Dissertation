@@ -48,7 +48,7 @@ short_name_dict = {SF.ARTIFICIAL_NEURAL_NETWORK: 'ann',
 
 if __name__ == '__main__':
 
-    for worker_number in [2, 4, 6, 8, 10, 12][5:]:
+    for worker_number in [2, 4, 6, 8, 10, 12][:1]:
 
         path = os.path.join(result_path, 'worker_num', '{}'.format(worker_number))
 
@@ -61,7 +61,7 @@ if __name__ == '__main__':
              SF.CHANGE_DIRECTION: SF.LOGISTIC_REGRESSION},
             SF.ARTIFICIAL_NEURAL_NETWORK,
             SF.LINEAR_REGRESSION, SF.RANDOM_FOREST,
-        ]:
+        ][-1:]:
             df = pd.DataFrame(columns=['stock', 'sdpr', 'mse', 'mape', 'time'])
 
             # print train_method
@@ -86,7 +86,7 @@ if __name__ == '__main__':
                 try:
 
                     result = predict_stock_price_spark(stock_symbol=stock, data_path=data_path,
-                                                       worker_num=worker_number, rt_trees_num=50,
+                                                       worker_num=worker_number, rt_trees_num=500,
                                                        train_method=train_method, start_date=start_date,
                                                        end_date=end_date, using_percentage=False,
                                                        test_date=test_date, window_size=window_size)
