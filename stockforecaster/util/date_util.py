@@ -10,4 +10,7 @@ import datetime
 
 
 def str2datetime(date_str):
-    return datetime.datetime.strptime(date_str, '%Y-%m-%d')
+    if hasattr(date_str, 'year'):
+        return date_str
+    else:
+        return datetime.datetime.strptime(date_str, '%Y-%m-%d')
