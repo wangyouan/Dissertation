@@ -51,22 +51,22 @@ short_name_dict = {SF.ARTIFICIAL_NEURAL_NETWORK: 'ann',
 if __name__ == '__main__':
 
     for start_date in [
-        '2012-01-06', '2012-04-06', '2012-07-06', '2012-10-06',
-        # '2013-01-06', '2013-04-06', '2013-07-06', '2013-10-06',
-        # '2014-01-06'
-    ]:
+                          '2012-01-06', '2012-04-06', '2012-07-06', '2012-10-06',
+                          # '2013-01-06', '2013-04-06', '2013-07-06', '2013-10-06',
+                          # '2014-01-06'
+                      ][-1:]:
 
         path = os.path.join(result_path, 'start_date', '{}'.format(start_date))
 
         for train_method in [
-            {SF.CHANGE_AMOUNT: SF.ARTIFICIAL_NEURAL_NETWORK,
-             SF.CHANGE_DIRECTION: SF.ARTIFICIAL_NEURAL_NETWORK},
-            {SF.CHANGE_AMOUNT: SF.LINEAR_REGRESSION,
-             SF.CHANGE_DIRECTION: SF.RANDOM_FOREST},
-            {SF.CHANGE_AMOUNT: SF.RANDOM_FOREST,
-             SF.CHANGE_DIRECTION: SF.LOGISTIC_REGRESSION},
+            # {SF.CHANGE_AMOUNT: SF.ARTIFICIAL_NEURAL_NETWORK,
+            #  SF.CHANGE_DIRECTION: SF.ARTIFICIAL_NEURAL_NETWORK},
+            # {SF.CHANGE_AMOUNT: SF.LINEAR_REGRESSION,
+            #  SF.CHANGE_DIRECTION: SF.RANDOM_FOREST},
+            # {SF.CHANGE_AMOUNT: SF.RANDOM_FOREST,
+            #  SF.CHANGE_DIRECTION: SF.LOGISTIC_REGRESSION},
             SF.ARTIFICIAL_NEURAL_NETWORK,
-            SF.LINEAR_REGRESSION, SF.RANDOM_FOREST,
+            # SF.LINEAR_REGRESSION, SF.RANDOM_FOREST,
         ]:
             df = pd.DataFrame(columns=['stock', 'sdpr', 'mse', 'mape', 'time'])
             df1 = pd.DataFrame(columns=['stock', 'sdpr', 'mse', 'mape', 'time'])

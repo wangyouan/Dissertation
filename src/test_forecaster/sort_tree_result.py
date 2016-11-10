@@ -8,6 +8,7 @@
 
 
 import os
+import datetime
 
 import pandas as pd
 
@@ -91,3 +92,23 @@ def sort_worker_num_result():
             df_dict[key].loc[worker_num] = df.mean()
 
     return df_dict
+
+
+def sort_start_date_result():
+    root_path = '/Users/warn/Documents/MScDissertation/Data/DataFrame/start_date'
+    keys = ['ann', 'ann_ann', 'lrc', 'lrr_rt', 'rt', 'rt_lrc']
+    mse = pd.DataFrame(columns=keys)
+    mape = pd.DataFrame(columns=keys)
+    cdc = pd.DataFrame(columns=keys)
+
+    for start_date in os.listdir(root_path):
+        index = datetime.datetime.strptime(start_date, '%Y-%m-%d')
+        for key in keys:
+            df = pd.read_csv(os.path.join(root_path, start_date, key, 'statistics.csv'), index_col=0)
+            df = df[df.index != '^HSI']
+            mean = df.mean()
+            mse.loc[index, key] = mean['mse']
+            mape.loc[index, key] = mean['mape']
+            cdc.loc[index, key] = mean['sdpr']
+
+    return mse, mape, cdc
