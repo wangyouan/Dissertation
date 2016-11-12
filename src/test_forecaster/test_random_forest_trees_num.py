@@ -38,7 +38,7 @@ hsi_stock_list = ['0001.HK', '0002.HK', '0003.HK', '0004.HK', '0005.HK', '0006.H
                   '0151.HK', '0267.HK', '0293.HK', '0386.HK', '0388.HK', '0494.HK', '0688.HK', '0700.HK', '0762.HK',
                   '0823.HK', '0836.HK', '0857.HK', '0883.HK', '0939.HK', '0941.HK', '0992.HK', '1038.HK', '1044.HK',
                   '1088.HK', '1109.HK', '1299.HK', '1398.HK', '1880.HK', '1928.HK', '2018.HK', '2318.HK', '2319.HK',
-                  '2388.HK', '2628.HK', '3328.HK', '3988.HK', '6823.HK', '^HSI']
+                  '2388.HK', '2628.HK', '3328.HK', '3988.HK', '6823.HK']
 
 short_name_dict = {SF.ARTIFICIAL_NEURAL_NETWORK: 'ann',
                    SF.LINEAR_REGRESSION: 'lrc',
@@ -47,7 +47,7 @@ short_name_dict = {SF.ARTIFICIAL_NEURAL_NETWORK: 'ann',
 
 if __name__ == '__main__':
 
-    for rt_trees_num in range(10, 101, 10):
+    for rt_trees_num in [20]:
 
         path = os.path.join(result_path, 'trees_num', '{}'.format(rt_trees_num))
 

@@ -22,7 +22,7 @@ class Parameters(object):
 
     # neural network
     ann_epoch_number = 100
-    ann_hidden_nodes_num = None
+    ann_hidden_nodes_num = 30
 
     # data propressing
     feature_range = (-1, 1)

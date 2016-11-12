@@ -19,7 +19,7 @@ from stockforecaster.util.evaluate_func import calculate_mean_squared_error, \
 start_date = '2013-07-06'
 end_date = '2016-01-06'
 test_date = '2015-01-06'
-worker_number = 3
+worker_number = 2
 window_size = 6
 if os.uname()[1] == 'ewin3011':
     root_path = '/home/wangzg/Documents/WangYouan/.dissertation/Dissertation'
@@ -38,7 +38,7 @@ hsi_stock_list = ['0001.HK', '0002.HK', '0003.HK', '0004.HK', '0005.HK', '0006.H
                   '0151.HK', '0267.HK', '0293.HK', '0386.HK', '0388.HK', '0494.HK', '0688.HK', '0700.HK', '0762.HK',
                   '0823.HK', '0836.HK', '0857.HK', '0883.HK', '0939.HK', '0941.HK', '0992.HK', '1038.HK', '1044.HK',
                   '1088.HK', '1109.HK', '1299.HK', '1398.HK', '1880.HK', '1928.HK', '2018.HK', '2318.HK', '2319.HK',
-                  '2388.HK', '2628.HK', '3328.HK', '3988.HK', '6823.HK', '^HSI']
+                  '2388.HK', '2628.HK', '3328.HK', '3988.HK', '6823.HK']
 
 short_name_dict = {SF.ARTIFICIAL_NEURAL_NETWORK: 'ann',
                    SF.LINEAR_REGRESSION: 'lrc',
@@ -47,13 +47,13 @@ short_name_dict = {SF.ARTIFICIAL_NEURAL_NETWORK: 'ann',
 
 if __name__ == '__main__':
 
-    for hidden_nodes_nums in [5, 10, 15]:
+    for hidden_nodes_nums in [30]:
 
         path = os.path.join(result_path, 'hidden', '{}'.format(hidden_nodes_nums))
 
         for train_method in [
-            {SF.CHANGE_AMOUNT: SF.ARTIFICIAL_NEURAL_NETWORK,
-             SF.CHANGE_DIRECTION: SF.ARTIFICIAL_NEURAL_NETWORK},
+            # {SF.CHANGE_AMOUNT: SF.ARTIFICIAL_NEURAL_NETWORK,
+            #  SF.CHANGE_DIRECTION: SF.ARTIFICIAL_NEURAL_NETWORK},
             # {SF.CHANGE_AMOUNT: SF.LINEAR_REGRESSION,
             #  SF.CHANGE_DIRECTION: SF.RANDOM_FOREST},
             # {SF.CHANGE_AMOUNT: SF.RANDOM_FOREST,
