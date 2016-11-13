@@ -87,7 +87,7 @@ if __name__ == '__main__':
                 try:
 
                     result = predict_stock_price_spark(stock_symbol=stock, data_path=data_path,
-                                                       worker_num=worker_number, rt_trees_num=100,
+                                                       worker_num=worker_number, rt_trees_num=200,
                                                        train_method=train_method, start_date=start_date,
                                                        end_date=end_date, using_percentage=False,
                                                        test_date=test_date, window_size=window_size)
