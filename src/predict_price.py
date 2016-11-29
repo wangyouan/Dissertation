@@ -47,6 +47,8 @@ else:
 
 data_path = 'data'
 model_path = 'models'
+
+# features that used to predict stock price
 features = {
     const.PRICE_TYPE: const.STOCK_CLOSE,
     const.STOCK_PRICE: {const.DATA_PERIOD: 5},
@@ -90,6 +92,7 @@ features = {
     ]
 }
 
+# use to judge system type
 if sys.platform == 'darwin':
     data_path = os.path.join('..', data_path)
     model_path = os.path.join('..', model_path)

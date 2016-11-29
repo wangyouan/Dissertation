@@ -53,7 +53,7 @@ if __name__ == "__main__":
     # for i in range(68, 69):
     #     stock_symbol.append("{:04d}.HK".format(i))
     # print stock_symbol
-    for symbol in hsi_stock_symbol:
+    for symbol in hsi_stock_symbol[:1]:
         try:
             get_all_date_about_stock(symbol, save_path=save_path)
         except Exception:
